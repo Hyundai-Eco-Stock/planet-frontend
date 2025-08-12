@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 전역 변수 */
+:root {
+    --accent: 16 185 129;
+    /* emerald-500 as RGB */
+    --accent-600: 5 150 105;
+    /* emerald-600 */
+}
+
+/* 세이프 에어리어 유틸 (iOS 홈 인디케이터 영역) */
+@layer utilities {
+    .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* 버튼 프리셋 */
+@layer components {
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-xl px-4 py-3 text-base font-bold text-white shadow-sm transition disabled:opacity-45 disabled:saturate-50 disabled:cursor-not-allowed;
+        background-color: rgb(var(--accent) / 1);
+    }
+
+    .btn-primary:hover {
+        background-color: rgb(var(--accent-600) / 1);
+    }
+
+    .btn-primary:active {
+        transform: translateY(1px);
+    }
+}
+
+/* 입력 포커스(커스텀 인풋이 사용하는 클래스와 연동) */
+@layer components {
+    .input-border-default:focus {
+        @apply border-gray-400;
+        box-shadow: 0 0 0 3px rgba(156, 163, 175, .25);
+        /* gray-400 glow */
+        outline: none;
+    }
+
+    .input-border-active:focus {
+        border-color: rgb(var(--accent));
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, .25);
+        outline: none;
+    }
+}
