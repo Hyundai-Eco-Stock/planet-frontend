@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment {
-        APP_NAME     = 'spring-security-frontend-artifacts'
+        APP_NAME     = 'planet-frontend-artifacts'
         BUILD_DIR    = 'dist'                         // Vite 기본 산출물
         DEPLOY_ROOT  = "/var/www/${APP_NAME}"        // /var/www/<app>
         RELEASES_DIR = "${DEPLOY_ROOT}/releases"     // /releases/<timestamp>
