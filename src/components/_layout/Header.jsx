@@ -1,3 +1,5 @@
+import styles from "./Header.module.css";
+
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -6,9 +8,8 @@ import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 import useAuthStore from "@/store/authStore";
 
-import styles from "./Header.module.css";
-import ProfileButton from "@components/auth/ProfileButtons";
-import { logout } from "../../api/auth/auth.api";
+import ProfileButton from "@/components/auth/ProfileButtons";
+import { logout } from "@/api/auth/auth.api";
 
 const Header = () => {
     const navigate = useNavigate();

@@ -48,3 +48,30 @@
         outline: none;
     }
 }
+
+/* 폰트 */
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard-Bold';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+html,
+body {
+    font-family: 'Pretendard-Regular', sans-serif;
+    letter-spacing: -0.025rem;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}

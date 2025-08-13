@@ -9,7 +9,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'), // @를 src 폴더로 매핑
-      '@components': path.resolve(__dirname, './src/components'),
     },
   },
   css: {

@@ -3,12 +3,12 @@ import Swal from 'sweetalert2';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import { CustomCommonInput } from "../components/_custom/CustomInputs";
-import { CustomCommonButton } from "../components/_custom/CustomButtons";
+import { CustomCommonInput } from "@/components/_custom/CustomInputs";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 
 import useAuthStore from '@/store/authStore';
-import "../main.css"; // 전역 공통 유틸(@layer) 사용
-import { signUpByKakao } from "../api/auth/auth.api";
+import "@/main.css"; // 전역 공통 유틸(@layer) 사용
+import { signUpByKakao } from "@/api/auth/auth.api";
 
 const SignUp = () => {
     const location = useLocation();

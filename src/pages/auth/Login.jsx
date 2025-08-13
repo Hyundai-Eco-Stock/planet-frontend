@@ -1,4 +1,4 @@
-import { KakaoLoginButton } from "../components/auth/SocialLoginButtons";
+import { KakaoLoginButton } from "@/components/auth/SocialLoginButtons";
 
 export default function Login() {
 
