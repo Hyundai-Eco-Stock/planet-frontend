@@ -14,7 +14,7 @@ import HomeMain from '@/pages/home/Home'
 // 인증/인가
 import Login from '@/pages/auth/Login'
 import LoginSuccess from '@/pages/auth/LoginSuccess'
-import SignUp from '@/pages/auth/SignUp'
+import OAuthSignUp from '@/pages/auth/OAuthSignUp'
 import LocalSignUp from '@/pages/auth/LocalSignUp'
 
 // 쇼핑
@@ -58,7 +58,7 @@ function App() {
 					{/* 인증/인가 */}
 					<Route path="/login" element={<Login />} />
 					<Route path="/login/success" element={<LoginSuccess />} />
-					<Route path="/signup" element={<SignUp />} />
+					<Route path="/signup/oauth" element={<OAuthSignUp />} />
 					<Route path="/signup/local" element={<LocalSignUp />} />
 
 					{/* 쇼핑 */}
