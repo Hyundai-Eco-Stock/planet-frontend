@@ -12,9 +12,10 @@ import Footer from '@/components/_layout/Footer'
 import HomeMain from '@/pages/home/Home'
 
 // 인증/인가
+import Login from '@/pages/auth/Login'
 import LoginSuccess from '@/pages/auth/LoginSuccess'
 import SignUp from '@/pages/auth/SignUp'
-import Login from '@/pages/auth/Login'
+import LocalSignUp from '@/pages/auth/LocalSignUp'
 
 // 쇼핑
 import ShoppingMain from '@/pages/shopping/ShoppingMain'
@@ -50,6 +51,7 @@ function App() {
 					<Route path="/login" element={<Login />} />
 					<Route path="/login/success" element={<LoginSuccess />} />
 					<Route path="/signup" element={<SignUp />} />
+					<Route path="/signup/local" element={<LocalSignUp />} />
 
 					{/* 쇼핑 */}
 					<Route path="/shopping" element={<Navigate to="/shopping/main" />} />
