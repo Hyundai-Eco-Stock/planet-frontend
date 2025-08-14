@@ -13,18 +13,18 @@ export const regenerateAccessToken = async () => {
  * @param {*} profileImage 
  */
 export const signUpByKakao = async (email, name, password, profileImage) => {
-	const signUpData = {
-		email,
-		name,
-		password
-	};
+	const signUpData = { email, name, password };
 
 	const multipartForm = new FormData();
 	multipartForm.append(
 		"signUp",
 		new Blob([JSON.stringify(signUpData)], { type: "application/json" })
 	);
-	if (profileImage) multipartForm.append("profileImage", profileImage);
+
+	if (profileImage) {
+		const filename = profileImage.name || "profile.jpg";
+		multipartForm.append("profileImage", profileImage, filename);
+	}
 
 	await apiClient.post("/auth/signup/kakao", multipartForm, {
 		headers: { "Content-Type": "multipart/form-data" },

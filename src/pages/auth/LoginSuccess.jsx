@@ -11,7 +11,7 @@ export default function LoginSuccess() {
     const accessToken = queryParams.get("accessToken");
     const email = queryParams.get("email");
     const name = queryParams.get("name");
-    const profile = queryParams.get("profile");
+    const profileUrl = queryParams.get("profileUrl");
 
     useEffect(() => {
         if (accessToken && email && name) {
@@ -21,7 +21,7 @@ export default function LoginSuccess() {
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
-            useAuthStore.getState().setProfile(profile);
+            useAuthStore.getState().setProfile(profileUrl);
             
             // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/login/success");

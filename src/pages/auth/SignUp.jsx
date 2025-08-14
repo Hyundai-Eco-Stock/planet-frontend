@@ -18,10 +18,11 @@ const SignUp = () => {
     const accessToken = queryParams.get("accessToken");
     const email = queryParams.get("email") || "";
     const nameParam = queryParams.get("name") || "";
-    const profileParam = queryParams.get("profile") || "";
+    const profileUrlParam = queryParams.get("profileUrl") || "";
 
     const [name, setName] = useState(nameParam);
-    const [profile, setProfile] = useState(profileParam);
+    const [profileUrl, setProfileUrl] = useState(profileUrlParam); // 프로필 url
+    const [profileFile, setProfileFile] = useState(null); // 파일 원본 저장
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
@@ -33,7 +34,7 @@ const SignUp = () => {
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
-            useAuthStore.getState().setProfile(profile);
+            useAuthStore.getState().setProfile(profileUrl);
 
             // URL에서 토큰 흔적 제거 후 이동(
             window.history.replaceState({}, "", "/signup");
@@ -51,8 +52,8 @@ const SignUp = () => {
     const handleProfileChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setProfile(imageUrl);
+            setProfileUrl(URL.createObjectURL(file)); // 미리보기 용
+            setProfileFile(file); // 서버 전송 용
         }
     };
 
@@ -62,7 +63,7 @@ const SignUp = () => {
             return;
         }
         console.log("회원가입 요청");
-        signUpByKakao(email, name, password, profile)
+        signUpByKakao(email, name, password, profileFile)
             .then(() => {
                 Swal.fire({
                     icon: "success",
@@ -98,7 +99,7 @@ const SignUp = () => {
                     <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
                     <div className="flex items-center gap-3">
                         <img
-                            src={profile || "/placeholder-avatar.svg"}
+                            src={profileUrl || "/placeholder-avatar.svg"}
                             alt="profile"
                             className="w-24 h-24 rounded-full object-cover bg-gray-100 border border-gray-200"
                         />

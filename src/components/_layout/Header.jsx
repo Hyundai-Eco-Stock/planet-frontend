@@ -16,7 +16,6 @@ const Header = () => {
     const { pathname } = useLocation();
     const [open, setOpen] = useState(false);
 
-    const clearAuth = useAuthStore((state) => state.clearAuth);
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
     const profile = useAuthStore((s) => s.profile);
@@ -33,14 +32,14 @@ const Header = () => {
         return () => window.removeEventListener("keydown", onKey);
     }, []);
 
-    const handleLogout = async() => {
-        // logout().then(() => {
-        //     clearAuth();
-        //     navigate("/home", { replace: true });
-        // })
+    const handleLogout = async () => {
         await logout();
         useAuthStore.getState().clearAuth();
         navigate("/home", { replace: true });
+    }
+
+    const goToLogin = () => {
+        navigate("/login");
     }
 
     return (
@@ -66,10 +65,17 @@ const Header = () => {
                 </div>
 
                 {/* 오른쪽 */}
-                <div style={{ display: "flex", gap: "1rem" }}>
-                    <ProfileButton />
+                <div className="flex gap-3 text-center items-center">
                     {
-                        name && email && profile && <button onClick={handleLogout}>로그아웃</button>
+                        name && email && profile
+                            ? <>
+                                <ProfileButton />
+                                <span>{name} 님</span>
+                                <button onClick={handleLogout}>로그아웃</button>
+                            </>
+                            : <button onClick={goToLogin}>
+                                로그인이 필요합니다
+                            </button>
                     }
                 </div>
 

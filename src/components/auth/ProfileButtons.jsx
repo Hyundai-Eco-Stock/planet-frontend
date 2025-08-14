@@ -9,31 +9,17 @@ import useAuthStore from "@/store/authStore";
  */
 const ProfileButton = () => {
 
-    const navigate = useNavigate();
-
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
     const profile = useAuthStore((s) => s.profile);
 
-    const goToLogin = () => {
-        navigate("/login");
-    }
-
     return (
-        <div>
-            {profile ? (
-                <img
-                    src={profile}
-                    alt={name ?? email ?? "profile"}
-                    referrerPolicy="no-referrer"
-                    style={{ width: "50px", borderRadius: '50%' }}
-                />
-            ) : (
-                <button onClick={goToLogin}>
-                    로그인이 필요합니다
-                </button>
-            )}
-        </div>
+        <img
+            src={profile}
+            alt={name ?? email ?? "profile"}
+            referrerPolicy="no-referrer"
+            style={{ width: "50px", borderRadius: '50%' }}
+        />
     );
 }
 /**
