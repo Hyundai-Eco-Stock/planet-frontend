@@ -1,6 +1,6 @@
 import './App.css'
 
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { regenerateAccessToken } from './api/auth/auth.api'
 import useAuthStore from '@/store/authStore'
@@ -27,6 +27,14 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 import MyPageMain from '@/pages/mypage/MyPageMain'
 
 function App() {
+
+	const location = useLocation();
+
+	// 푸터 안보이게 할 경로 
+	const hideFooterPaths = [
+		"/signup/local",
+	];
+	const hideFooter = hideFooterPaths.includes(location.pathname);
 
 	// access 토큰 재발급
 	// const getAccessToken = async () => {
@@ -66,9 +74,8 @@ function App() {
 					<Route path="/my-page/main" element={<MyPageMain />} />
 				</Routes>
 			</main>
-			<Footer />
+			{!hideFooter && <Footer />}
 		</div>
-
 	)
 }
 
