@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { KakaoLoginButton } from "@/components/auth/SocialLoginButtons";
-import { CustomCommonInput } from "../../components/_custom/CustomInputs";
-import { CustomCommonButton } from "../../components/_custom/CustomButtons";
-import SpeechBubble from "../../components/auth/SpeechBubble";
-import { localLogin } from "../../api/auth/auth.api";
-import useAuthStore from "../../store/authStore";
+import { CustomCommonInput } from "@/components/_custom/CustomInputs";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import SpeechBubble from "@/components/auth/SpeechBubble";
+import { localLogin } from "@/api/auth/auth.api";
+import useAuthStore from "@/store/authStore";
 
 const Login = () => {
 
@@ -28,7 +28,7 @@ const Login = () => {
         } catch (error) {
             console.error("Login failed:", error);
             // You can add user-facing error handling here, like a toast or a message.
-        }
+        } 
     };
 
     return (
