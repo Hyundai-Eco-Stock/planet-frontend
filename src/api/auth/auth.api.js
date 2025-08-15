@@ -1,4 +1,4 @@
-import apiClient from "../_base/apiClient";
+import apiClient from "@/api/_base/apiClient";
 
 export const regenerateAccessToken = async () => {
 	const response = await apiClient.post('/auth/access-token/regenerate');
