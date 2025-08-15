@@ -25,6 +25,7 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
+import EcoStockCertificate from './pages/eco_stock/EcoStockCertificate'
 
 function App() {
 
@@ -68,6 +69,7 @@ function App() {
 					{/* 에코 스톡 */}
 					<Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
 					<Route path="/eco-stock/main" element={<EcoStockMain />} />
+					<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
 
 					{/* 마이 페이지 */}
 					<Route path="/my-page" element={<Navigate to="/my-page/main" />} />
