@@ -5,6 +5,11 @@ export const regenerateAccessToken = async () => {
 	return response;
 }
 
+export const localLogin = async (email, password) => {
+	const response = await apiClient.post('/auth/login', { email, password });
+	return response;
+}
+
 /**
  * 카카오 회원가입 후 회원가입 폼 내용과 함께 가입 요청
  * @param {String} email 

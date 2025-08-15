@@ -5,20 +5,30 @@ import { KakaoLoginButton } from "@/components/auth/SocialLoginButtons";
 import { CustomCommonInput } from "../../components/_custom/CustomInputs";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 import SpeechBubble from "../../components/auth/SpeechBubble";
+import { localLogin } from "../../api/auth/auth.api";
+import useAuthStore from "../../store/authStore";
 
 const Login = () => {
-
-    const handleLocalLogin = () => {
-
-    }
 
     const navigate = useNavigate();
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
+    const { setAccessToken, setEmail, setName, setProfile } = useAuthStore();
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        // TODO: 로그인 API 연동
+        try {
+            const response = await localLogin(id, pw);
+            const { accessToken, email, name, profileUrl } = response.data;
+            setAccessToken(accessToken);
+            setEmail(email);
+            setName(name);
+            setProfile(profileUrl);
+            navigate("/");
+        } catch (error) {
+            console.error("Login failed:", error);
+            // You can add user-facing error handling here, like a toast or a message.
+        }
     };
 
     return (
@@ -50,7 +60,6 @@ const Login = () => {
                 <CustomCommonButton
                     type="submit"
                     children="로그인"
-                    onClick={handleLocalLogin}
                 />
             </form>
 
