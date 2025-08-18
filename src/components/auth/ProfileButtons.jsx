@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+
 import useAuthStore from "@/store/authStore";
 
 /**
@@ -14,21 +17,23 @@ const ProfileButton = () => {
     const profile = useAuthStore((s) => s.profile);
 
     return (
-        <img
-            src={profile}
-            alt={name ?? email ?? "profile"}
-            referrerPolicy="no-referrer"
-            style={{ width: "50px", borderRadius: '50%' }}
-        />
+        <>
+            {profile ? (
+                <img
+                    src={profile}
+                    alt={name ?? email ?? "profile"}
+                    referrerPolicy="no-referrer"
+                    style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+                />
+            ) : (
+                <FontAwesomeIcon
+                    icon={faUserCircle}
+                    style={{ fontSize: "50px", color: "#ccc" }}
+                />
+            )}
+        </>
     );
 }
-/**
- * @components 회원가입과 회원 수정에 사용할 프로필 이미지
- * 
- * @returns
- */
-const Profile = () => {
 
-}
 
 export default ProfileButton;
