@@ -1,29 +1,33 @@
 pipeline {
-  agent none
+  agent any
   options { timestamps() }
 
   stages {
     stage('Checkout') {
-      agent any
       steps {
-        checkout scm   // 멀티브랜치면 이대로, 단일잡이면 git url/cred로 체크아웃
+        checkout scm
       }
     }
 
-    stage('Build (Node 23)') {
-      agent { docker { image 'node:23' } }
-      environment {
-        // 파일 크리덴셜(.env)을 워크스페이스에 복사
-      }
+    stage('Build (Node via nvm)') {
       steps {
         withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
           sh '''
-            echo "[INFO] bring secret env file"
-            cp "$ENV_FILE" .env.production
+            set -euxo pipefail
 
-            echo "[INFO] Node version"
+            # nvm 설치 (재실행시 캐시됨)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] || curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+            . "$NVM_DIR/nvm.sh"
+
+            # Node 23 설치/사용
+            nvm install 23
+            nvm use 23
             node -v
             npm -v
+
+            # 프론트 빌드용 환경파일 주입
+            cp "$ENV_FILE" .env.production
 
             npm ci || npm install
             npm run build
@@ -32,12 +36,7 @@ pipeline {
       }
     }
 
-    stage('Deploy to S3') {
-      // AWS CLI가 들어있는 공식 이미지 사용
-      agent { docker { image 'amazon/aws-cli:2' } }
-      environment {
-        // env 파일을 쉘 환경변수로 export
-      }
+    stage('Deploy (awscli)') {
       steps {
         withCredentials([
           usernamePassword(credentialsId: 'aws-creds',
@@ -46,13 +45,23 @@ pipeline {
           file(credentialsId: 'env', variable: 'ENV_FILE')
         ]) {
           sh '''
-            set -eu
-            # .env.production 에서 변수들을 export
+            set -euxo pipefail
+
+            # env 파일을 환경변수로 export
             set -a
             . "$ENV_FILE"
             set +a
 
-            echo "[INFO] Deploy dist -> s3://$BUCKET_NAME (region=$AWS_REGION)"
+            # awscli 설치 (없으면)
+            if ! command -v aws >/dev/null 2>&1; then
+              python3 -m pip install --user --upgrade awscli
+              export PATH="$HOME/.local/bin:$PATH"
+            fi
+
+            aws --version
+            test -d dist
+
+            echo "[INFO] Sync to s3://$BUCKET_NAME (region=$AWS_REGION)"
             aws s3 sync dist "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
 
             echo "[INFO] Invalidate CloudFront: $CLOUDFRONT_ID"
