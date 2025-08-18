@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'node:20-alpine'
-      args '--user root'
-    }
-  }
+  agent any
   
   options { 
     timestamps()
@@ -12,41 +7,27 @@ pipeline {
   }
   
   stages {
-    stage('Setup') {
-      steps {
-        sh '''
-          echo "[INFO] Installing dependencies..."
-          apk add --no-cache python3 py3-pip curl unzip
-          
-          echo "[INFO] Installing AWS CLI..."
-          pip3 install awscli --break-system-packages
-          
-          echo "[INFO] Tool versions:"
-          node -v
-          npm -v
-          aws --version
-        '''
-      }
-    }
-    
-    stage('Build') {
+    stage('Setup & Build') {
       steps {
         withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
           sh '''
-            echo "[INFO] Setting up environment..."
+            echo "[INFO] Installing Node.js 20 LTS..."
+            if [ ! -f /tmp/node ]; then
+              curl -fsSL https://nodejs.org/dist/v20.18.1/node-v20.18.1-linux-x64.tar.gz | tar -xz -C /tmp --strip-components=1
+            fi
+            export PATH="/tmp/bin:$PATH"
+            
+            node -v && npm -v
+            
             cp "$ENV_FILE" .env.production
             
-            echo "[INFO] Installing dependencies..."
             if [ -f package-lock.json ]; then
               npm ci --prefer-offline --no-audit
             else
               npm install --prefer-offline --no-audit
             fi
             
-            echo "[INFO] Building project..."
             npm run build
-            
-            echo "[INFO] Build complete!"
             ls -la dist/
           '''
         }
@@ -68,50 +49,19 @@ pipeline {
           file(credentialsId: 'env', variable: 'ENV_FILE')
         ]) {
           sh '''
-            # Load environment variables
-            set -a
-            . "$ENV_FILE"
-            set +a
+            set -a; . "$ENV_FILE"; set +a
             
-            echo "[INFO] Deploying to S3..."
-            aws s3 sync dist/ "s3://$BUCKET_NAME" \
-              --delete \
-              --region "$AWS_REGION" \
-              --cache-control "public, max-age=31536000" \
-              --exclude "*.html" \
-              --exclude "*.json"
+            if [ ! -f /tmp/aws ]; then
+              curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
+              cd /tmp && unzip -q awscli.zip && ./aws/install -b /tmp && rm -rf awscli.zip aws
+            fi
             
-            # HTML과 JSON은 캐시 없이
-            aws s3 sync dist/ "s3://$BUCKET_NAME" \
-              --region "$AWS_REGION" \
-              --cache-control "no-cache" \
-              --include "*.html" \
-              --include "*.json"
-            
-            echo "[INFO] Creating CloudFront invalidation..."
-            INVALIDATION_ID=$(aws cloudfront create-invalidation \
-              --distribution-id "$CLOUDFRONT_ID" \
-              --paths "/*" \
-              --query 'Invalidation.Id' \
-              --output text)
-            
-            echo "[INFO] Invalidation created: $INVALIDATION_ID"
-            echo "[INFO] Deployment complete!"
+            export PATH="/tmp:$PATH"
+            aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
+            aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
           '''
         }
       }
-    }
-  }
-  
-  post {
-    always {
-      echo "Pipeline finished!"
-    }
-    success {
-      echo "🎉 Build and deployment successful!"
-    }
-    failure {
-      echo "❌ Build failed! Check the logs above."
     }
   }
 }
