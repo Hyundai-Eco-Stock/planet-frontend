@@ -10,7 +10,7 @@ import useAuthStore from '@/store/authStore';
 import "@/main.css"; // 전역 공통 유틸(@layer) 사용
 import { signUpByKakao } from "@/api/auth/auth.api";
 
-const SignUp = () => {
+const OAuthSignUp = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -174,4 +174,4 @@ const SignUp = () => {
     );
 };
 
-export default SignUp;
+export default OAuthSignUp;

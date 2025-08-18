@@ -1,20 +1,19 @@
 import './App.css'
 
-import { Navigate, Route, Routes } from 'react-router-dom'
-
-import { regenerateAccessToken } from './api/auth/auth.api'
-import useAuthStore from '@/store/authStore'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import Header from '@/components/_layout/Header'
+import HeaderWithBack from './components/_layout/HeaderWithBack'
 import Footer from '@/components/_layout/Footer'
 
 // 홈
 import HomeMain from '@/pages/home/Home'
 
 // 인증/인가
-import LoginSuccess from '@/pages/auth/LoginSuccess'
-import SignUp from '@/pages/auth/SignUp'
 import Login from '@/pages/auth/Login'
+import LoginSuccess from '@/pages/auth/LoginSuccess'
+import OAuthSignUp from '@/pages/auth/OAuthSignUp'
+import LocalSignUp from '@/pages/auth/LocalSignUp'
 
 // 쇼핑
 import ShoppingMain from '@/pages/shopping/ShoppingMain'
@@ -25,21 +24,42 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
 
+// 에코스톡 인증
+import EcoStockCertificate from './pages/eco_stock/EcoStockCertificate'
+import TumblerCertificate from './pages/eco_stock/TumblerCertificate'
+import VolunteerWorkCertificate from './pages/eco_stock/VolunteerWorkCertificate'
+import PaperBagNoUseCertificate from './pages/eco_stock/PaperBagNoUseCertificate'
+
+// 영수증
+import PaperBagNoUseReceiptCreate from './pages/receipt/PaperBagNoUseReceiptCreate'
+
 function App() {
 
-	// access 토큰 재발급
-	// const getAccessToken = async () => {
-	// 	const accessToken = await regenerateAccessToken();
-	// 	useAuthStore.getState().setAccessToken(accessToken);
-	// }
-	// useEffect(() => {
-	// 	(getAccessToken)();
-	// }, []);
+	const location = useLocation();
+
+	// 뒤로가기 헤더로 보이게 할 경로
+	const showBackButtonHeaderPaths = [
+		"/receipt/create",
+		"/eco-stock/certificate/tumbler",
+		"/eco-stock/certificate/electronic-car-parking",
+		"/eco-stock/certificate/paper-bag-no-use",
+	];
+	const showBackButtonHeader = showBackButtonHeaderPaths.includes(location.pathname);
+
+	// 푸터 안보이게 할 경로 
+	const hideFooterPaths = [
+		"/signup/local",
+	];
+	const hideFooter = hideFooterPaths.includes(location.pathname);
 
 	return (
 		<div className='w-full h-full flex flex-col'>
-			<Header />
-			<main className='flex-grow'>
+			{
+				showBackButtonHeader
+					? <HeaderWithBack />
+					: <Header />
+			}
+			<main className='flex-grow px-2'>
 				<Routes>
 					{/* 홈 */}
 					<Route path="/" element={<Navigate to="/home" />} />
@@ -49,7 +69,8 @@ function App() {
 					{/* 인증/인가 */}
 					<Route path="/login" element={<Login />} />
 					<Route path="/login/success" element={<LoginSuccess />} />
-					<Route path="/signup" element={<SignUp />} />
+					<Route path="/signup/oauth" element={<OAuthSignUp />} />
+					<Route path="/signup/local" element={<LocalSignUp />} />
 
 					{/* 쇼핑 */}
 					<Route path="/shopping" element={<Navigate to="/shopping/main" />} />
@@ -58,15 +79,21 @@ function App() {
 					{/* 에코 스톡 */}
 					<Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
 					<Route path="/eco-stock/main" element={<EcoStockMain />} />
+					<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
+					<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
+					<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+					<Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
 
 					{/* 마이 페이지 */}
 					<Route path="/my-page" element={<Navigate to="/my-page/main" />} />
 					<Route path="/my-page/main" element={<MyPageMain />} />
+
+					{/* 영수증 생성 페이지 */}
+					<Route path="/receipt/create/paper-bag-no-use" element={<PaperBagNoUseReceiptCreate />} />
 				</Routes>
 			</main>
-			<Footer />
+			{!hideFooter && <Footer />}
 		</div>
-
 	)
 }
 

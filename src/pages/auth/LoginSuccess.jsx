@@ -26,8 +26,8 @@ export default function LoginSuccess() {
             // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/login/success");
 
-            // 홈으로 이동 (뒤로 가기 눌러도 다시 성공 페이지로 안 돌아옴)
-            navigate("/home", { replace: true });
+            // 뒤로 가기 눌러도 다시 성공 페이지로 안 돌아옴
+            navigate("/my-page/main", { replace: true });
         }
     }, [accessToken, navigate]);
 
