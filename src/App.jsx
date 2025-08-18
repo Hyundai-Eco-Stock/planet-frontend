@@ -6,6 +6,10 @@ import Header from '@/components/_layout/Header'
 import HeaderWithBack from './components/_layout/HeaderWithBack'
 import Footer from '@/components/_layout/Footer'
 
+// PWA/FCM 관련 UI 컨트롤러
+import { NotificationController } from '@/components/fcm/NotificationController';
+
+// -------------------------- 라우팅 시작 --------------------------
 // 홈
 import HomeMain from '@/pages/home/Home'
 
@@ -32,69 +36,71 @@ import PaperBagNoUseCertificate from './pages/eco_stock/PaperBagNoUseCertificate
 
 // 영수증
 import PaperBagNoUseReceiptCreate from './pages/receipt/PaperBagNoUseReceiptCreate'
+// -------------------------- 라우팅 끝 --------------------------
 
 function App() {
+  const location = useLocation();
 
-	const location = useLocation();
+  // 뒤로가기 헤더로 보이게 할 경로
+  const showBackButtonHeaderPaths = [
+    "/receipt/create",
+    "/eco-stock/certificate/tumbler",
+    "/eco-stock/certificate/electronic-car-parking",
+    "/eco-stock/certificate/paper-bag-no-use",
+  ];
+  const showBackButtonHeader = showBackButtonHeaderPaths.includes(location.pathname);
 
-	// 뒤로가기 헤더로 보이게 할 경로
-	const showBackButtonHeaderPaths = [
-		"/receipt/create",
-		"/eco-stock/certificate/tumbler",
-		"/eco-stock/certificate/electronic-car-parking",
-		"/eco-stock/certificate/paper-bag-no-use",
-	];
-	const showBackButtonHeader = showBackButtonHeaderPaths.includes(location.pathname);
+  // 푸터 안보이게 할 경로 
+  const hideFooterPaths = [
+    "/signup/local",
+  ];
+  const hideFooter = hideFooterPaths.includes(location.pathname);
 
-	// 푸터 안보이게 할 경로 
-	const hideFooterPaths = [
-		"/signup/local",
-	];
-	const hideFooter = hideFooterPaths.includes(location.pathname);
+  return (
+    <div className='w-full h-full flex flex-col'>
+      {
+        showBackButtonHeader
+          ? <HeaderWithBack />
+          : <Header />
+      }
+      <NotificationController />
+      
+      <main className='flex-grow px-2'>
+        <Routes>
+          {/* 홈 */}
+          <Route path="/" element={<Navigate to="/home" />} />
+          <Route path="/home" element={<Navigate to="/home/main" />} />
+          <Route path="/home/main" element={<HomeMain />} />
 
-	return (
-		<div className='w-full h-full flex flex-col'>
-			{
-				showBackButtonHeader
-					? <HeaderWithBack />
-					: <Header />
-			}
-			<main className='flex-grow px-2'>
-				<Routes>
-					{/* 홈 */}
-					<Route path="/" element={<Navigate to="/home" />} />
-					<Route path="/home" element={<Navigate to="/home/main" />} />
-					<Route path="/home/main" element={<HomeMain />} />
+          {/* 인증/인가 */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/login/success" element={<LoginSuccess />} />
+          <Route path="/signup/oauth" element={<OAuthSignUp />} />
+          <Route path="/signup/local" element={<LocalSignUp />} />
 
-					{/* 인증/인가 */}
-					<Route path="/login" element={<Login />} />
-					<Route path="/login/success" element={<LoginSuccess />} />
-					<Route path="/signup/oauth" element={<OAuthSignUp />} />
-					<Route path="/signup/local" element={<LocalSignUp />} />
+          {/* 쇼핑 */}
+          <Route path="/shopping" element={<Navigate to="/shopping/main" />} />
+          <Route path="/shopping/main" element={<ShoppingMain />} />
 
-					{/* 쇼핑 */}
-					<Route path="/shopping" element={<Navigate to="/shopping/main" />} />
-					<Route path="/shopping/main" element={<ShoppingMain />} />
+          {/* 에코 스톡 */}
+          <Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
+          <Route path="/eco-stock/main" element={<EcoStockMain />} />
+          <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
+          <Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
+          <Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+          <Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
 
-					{/* 에코 스톡 */}
-					<Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
-					<Route path="/eco-stock/main" element={<EcoStockMain />} />
-					<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
-					<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
-					<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
-					<Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
+          {/* 마이 페이지 */}
+          <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
+          <Route path="/my-page/main" element={<MyPageMain />} />
 
-					{/* 마이 페이지 */}
-					<Route path="/my-page" element={<Navigate to="/my-page/main" />} />
-					<Route path="/my-page/main" element={<MyPageMain />} />
-
-					{/* 영수증 생성 페이지 */}
-					<Route path="/receipt/create/paper-bag-no-use" element={<PaperBagNoUseReceiptCreate />} />
-				</Routes>
-			</main>
-			{!hideFooter && <Footer />}
-		</div>
-	)
+          {/* 영수증 생성 페이지 */}
+          <Route path="/receipt/create/paper-bag-no-use" element={<PaperBagNoUseReceiptCreate />} />
+        </Routes>
+      </main>
+      {!hideFooter && <Footer />}
+    </div>
+  )
 }
 
 export default App
