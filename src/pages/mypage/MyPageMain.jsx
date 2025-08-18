@@ -2,13 +2,15 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import ProfileButton from "@/components/auth/ProfileButtons";
 import { logout } from "@/api/auth/auth.api";
+import { searchTodayAllEcoDealProducts } from "../../api/product/ecoProduct.api";
+import { CustomCommonButton } from "../../components/_custom/CustomButtons";
+import { test } from "../../api/test/test.api";
 
 const MyPageMain = () => {
     const navigate = useNavigate();
 
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
-    const profile = useAuthStore((s) => s.profile);
 
     const handleLogout = async () => {
         await logout();
@@ -20,27 +22,46 @@ const MyPageMain = () => {
         navigate("/login");
     };
 
+    const handleTestBtn = async () => {
+        const res = await test();
+        console.log(`test: ${res}`);
+    }
+
+    const handleEcoDealProducts = () => {
+        const res = searchTodayAllEcoDealProducts();
+        console.log(res);
+    }
+
     return (
-        <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-            {name && email && profile ? (
-                <>
-                    <ProfileButton />
-                    <span className="font-semibold">{name} 님</span>
+        <div>
+            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
+                {name && email ? (
+                    <>
+                        <ProfileButton />
+                        <span className="font-semibold">{name} 님</span>
+                        <button
+                            onClick={handleLogout}
+                            className="text-sm text-red-500 hover:underline"
+                        >
+                            로그아웃
+                        </button>
+                    </>
+                ) : (
                     <button
-                        onClick={handleLogout}
-                        className="text-sm text-red-500 hover:underline"
+                        onClick={goToLogin}
+                        className="text-sm text-blue-500 hover:underline"
                     >
-                        로그아웃
+                        로그인이 필요합니다
                     </button>
-                </>
-            ) : (
-                <button
-                    onClick={goToLogin}
-                    className="text-sm text-blue-500 hover:underline"
-                >
-                    로그인이 필요합니다
-                </button>
-            )}
+                )}
+            </div>
+            <div className="flex flex-col gap-1">
+                <CustomCommonButton onClick={handleTestBtn} children="테스트" />
+                <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
+                <CustomCommonButton onClick={() => { navigate("/receipt/create/paper-bag-no-use") }} children="종이백 미사용 영수증 생성으로 이동" />
+                <CustomCommonButton onClick={() => { navigate("/eco-stock/certificate") }} children="에코 스톡 인증 페이지로 이동" />
+                
+            </div>
         </div>
     );
 }
