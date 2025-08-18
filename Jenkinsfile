@@ -47,22 +47,22 @@ pipeline {
             set -a; . "$ENV_FILE"; set +a
             
             echo "[INFO] Installing AWS CLI..."
-            if [ ! -f /tmp/aws ]; then
+            if [ ! -f /tmp/aws-cli/v2/current/bin/aws ]; then
               curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
               cd /tmp 
               unzip -q awscli.zip 
-              ./aws/install -i /tmp/aws-cli -b /tmp
+              ./aws/install -i /tmp/aws-cli -b /tmp/bin
               rm -rf awscli.zip aws
             fi
             
-            export PATH="/tmp:$PATH"
-            /tmp/aws --version
+            export PATH="/tmp/bin:$PATH"
+            /tmp/bin/aws --version
             
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
-            /tmp/aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
+            /tmp/bin/aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
             
             echo "[INFO] CloudFront invalidation: $CLOUDFRONT_ID"
-            /tmp/aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
+            /tmp/bin/aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
             
             echo "[INFO] ✅ Deploy complete!"
           '''
