@@ -35,14 +35,6 @@ pipeline {
     }
     
     stage('Deploy') {
-      when { 
-        anyOf {
-          branch 'main'
-          branch 'deploy'
-          branch 'origin/deploy'
-          expression { env.BRANCH_NAME =~ /.*deploy.*/ }
-        }
-      }
       steps {
         script {
           echo "Current branch: ${env.BRANCH_NAME}"
