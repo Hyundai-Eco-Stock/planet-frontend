@@ -1,5 +1,3 @@
-// src/components/CustomCommonButton.jsx
-
 /**
  * 
  * @param children
@@ -21,10 +19,11 @@ const CustomCommonButton = ({
             type={type}
             onClick={onClick}
             disabled={disabled}
-            className={`w-full py-4 rounded-xl 
+            className={`
+                    w-full py-4 rounded-xl 
                     bg-emerald-500 hover:bg-emerald-600
-                    text-white text-xl 
-                    font-extrabold  
+                    text-white text-lg font-normal
+                    disabled:opacity-50 disabled:cursor-not-allowed
                     active:translate-y-[1px] transition
                     ${className}`}
         >
