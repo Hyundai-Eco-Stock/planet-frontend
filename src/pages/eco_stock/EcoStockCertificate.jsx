@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 
 const EcoStockCertificate = () => {
 
@@ -6,16 +7,20 @@ const EcoStockCertificate = () => {
         { name: '텀블러 인증', path: '/eco-stock/certificate/tumbler' },
         { name: '전기차 주차 인증', path: '/eco-stock/certificate/electronic-car-parking' },
         { name: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
+        { name: '봉사활동 인증', path: '/eco-stock/certificate/volunteer-work' },
+        // { name: '기부 인증', path: '/eco-stock/certificate/donation' },
     ]
 
     return (
         <div className="text-center">
             <div className="text-2xl mt-10 mb-10">에코 스톡 인증</div>
-            {
-                ecoStockCertificateList.map((certificate) =>
-                    <Component key={certificate.name} {...certificate} />
-                )
-            }
+            <div className="flex flex-col gap-1">
+                {
+                    ecoStockCertificateList.map((certificate) =>
+                        <Component key={certificate.name} {...certificate} />
+                    )
+                }
+            </div>
         </div>
     );
 }
@@ -29,16 +34,9 @@ const Component = ({ name, path }) => {
     }
 
     return (
-        <button
+        <CustomCommonButton
             onClick={handleClick}
-            className="
-                w-full h-[3.5rem]
-                bg-green-300 hover:bg-green-400 
-                text-black font-medium 
-                rounded-xl border transition"
-        >
-            {name}
-        </button>
+            children={name} />
     )
 }
 
