@@ -11,23 +11,16 @@ pipeline {
     timeout(time: 15, unit: 'MINUTES')
   }
   
-  stages {
-    stage('Setup') {
-      steps {
-        sh '''
-          echo "[INFO] Installing dependencies..."
-          apk add --no-cache python3 py3-pip curl unzip
-          
-          echo "[INFO] Installing AWS CLI..."
-          pip3 install awscli --break-system-packages
-          
-          echo "[INFO] Tool versions:"
-          node -v
-          npm -v
-          aws --version
-        '''
-      }
+  stage('Setup') {
+    steps {
+      sh '''
+        echo "[INFO] Tool versions:"
+        java -version
+        docker --version
+        aws --version || echo "Installing AWS CLI..."
+      '''
     }
+  }
     
     stage('Build') {
       steps {
