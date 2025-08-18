@@ -15,7 +15,7 @@ const KakaoLoginButton = ({
             type="button"
             onClick={handleKakaoLogin}
             disabled={disabled}
-            className="w-full py-4 rounded-xl text-lg font-extrabold 
+            className="w-full py-4 rounded-xl text-lg font-normal
                 bg-[#FEE500] hover:brightness-95 
                 active:translate-y-[1px] transition 
                 flex items-center justify-center gap-3"
