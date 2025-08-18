@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { createReceipt } from "@/api/receipt/receipt.api";
+import { createPaperBagNoUseReceipt } from "@/api/receipt/receipt.api";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { searchAllMembers } from "@/api/member/member.api";
 
 
 const PaperBagNoUseReceiptCreate = () => {
-    const [eventId, setEventId] = useState("");
     const [memberId, setMemberId] = useState("");
     const [totalAmount, setTotalAmount] = useState("");
     const [itemCount, setItemCount] = useState("");
@@ -19,16 +18,15 @@ const PaperBagNoUseReceiptCreate = () => {
 
     useEffect(() => {
         const valid =
-            eventId.trim() !== "" &&
-            memberId.trim() !== "" &&
-            totalAmount.trim() !== "" &&
-            itemCount.trim() !== "" &&
-            Number(totalAmount) > 0 &&
-            Number.isFinite(Number(totalAmount)) &&
-            Number(itemCount) > 0 &&
-            Number.isInteger(Number(itemCount));
+            memberId.trim() !== "" // &&
+            // totalAmount.trim() !== "" &&
+            // itemCount.trim() !== "" &&
+            // Number(totalAmount) > 0 &&
+            // Number.isFinite(Number(totalAmount)) &&
+            // Number(itemCount) > 0 &&
+            // Number.isInteger(Number(itemCount));
         setIsValid(valid);
-    }, [eventId, memberId, totalAmount, itemCount]);
+    }, [memberId, totalAmount, itemCount]);
 
     useEffect(() => {
         const loadMembers = async () => {
@@ -50,25 +48,24 @@ const PaperBagNoUseReceiptCreate = () => {
     const handleSubmit = () => {
         if (!isValid) return;
 
-        createReceipt(
-            eventId,
+        createPaperBagNoUseReceipt(
             Number(memberId),
-            Number(totalAmount),
-            Number(itemCount),
+            // Number(totalAmount),
+            // Number(itemCount),
             Boolean(bagKeywordFound),
         );
     };
 
     return (
         <div className="space-y-4 p-4">
-            <div>
+            {/* <div>
                 <div className="mb-1 text-sm font-medium">이벤트 ID</div>
                 <CustomCommonInput
                     value={eventId}
                     onChange={(e) => setEventId(e.target.value)} // CustomCommonInput이 value 값을 직접 넘겨준다는 전제
                     placeholder="예: evt-20250816-0001"
                 />
-            </div>
+            </div> */}
 
             <div>
                 <div className="mb-1 text-sm font-medium">멤버</div>
@@ -94,7 +91,7 @@ const PaperBagNoUseReceiptCreate = () => {
                 </div>
             </div>
 
-            <div>
+            {/* <div>
                 <div className="mb-1 text-sm font-medium">총 금액</div>
                 <CustomCommonInput
                     value={totalAmount}
@@ -114,7 +111,7 @@ const PaperBagNoUseReceiptCreate = () => {
                     inputMode="numeric"
                     placeholder="예: 12"
                 />
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-2">
                 <input
