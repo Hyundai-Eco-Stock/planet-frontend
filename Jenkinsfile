@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'node:23-alpine'
+      args '--user root'
+    }
+  }
   
   options { 
     timestamps()
@@ -7,25 +12,38 @@ pipeline {
   }
   
   stages {
-    stage('Setup & Build') {
+    stage('Setup') {
+      steps {
+        sh '''
+          echo "[INFO] Installing dependencies..."
+          apk add --no-cache python3 py3-pip curl unzip
+          
+          echo "[INFO] Installing AWS CLI..."
+          pip3 install awscli --break-system-packages
+          
+          echo "[INFO] Tool versions:"
+          node -v
+          npm -v
+          aws --version
+        '''
+      }
+    }
+    
+    stage('Build') {
       steps {
         withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
           sh '''
-            echo "[INFO] Installing Node.js 20 LTS..."
-            if [ ! -f /tmp/node ]; then
-              curl -fsSL https://nodejs.org/dist/v20.18.1/node-v20.18.1-linux-x64.tar.gz | tar -xz -C /tmp --strip-components=1
-            fi
-            export PATH="/tmp/bin:$PATH"
-            
-            node -v && npm -v
+            echo "[INFO] Setting up environment..."
             cp "$ENV_FILE" .env.production
             
+            echo "[INFO] Installing dependencies..."
             if [ -f package-lock.json ]; then
               npm ci --prefer-offline --no-audit
             else
               npm install --prefer-offline --no-audit
             fi
             
+            echo "[INFO] Building project..."
             npm run build
             ls -la dist/
           '''
@@ -45,12 +63,6 @@ pipeline {
         ]) {
           sh '''
             set -a; . "$ENV_FILE"; set +a
-            
-            echo "[INFO] Using existing AWS CLI..."
-            export PATH="/usr/local/aws-cli/v2/current/bin:$PATH"
-            aws --version
-            
-            export PATH="/usr/local/aws-cli/v2/current/bin:$PATH"
             
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
             aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
