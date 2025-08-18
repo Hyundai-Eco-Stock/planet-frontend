@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import ProfileButton from "@/components/auth/ProfileButtons";
 import { logout } from "@/api/auth/auth.api";
-import { searchTodayAllEcoDealProducts } from "../../api/product/ecoProduct.api";
-import { CustomCommonButton } from "../../components/_custom/CustomButtons";
-import { test } from "../../api/test/test.api";
+import { searchTodayAllEcoDealProducts } from "@/api/product/ecoProduct.api";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import { test } from "@/api/test/test.api";
+import { searchRecommendProducts } from "@/api/product/product.api";
 
 const MyPageMain = () => {
     const navigate = useNavigate();
@@ -30,6 +31,13 @@ const MyPageMain = () => {
     const handleEcoDealProducts = () => {
         const res = searchTodayAllEcoDealProducts();
         console.log(res);
+    }
+
+    const handleProductRecommend = () => {
+        const products = searchRecommendProducts(
+            "스트래피 실크 탑", 1, 32, 5
+        );
+       console.log(products);
     }
 
     return (
@@ -60,7 +68,8 @@ const MyPageMain = () => {
                 <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
                 <CustomCommonButton onClick={() => { navigate("/receipt/create/paper-bag-no-use") }} children="종이백 미사용 영수증 생성으로 이동" />
                 <CustomCommonButton onClick={() => { navigate("/eco-stock/certificate") }} children="에코 스톡 인증 페이지로 이동" />
-                
+                <CustomCommonButton onClick={handleProductRecommend} children="상품 추천" />
+
             </div>
         </div>
     );
