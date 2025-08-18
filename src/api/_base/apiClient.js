@@ -77,7 +77,7 @@ apiClient.interceptors.response.use(
             Swal.fire({
                 icon: "error",
                 title: "잘못된 접근",
-                text: error.response.data,
+                text: error.response.data.message,
                 confirmButtonText: "확인",
             }).then(() => {
             });
@@ -105,8 +105,8 @@ apiClient.interceptors.response.use(
                 }
 
                 isRefreshing = true;
-                useAuthStore.getState().clearAuth();
-                console.log("After clearAuth - Access Token:", useAuthStore.getState().accessToken);
+                // useAuthStore.getState().clearAuth();
+                // console.log("After clearAuth - Access Token:", useAuthStore.getState().accessToken);
 
                 try {
                     const regenResponse = await regenerateAccessToken();
