@@ -8,7 +8,7 @@ pipeline {
   environment {
     NODE_VERSION = '23'
     // VITE API URL은 빌드 시 파일에 삽입하므로 environment로만 둠(Secret text 가능)
-    VITE_API_URL = credentials('vite-api-url')
+    VITE_APP_BASE_API_BASE_URL = credentials('vite-api-url')
   }
 
   stages {
@@ -39,7 +39,7 @@ pipeline {
     stage('Create .env.production') {
       steps {
         script {
-          writeFile file: '.env.production', text: "VITE_API_URL=${VITE_API_URL}"
+          writeFile file: '.env.production', text: "VITE_APP_BASE_API_BASE_URL=${VITE_APP_BASE_API_BASE_URL}"
         }
       }
     }
