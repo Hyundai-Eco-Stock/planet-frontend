@@ -14,6 +14,7 @@ export default defineConfig({
       filename: 'sw.js',          // 네가 만든 서비스워커 파일
       strategies: 'injectManifest', // sw.js에 프리캐시 주입
       injectRegister: 'auto',     // 클라이언트에서 자동 등록
+      type: 'module', // 서비스 워커를 ES 모듈로 명시
       manifest: {
         name: 'Planet',
         short_name: 'Planet',
@@ -29,7 +30,8 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: false, // 개발환경(https 아님)에서는 SW 비활성 권장
+        enabled: true, // 개발환경(https 아님)에서는 SW 비활성 권장
+        type: 'module',
       },
     }),
   ],
