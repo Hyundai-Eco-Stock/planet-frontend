@@ -18,7 +18,6 @@ pipeline {
             export PATH="/tmp/bin:$PATH"
             
             node -v && npm -v
-            
             cp "$ENV_FILE" .env.production
             
             if [ -f package-lock.json ]; then
@@ -35,15 +34,13 @@ pipeline {
     }
     
     stage('Deploy') {
+      when { 
+        expression { return env.GIT_BRANCH == 'origin/deploy' }
+      }
       steps {
-        script {
-          echo "Current branch: ${env.BRANCH_NAME}"
-          echo "Git branch: ${env.GIT_BRANCH}"
-        }
         withCredentials([
-          usernamePassword(credentialsId: 'aws-creds', 
-                           usernameVariable: 'AWS_ACCESS_KEY_ID', 
-                           passwordVariable: 'AWS_SECRET_ACCESS_KEY'),
+          string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
           file(credentialsId: 'env', variable: 'ENV_FILE')
         ]) {
           sh '''
