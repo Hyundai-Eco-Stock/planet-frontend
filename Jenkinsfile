@@ -1,101 +1,102 @@
 pipeline {
-    agent { label 'built-in' }
-
-    options {
-        skipDefaultCheckout(false)
-        timestamps()
+    agent any
+    
+    triggers {
+        // GitHub 웹훅을 통해 push 이벤트 감지
+        githubPush()
+        // Pull Request 이벤트는 GitHub 플러그인을 통해 처리
     }
-
-    tools {
-        nodejs 'NodeJS 22 LTS'  // Jenkins에 등록한 Node 22
-    }
-
+    
     environment {
-        APP_NAME     = 'planet-frontend-artifacts'
-        BUILD_DIR    = 'dist'                         // Vite 기본 산출물
-        DEPLOY_ROOT  = "/var/www/${APP_NAME}"        // /var/www/<app>
-        RELEASES_DIR = "${DEPLOY_ROOT}/releases"     // /releases/<timestamp>
-        CURRENT_LINK = "${DEPLOY_ROOT}/current"      // 현재 활성 심볼릭 링크
-        SHARED_DIR   = "${DEPLOY_ROOT}/shared"
+        NODE_VERSION = '23'
+        AWS_DEFAULT_REGION = ('aws-region')
+        // Jenkins에서 Credentials로 관리되는 환경 변수들
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        VITE_API_URL = credentials('vite-api-url')
+        BUCKET_NAME = credentials('bucket-name')
+        AWS_REGION = credentials('aws-region')
+        CLOUDFRONT_ID = credentials('cloudfront-id')
     }
-
+    
     stages {
-        stage('Checkout') {
-            steps { checkout scm }
-        }
-
-        stage('Install deps') {
+        stage('Github Repository 파일 불러오기') {
             steps {
-                sh '''
-                    set -e
-                    corepack enable || true
-                    if [ -f package-lock.json ]; then
-                        npm ci --no-audit --no-fund
-                    else
-                        npm install --no-audit --no-fund
-                    fi
-                '''
+                // Jenkins는 기본적으로 소스코드를 체크아웃함
+                checkout scm
             }
         }
-
-        stage('Build') {
+        
+        stage('Setup Node.js') {
             steps {
-                sh '''
-                    set -e
-                    [ -f package.json ] || { echo "package.json 없음"; exit 1; }
-                    npm run build
-                    [ -d "${BUILD_DIR}" ] || { echo "빌드 산출물(${BUILD_DIR}) 없음"; ls -al; exit 1; }
-                '''
+                script {
+                    // Node.js 설치 (NodeJS Plugin 사용)
+                    nodejs(nodeJSInstallationName: 'nodejs-23') {
+                        sh 'node --version'
+                        sh 'npm --version'
+                    }
+                }
             }
         }
-
-        stage('Prepare artifact') {
+        
+        stage('Install dependencies') {
             steps {
-                sh '''
-                    set -e
-                    tar -C ${BUILD_DIR} -czf ${APP_NAME}.tar.gz .
-                    ls -lh ${APP_NAME}.tar.gz
-                '''
-                archiveArtifacts artifacts: "${APP_NAME}.tar.gz", fingerprint: true
+                nodejs(nodeJSInstallationName: 'nodejs-23') {
+                    sh 'npm install'
+                }
             }
         }
-
-        stage('Deploy (Local)') {
+        
+        stage('Create .env.production') {
             steps {
-                sh '''
-                    set -eu
-
-                    # 릴리즈 경로 만들기 (공유 볼륨으로 바로 씀)
-                    TS="$(date +%Y%m%d%H%M%S)"
-                    RELEASE_PATH="${RELEASES_DIR}/${TS}"
-                    mkdir -p "${RELEASES_DIR}" "${SHARED_DIR}" "${RELEASE_PATH}"
-
-                    # 산출물 풀기
-                    tar -C "${RELEASE_PATH}" -xzf "${APP_NAME}.tar.gz"
-
-                    # 상대경로 심볼릭 링크
-                    REL_TARGET="$(realpath --relative-to="$(dirname "${CURRENT_LINK}")" "${RELEASE_PATH}")"
-                    ln -sfn "${REL_TARGET}" "${CURRENT_LINK}"
-
-                    echo "Deployed to ${CURRENT_LINK} -> ${REL_TARGET}"
-                '''
+                script {
+                    writeFile file: '.env.production', text: "VITE_API_URL=${VITE_API_URL}"
+                }
             }
         }
-
-        stage('Clean Deploy History') {
+        
+        stage('Build React app') {
             steps {
-                sh '''
-                    set -eu
-                    cd "${RELEASES_DIR}"
-                    # 최신 10개를 제외하고 삭제
-                    ls -1dt */ | sed -e '1,10d' | xargs -r -I{} rm -rf "{}"
-                '''
+                nodejs(nodeJSInstallationName: 'nodejs-23') {
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Deploy to S3') {
+            steps {
+                script {
+                    // AWS CLI를 사용한 S3 동기화
+                    sh """
+                        aws s3 sync dist/ s3://${BUCKET_NAME} --delete --region ${AWS_REGION}
+                    """
+                }
+            }
+        }
+        
+        stage('CloudFront 캐시 무효화') {
+            steps {
+                script {
+                    sh """
+                        aws cloudfront create-invalidation \\
+                            --distribution-id ${CLOUDFRONT_ID} \\
+                            --paths "/*"
+                    """
+                }
             }
         }
     }
-
+    
     post {
-        success { echo "✅ 배포 성공: ${CURRENT_LINK} 갱신 완료" }
-        failure { echo '❌ 배포 실패. 콘솔 로그 확인 바랍니다.' }
+        success {
+            echo 'Deploy to CloudFront completed successfully!'
+        }
+        failure {
+            echo 'Deploy to CloudFront failed!'
+        }
+        cleanup {
+            // 빌드 후 정리 작업
+            deleteDir()
+        }
     }
 }
