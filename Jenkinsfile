@@ -2,10 +2,7 @@ pipeline {
   agent {
     docker {
       image 'node:20-alpine'
-      args '''
-        -v /var/run/docker.sock:/var/run/docker.sock
-        --user 0:0
-      '''
+      args '--user root'
     }
   }
   
