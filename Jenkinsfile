@@ -47,22 +47,29 @@ pipeline {
             set -a; . "$ENV_FILE"; set +a
             
             echo "[INFO] Installing AWS CLI..."
-            if [ ! -f /tmp/aws-cli/v2/current/bin/aws ]; then
-              curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
-              cd /tmp 
-              unzip -q awscli.zip 
-              ./aws/install -i /tmp/aws-cli -b /tmp/bin
-              rm -rf awscli.zip aws
-            fi
+            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
+            cd /tmp 
+            unzip -q awscli.zip 
             
-            export PATH="/tmp/bin:$PATH"
-            /tmp/bin/aws --version
+            echo "[DEBUG] Installing AWS CLI..."
+            ./aws/install
+            
+            echo "[DEBUG] Checking installation paths..."
+            ls -la /usr/local/bin/aws* || echo "Not in /usr/local/bin"
+            find /usr -name "aws" 2>/dev/null || echo "AWS not found in /usr"
+            which aws || echo "aws not in PATH"
+            
+            echo "[DEBUG] Trying different paths..."
+            /usr/local/bin/aws --version 2>/dev/null || echo "/usr/local/bin/aws failed"
+            /usr/local/aws-cli/v2/current/bin/aws --version 2>/dev/null || echo "/usr/local/aws-cli path failed"
+            
+            rm -rf awscli.zip aws
             
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
-            /tmp/bin/aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
+            aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
             
             echo "[INFO] CloudFront invalidation: $CLOUDFRONT_ID"
-            /tmp/bin/aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
+            aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
             
             echo "[INFO] ✅ Deploy complete!"
           '''
