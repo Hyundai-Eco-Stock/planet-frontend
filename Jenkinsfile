@@ -46,24 +46,11 @@ pipeline {
           sh '''
             set -a; . "$ENV_FILE"; set +a
             
-            echo "[INFO] Installing AWS CLI..."
-            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
-            cd /tmp 
-            unzip -q awscli.zip 
+            echo "[INFO] Using existing AWS CLI..."
+            export PATH="/usr/local/aws-cli/v2/current/bin:$PATH"
+            aws --version
             
-            echo "[DEBUG] Installing AWS CLI..."
-            ./aws/install
-            
-            echo "[DEBUG] Checking installation paths..."
-            ls -la /usr/local/bin/aws* || echo "Not in /usr/local/bin"
-            find /usr -name "aws" 2>/dev/null || echo "AWS not found in /usr"
-            which aws || echo "aws not in PATH"
-            
-            echo "[DEBUG] Trying different paths..."
-            /usr/local/bin/aws --version 2>/dev/null || echo "/usr/local/bin/aws failed"
-            /usr/local/aws-cli/v2/current/bin/aws --version 2>/dev/null || echo "/usr/local/aws-cli path failed"
-            
-            rm -rf awscli.zip aws
+            export PATH="/usr/local/aws-cli/v2/current/bin:$PATH"
             
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
             aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
