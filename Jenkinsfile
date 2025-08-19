@@ -52,8 +52,17 @@ pipeline {
     }
     
     stage('Deploy') {
-      when { 
-        expression { return env.GIT_BRANCH == 'origin/deploy' }
+      when {
+        anyOf {
+          // 1) deploy 브랜치에 push 되었을 때
+          expression { return env.GIT_BRANCH == 'origin/deploy' }
+    
+          // 2) PR merge로 인한 빌드일 때 (deploy 브랜치 + PR merge)
+          allOf {
+            expression { return env.GIT_BRANCH == 'origin/deploy' }
+            expression { return env.CHANGE_ID == null }
+          }
+        }
       }
       steps {
         withCredentials([
