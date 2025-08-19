@@ -6,9 +6,6 @@ import Header from '@/components/_layout/Header'
 import HeaderWithBack from './components/_layout/HeaderWithBack'
 import Footer from '@/components/_layout/Footer'
 
-// PWA/FCM 관련 UI 컨트롤러
-import { NotificationController } from '@/components/fcm/NotificationController';
-
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
 import HomeMain from '@/pages/home/Home'
@@ -64,7 +61,7 @@ function App() {
           ? <HeaderWithBack />
           : <Header />
       }
-      <NotificationController />
+      
       
       <main className='flex-grow px-2'>
         <Routes>

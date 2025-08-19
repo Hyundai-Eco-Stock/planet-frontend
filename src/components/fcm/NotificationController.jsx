@@ -10,9 +10,9 @@ export function NotificationController() {
 
 	return (
 		<div>
-			{/* <button onClick={requestPermission}>
+			<button onClick={requestPermission}>
 				알림 권한 요청
-			</button> */}
+			</button>
 
 			{notification.title && (
 				<div style={{ border: '1px solid #ccc', padding: '10px', marginTop: '20px' }}>
