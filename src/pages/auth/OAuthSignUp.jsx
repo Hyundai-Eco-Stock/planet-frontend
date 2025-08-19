@@ -37,7 +37,8 @@ const OAuthSignUp = () => {
             useAuthStore.getState().setProfile(profileUrl);
 
             // URL에서 토큰 흔적 제거 후 이동(
-            window.history.replaceState({}, "", "/signup");
+            // window.history.replaceState({}, "", "/signup");
+            navigate("/login", { replace: true });
         }
     }, [accessToken, email, nameParam]);
 
