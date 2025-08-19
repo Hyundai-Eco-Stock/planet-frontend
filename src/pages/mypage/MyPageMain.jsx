@@ -58,7 +58,7 @@ const MyPageMain = () => {
             <div className="flex flex-col gap-1">
                 <CustomCommonButton onClick={handleTestBtn} children="테스트" />
                 <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
-                <CustomCommonButton onClick={() => { navigate("/receipt/create/paper-bag-no-use") }} children="종이백 미사용 영수증 생성으로 이동" />
+                <CustomCommonButton onClick={() => { navigate("/offline-pay/create") }} children="영수증 생성으로 이동" />
                 <CustomCommonButton onClick={() => { navigate("/eco-stock/certificate") }} children="에코 스톡 인증 페이지로 이동" />
                 
             </div>
