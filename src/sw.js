@@ -1,5 +1,3 @@
-console.log('서비스 워커가 로드되었습니다!');
-
 // Workbox 런타임 API 사용 (주입은 빌드 단계에서)
 import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
@@ -43,19 +41,28 @@ onBackgroundMessage(messaging, (payload) => {
 
 // __WB_MANIFEST는 빌드 과정에서 주입됩니다.
 // 개발 모드에서는 비어 있을 수 있으므로, index.html에 대한 항목을 수동으로 추가합니다.
-const manifest = self.__WB_MANIFEST || [];
-if (import.meta.env.DEV) {
-  manifest.push({ url: '/index.html', revision: null });
-}
 
+// 1. dev에선 프리캐시 켜기
+// const manifest = self.__WB_MANIFEST || [];
+// if (import.meta.env.DEV) {
+//     manifest.push({ url: '/index.html', revision: null });
+// }
+
+// 2. dev에선 프리캐시 끄기
+let manifest = [];
+if (!import.meta.env.DEV) {
+    manifest = self.__WB_MANIFEST || [];
+}
 precacheAndRoute(manifest);
 cleanupOutdatedCaches();
 
 // SPA 라우팅(정적 파일 404일 때 index.html로)
-registerRoute(
-    ({ request, url }) => request.mode === 'navigate' && !url.pathname.startsWith('/api'),
-    createHandlerBoundToURL('/index.html')
-);
+if (!import.meta.env.DEV) {
+    registerRoute(
+        ({ request, url }) => request.mode === 'navigate' && !url.pathname.startsWith('/api'),
+        createHandlerBoundToURL('/index.html')
+    );
+}
 
 // API 라우팅
 registerRoute(
@@ -73,13 +80,20 @@ registerRoute(
 // 이미지 라우팅
 registerRoute(
     ({ request }) => request.destination === 'image',
-    new CacheFirst({
+    // new CacheFirst({
+    //     cacheName: 'images',
+    //     plugins: [
+    //         new CacheableResponsePlugin({ statuses: [0, 200] }),
+    //         new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 }), // 7일
+    //     ],
+    // }),
+    new StaleWhileRevalidate({
         cacheName: 'images',
         plugins: [
             new CacheableResponsePlugin({ statuses: [0, 200] }),
-            new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 }), // 7일
+            new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 }),
         ],
-    })
+    }),
 );
 
 // 서비스 워커 즉시 활성화
