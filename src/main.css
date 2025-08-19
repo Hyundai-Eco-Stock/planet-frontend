@@ -66,6 +66,11 @@
 
 html,
 body {
+    /* 스크롤 바운스 방지 */
+    overscroll-behavior: none;
+    /* 가로 스크롤 차단 */
+    overflow-x: hidden;
+    height: 100%;
     letter-spacing: -0.025rem;
 }
 

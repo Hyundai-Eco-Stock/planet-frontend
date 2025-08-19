@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { useRef } from "react";
 
 /**
  * 
@@ -45,4 +46,67 @@ const CustomCommonInput = ({
     );
 };
 
-export { CustomCommonInput };
+/**
+ * 카드 번호 input 받기
+ * @param {*} param0 
+ * @returns 
+ */
+const CardNumberInput = ({ 
+    value = "", 
+    onChange 
+}) => {
+    const parts = [
+        value.slice(0, 4),
+        value.slice(4, 8),
+        value.slice(8, 12),
+        value.slice(12, 16),
+    ];
+
+    const inputsRef = useRef([]);
+
+    const handleChange = (idx, e) => {
+        const newValue = e.target.value.replace(/\D/g, "").slice(0, 4);
+        const newParts = [...parts];
+        newParts[idx] = newValue;
+
+        const joined = newParts.join("");
+        onChange(joined);
+
+        if (newValue.length === 4 && idx < 3) {
+            inputsRef.current[idx + 1]?.focus();
+        }
+    };
+
+    const handleKeyDown = (idx, e) => {
+        if (e.key === "Backspace" && parts[idx].length === 0 && idx > 0) {
+            inputsRef.current[idx - 1]?.focus();
+        }
+    };
+
+    return (
+        <div className="flex items-center w-full">
+            {parts.map((part, idx) => (
+                <div key={idx} className="flex items-center">
+                    {/* input은 균등 분배 */}
+                    <div className="relative flex-1 border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors">
+                        <input
+                            ref={(el) => (inputsRef.current[idx] = el)}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={4}
+                            className="w-full py-4 rounded-xl outline-none text-center placeholder:text-black/40"
+                            value={part}
+                            onChange={(e) => handleChange(idx, e)}
+                            onKeyDown={(e) => handleKeyDown(idx, e)}
+                        />
+                    </div>
+                    {idx < parts.length - 1 && (
+                        <span className="mx-2 text-gray-500 text-lg">-</span>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export { CustomCommonInput, CardNumberInput };
