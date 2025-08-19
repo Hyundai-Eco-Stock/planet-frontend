@@ -5,14 +5,23 @@ pipeline {
       args '--user root'
     }
   }
-  
+
   options { 
     timestamps()
     timeout(time: 15, unit: 'MINUTES')
   }
-  
+
   stages {
     stage('Setup') {
+      when {
+        anyOf {
+          expression { return env.GIT_BRANCH == 'origin/deploy' }
+          allOf {
+            expression { return env.GIT_BRANCH == 'origin/deploy' }
+            expression { return env.CHANGE_ID == null }
+          }
+        }
+      }
       steps {
         sh '''
           echo "[INFO] Installing dependencies..."
@@ -28,21 +37,30 @@ pipeline {
         '''
       }
     }
-    
+
     stage('Build') {
+      when {
+        anyOf {
+          expression { return env.GIT_BRANCH == 'origin/deploy' }
+          allOf {
+            expression { return env.GIT_BRANCH == 'origin/deploy' }
+            expression { return env.CHANGE_ID == null }
+          }
+        }
+      }
       steps {
         withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
           sh '''
             echo "[INFO] Setting up environment..."
             cp "$ENV_FILE" .env.production
-            
+
             echo "[INFO] Installing dependencies..."
             if [ -f package-lock.json ]; then
               npm ci --prefer-offline --no-audit
             else
               npm install --prefer-offline --no-audit
             fi
-            
+
             echo "[INFO] Building project..."
             npm run build
             ls -la dist/
@@ -50,14 +68,11 @@ pipeline {
         }
       }
     }
-    
+
     stage('Deploy') {
       when {
         anyOf {
-          // 1) deploy 브랜치에 push 되었을 때
           expression { return env.GIT_BRANCH == 'origin/deploy' }
-    
-          // 2) PR merge로 인한 빌드일 때 (deploy 브랜치 + PR merge)
           allOf {
             expression { return env.GIT_BRANCH == 'origin/deploy' }
             expression { return env.CHANGE_ID == null }
@@ -72,20 +87,20 @@ pipeline {
         ]) {
           sh '''
             set -a; . "$ENV_FILE"; set +a
-            
+
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
             aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
-            
+
             echo "[INFO] CloudFront invalidation: $CLOUDFRONT_ID"
             aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
-            
+
             echo "[INFO] ✅ Deploy complete!"
           '''
         }
       }
     }
   }
-  
+
   post {
     success {
       echo "🎉 Success!"
