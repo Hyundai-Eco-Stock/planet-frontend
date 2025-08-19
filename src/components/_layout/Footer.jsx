@@ -21,7 +21,7 @@ const Footer = () => {
     }
 
     return (
-        <div className="flex w-full justify-between">
+        <div className="flex w-full justify-between h-24">
             {
                 menus.map((menu) => {
                     return <button
