@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { registerFcmToken } from "./api/fcm_token/fcmToken.api";
-
+import useAuthStore from '@/store/authStore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDtSf2TcLa8wba4nWUu9Z71HVN0F6Lso6c",
@@ -36,7 +36,9 @@ export const requestForToken = async () => {
                 if (currentToken) {
                     console.log('현재 FCM 토큰:', currentToken);
                     // 백엔드에 등록 요청
-                    registerFcmToken(currentToken)
+                    if (useAuthStore.getState().accessToken != null) {
+                        registerFcmToken(currentToken);
+                    }
                 } else {
                     console.log('FCM 토큰을 사용할 수 없습니다. 권한이 없거나 차단되었습니다.');
                 }
