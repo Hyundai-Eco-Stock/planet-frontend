@@ -7,8 +7,8 @@ import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 // 바코드: 두 컴포넌트 중에서 선택 사용
 import ReceiptBarcodeScanner from "@/components/barcode/ReceiptBarcodeScanner";
 import ReceiptBarcodeFromImage from "@/components/barcode/ReceiptBarcodeFromImage";
-import CustomImageInput from "../../components/_custom/CustomImageInput";
-import { certificateTumbler } from "../../api/eco_stock_certificate/ecoStockCertificate.api";
+import CustomImageInput from "@/components/_custom/CustomImageInput";
+import { certificateTumbler } from "@/api/eco_stock_certificate/ecoStockCertificate.api";
 
 const TumblerCertificate = () => {
     // 바코드

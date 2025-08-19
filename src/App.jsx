@@ -29,13 +29,13 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 import MyPageMain from '@/pages/mypage/MyPageMain'
 
 // 에코스톡 인증
-import EcoStockCertificate from './pages/eco_stock/EcoStockCertificate'
-import TumblerCertificate from './pages/eco_stock/TumblerCertificate'
-import VolunteerWorkCertificate from './pages/eco_stock/VolunteerWorkCertificate'
-import PaperBagNoUseCertificate from './pages/eco_stock/PaperBagNoUseCertificate'
+import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
+import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
+import VolunteerWorkCertificate from '@/pages/eco_stock_certificate/VolunteerWorkCertificate'
+import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
 // 영수증
-import PaperBagNoUseReceiptCreate from './pages/receipt/PaperBagNoUseReceiptCreate'
+import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -95,7 +95,7 @@ function App() {
           <Route path="/my-page/main" element={<MyPageMain />} />
 
           {/* 영수증 생성 페이지 */}
-          <Route path="/receipt/create/paper-bag-no-use" element={<PaperBagNoUseReceiptCreate />} />
+          <Route path="/offline-pay/create" element={<OfflinePayCreate />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
