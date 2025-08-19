@@ -53,6 +53,7 @@ function App() {
   // 푸터 안보이게 할 경로 
   const hideFooterPaths = [
     "/signup/local",
+    "/login",
   ];
   const hideFooter = hideFooterPaths.includes(location.pathname);
 
