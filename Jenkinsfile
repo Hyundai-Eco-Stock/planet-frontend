@@ -1,101 +1,93 @@
 pipeline {
-    agent { label 'built-in' }
+  agent {
+    docker {
+      image 'node:23-alpine'
+      args '--user root'
+    }
+  }
 
-    options {
-        skipDefaultCheckout(false)
-        timestamps()
+  options { 
+    timestamps()
+    timeout(time: 15, unit: 'MINUTES')
+  }
+
+  stages {
+    stage('Check Conditions') {
+      steps {
+        script {
+          if (env.GIT_BRANCH != 'origin/deploy') {
+            error("[SKIP] Not deploy branch → stopping pipeline.")
+          }
+          if (env.CHANGE_ID != null) {
+            error("[SKIP] This is a PR build (not merged) → stopping pipeline.")
+          }
+          echo "[INFO] ✅ Valid deploy pipeline (deploy branch push or PR merge). Continuing..."
+        }
+      }
     }
 
-    tools {
-        nodejs 'NodeJS 22 LTS'  // Jenkins에 등록한 Node 22
+    stage('Setup') {
+      steps {
+        sh '''
+          echo "[INFO] Installing dependencies..."
+          apk add --no-cache python3 py3-pip curl unzip
+          pip3 install awscli --break-system-packages
+          
+          echo "[INFO] Tool versions:"
+          node -v
+          npm -v
+          aws --version
+        '''
+      }
     }
 
-    environment {
-        APP_NAME     = 'planet-frontend-artifacts'
-        BUILD_DIR    = 'dist'                         // Vite 기본 산출물
-        DEPLOY_ROOT  = "/var/www/${APP_NAME}"        // /var/www/<app>
-        RELEASES_DIR = "${DEPLOY_ROOT}/releases"     // /releases/<timestamp>
-        CURRENT_LINK = "${DEPLOY_ROOT}/current"      // 현재 활성 심볼릭 링크
-        SHARED_DIR   = "${DEPLOY_ROOT}/shared"
+    stage('Build') {
+      steps {
+        withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
+          sh '''
+            echo "[INFO] Setting up environment..."
+            cp "$ENV_FILE" .env.production
+
+            echo "[INFO] Installing dependencies..."
+            if [ -f package-lock.json ]; then
+              npm ci --prefer-offline --no-audit
+            else
+              npm install --prefer-offline --no-audit
+            fi
+
+            echo "[INFO] Building project..."
+            npm run build
+            ls -la dist/
+          '''
+        }
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps { checkout scm }
+    stage('Deploy') {
+      steps {
+        withCredentials([
+          string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+          file(credentialsId: 'env', variable: 'ENV_FILE')
+        ]) {
+          sh '''
+            set -a; . "$ENV_FILE"; set +a
+
+            echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
+            aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
+
+            echo "[INFO] CloudFront invalidation: $CLOUDFRONT_ID"
+            aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
+
+            echo "[INFO] ✅ Deploy complete!"
+          '''
         }
-
-        stage('Install deps') {
-            steps {
-                sh '''
-                    set -e
-                    corepack enable || true
-                    if [ -f package-lock.json ]; then
-                        npm ci --no-audit --no-fund
-                    else
-                        npm install --no-audit --no-fund
-                    fi
-                '''
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh '''
-                    set -e
-                    [ -f package.json ] || { echo "package.json 없음"; exit 1; }
-                    npm run build
-                    [ -d "${BUILD_DIR}" ] || { echo "빌드 산출물(${BUILD_DIR}) 없음"; ls -al; exit 1; }
-                '''
-            }
-        }
-
-        stage('Prepare artifact') {
-            steps {
-                sh '''
-                    set -e
-                    tar -C ${BUILD_DIR} -czf ${APP_NAME}.tar.gz .
-                    ls -lh ${APP_NAME}.tar.gz
-                '''
-                archiveArtifacts artifacts: "${APP_NAME}.tar.gz", fingerprint: true
-            }
-        }
-
-        stage('Deploy (Local)') {
-            steps {
-                sh '''
-                    set -eu
-
-                    # 릴리즈 경로 만들기 (공유 볼륨으로 바로 씀)
-                    TS="$(date +%Y%m%d%H%M%S)"
-                    RELEASE_PATH="${RELEASES_DIR}/${TS}"
-                    mkdir -p "${RELEASES_DIR}" "${SHARED_DIR}" "${RELEASE_PATH}"
-
-                    # 산출물 풀기
-                    tar -C "${RELEASE_PATH}" -xzf "${APP_NAME}.tar.gz"
-
-                    # 상대경로 심볼릭 링크
-                    REL_TARGET="$(realpath --relative-to="$(dirname "${CURRENT_LINK}")" "${RELEASE_PATH}")"
-                    ln -sfn "${REL_TARGET}" "${CURRENT_LINK}"
-
-                    echo "Deployed to ${CURRENT_LINK} -> ${REL_TARGET}"
-                '''
-            }
-        }
-
-        stage('Clean Deploy History') {
-            steps {
-                sh '''
-                    set -eu
-                    cd "${RELEASES_DIR}"
-                    # 최신 10개를 제외하고 삭제
-                    ls -1dt */ | sed -e '1,10d' | xargs -r -I{} rm -rf "{}"
-                '''
-            }
-        }
+      }
     }
+  }
 
-    post {
-        success { echo "✅ 배포 성공: ${CURRENT_LINK} 갱신 완료" }
-        failure { echo '❌ 배포 실패. 콘솔 로그 확인 바랍니다.' }
-    }
+  post {
+    success { echo "🎉 Success!" }
+    failure { echo "❌ Failed!" }
+  }
 }
