@@ -12,22 +12,25 @@ pipeline {
   }
 
   stages {
-    stage('Setup') {
-      when {
-        anyOf {
-          expression { return env.GIT_BRANCH == 'origin/deploy' }
-          allOf {
-            expression { return env.GIT_BRANCH == 'origin/deploy' }
-            expression { return env.CHANGE_ID == null }
+    stage('Check Conditions') {
+      steps {
+        script {
+          if (env.GIT_BRANCH != 'origin/deploy') {
+            error("[SKIP] Not deploy branch → stopping pipeline.")
           }
+          if (env.CHANGE_ID != null) {
+            error("[SKIP] This is a PR build (not merged) → stopping pipeline.")
+          }
+          echo "[INFO] ✅ Valid deploy pipeline (deploy branch push or PR merge). Continuing..."
         }
       }
+    }
+
+    stage('Setup') {
       steps {
         sh '''
           echo "[INFO] Installing dependencies..."
           apk add --no-cache python3 py3-pip curl unzip
-          
-          echo "[INFO] Installing AWS CLI..."
           pip3 install awscli --break-system-packages
           
           echo "[INFO] Tool versions:"
@@ -39,15 +42,6 @@ pipeline {
     }
 
     stage('Build') {
-      when {
-        anyOf {
-          expression { return env.GIT_BRANCH == 'origin/deploy' }
-          allOf {
-            expression { return env.GIT_BRANCH == 'origin/deploy' }
-            expression { return env.CHANGE_ID == null }
-          }
-        }
-      }
       steps {
         withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
           sh '''
@@ -70,15 +64,6 @@ pipeline {
     }
 
     stage('Deploy') {
-      when {
-        anyOf {
-          expression { return env.GIT_BRANCH == 'origin/deploy' }
-          allOf {
-            expression { return env.GIT_BRANCH == 'origin/deploy' }
-            expression { return env.CHANGE_ID == null }
-          }
-        }
-      }
       steps {
         withCredentials([
           string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY_ID'),
@@ -102,11 +87,7 @@ pipeline {
   }
 
   post {
-    success {
-      echo "🎉 Success!"
-    }
-    failure {
-      echo "❌ Failed!"
-    }
+    success { echo "🎉 Success!" }
+    failure { echo "❌ Failed!" }
   }
 }
