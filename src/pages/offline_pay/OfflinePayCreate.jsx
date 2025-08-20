@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
-import { CustomCommonInput, CardNumberInput } from "@/components/_custom/CustomInputs";
+import { CardNumberInput } from "@/components/_custom/CustomInputs";
 import { CustomSelect } from "@/components/_custom/CustomSelect";
 import { createOfflinePay } from "@/api/offline_pay/offlinePay.api";
 import { searchAllDepartmentStore, searchAllShops } from "@/api/department_store/departmentStore.api";
@@ -43,47 +43,81 @@ const OfflinePayCreate = () => {
         return found?.shopType ?? null;
     }, [shopId, shops]);
 
-    // 금액 합계
+    // 금액 합계 (수량 반영)
     const subtotal = useMemo(
-        () => items.filter((it) => Number(it.price) > 0).reduce((acc, it) => acc + Number(it.price || 0), 0),
+        () =>
+            items
+                .filter((it) => it.price > 0)
+                .reduce((acc, it) => acc + it.price * it.amount, 0),
         [items]
     );
     const discounts = useMemo(
-        () => items.filter((it) => Number(it.price) < 0).reduce((acc, it) => acc + Number(it.price || 0), 0),
+        () =>
+            items
+                .filter((it) => it.price < 0)
+                .reduce((acc, it) => acc + it.price * it.amount, 0),
         [items]
     );
     const total = useMemo(() => subtotal + discounts, [subtotal, discounts]);
 
     // 아이템 조작
-    const addItem = (p) => setItems((prev) => [...prev, { productId: p.productId, name: p.name, price: p.price }]);
-    const removeLine = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
+    const addItem = (p) => {
+        setItems((prev) => {
+            const idx = prev.findIndex((it) => it.productId === p.productId);
+            if (idx >= 0) {
+                const updated = [...prev];
+                updated[idx] = {
+                    ...updated[idx],
+                    amount: updated[idx].amount + 1,
+                };
+                return updated;
+            }
+            return [
+                ...prev,
+                { productId: p.productId, name: p.name, price: p.price, amount: 1 },
+            ];
+        });
+    };
+
+    const removeLine = (idx) =>
+        setItems((prev) => prev.filter((_, i) => i !== idx));
 
     // 제출
     const handleSubmit = async () => {
+        if (total <= 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "결제 불가",
+                text: "총 결제 금액이 0원보다 커야 합니다.",
+                confirmButtonText: "확인",
+                confirmButtonColor: "#f59e0b",
+            });
+            return;
+        }
+
         const payload = {
+            posId: 69, // 임의 값
+            dailySeq: 948732, // 임의 값
             shopId: Number(shopId),
             cardCompanyId,
             cardNumber: cardNumber.replace(/\s/g, ""),
             last4: cardNumber.replace(/\D/g, "").slice(-4),
             items: items.map((it) => ({
                 productId: it.productId,
-                name: it.name,
-                price: Number(it.price),
+                amount: it.amount,
             })),
             summary: { subtotal, discounts, total },
         };
 
         try {
             await createOfflinePay(payload);
-            // ✅ 결제 완료 알림
             Swal.fire({
                 icon: "success",
                 title: "결제 완료",
                 text: `총 ${total.toLocaleString()}원이 결제되었습니다.`,
                 confirmButtonText: "확인",
-                confirmButtonColor: "#10b981", // Tailwind emerald 계열
+                confirmButtonColor: "#10b981",
             });
-            // 결제 완료 후 장바구니 비우기
             setItems([]);
         } catch (err) {
             Swal.fire({
@@ -112,7 +146,9 @@ const OfflinePayCreate = () => {
                                 id: dept.departmentStoreId,
                                 label: dept.name,
                                 options: shops
-                                    .filter((s) => s.departmentStoreId === dept.departmentStoreId)
+                                    .filter(
+                                        (s) => s.departmentStoreId === dept.departmentStoreId
+                                    )
                                     .map((s) => ({
                                         value: s.offlineShopId,
                                         label: s.shopName,
@@ -143,11 +179,86 @@ const OfflinePayCreate = () => {
                 {/* 주문 내역 */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-2">
                     {items.map((it, idx) => (
-                        <div key={idx} className="flex justify-between items-center border p-2 rounded">
-                            <span>{it.name}</span>
+                        <div
+                            key={idx}
+                            className="flex justify-between items-center border p-2 rounded gap-3"
+                        >
+                            <span className="font-medium flex-1">{it.name}</span>
+
+                            {/* 합계 금액 */}
+                            <span className="font-medium">
+                                {(it.price * it.amount).toLocaleString()}원
+                            </span>
+
                             <div className="flex items-center gap-2">
-                                <span className="font-medium">{it.price.toLocaleString()}원</span>
-                                <button className="text-red-500" onClick={() => removeLine(idx)}>X</button>
+                                {/* [-] [개수입력] [+] */}
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        className="px-2 py-1 border rounded bg-gray-200"
+                                        onClick={() =>
+                                            setItems((prev) => {
+                                                const updated = [...prev];
+                                                updated[idx] = {
+                                                    ...updated[idx],
+                                                    amount: updated[idx].amount - 1,
+                                                };
+                                                if (updated[idx].amount <= 0) {
+                                                    updated.splice(idx, 1);
+                                                }
+                                                return updated;
+                                            })
+                                        }
+                                    >
+                                        -
+                                    </button>
+
+                                    {/* ✅ 숫자 직접 입력 가능 */}
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={it.amount}
+                                        onChange={(e) =>
+                                            setItems((prev) => {
+                                                const updated = [...prev];
+                                                const newVal = Number(e.target.value);
+                                                if (isNaN(newVal)) {
+                                                    updated.splice(idx, 1);
+                                                } else if (newVal <= 0) {
+                                                    // 0 이하 입력 시 제거
+                                                    updated.splice(idx, 1);
+                                                } else {
+                                                    updated[idx] = {
+                                                        ...updated[idx],
+                                                        amount: newVal,
+                                                    };
+                                                }
+                                                return updated;
+                                            })
+                                        }
+                                        className="
+                                            w-12 text-center border rounded
+                                            [appearance:textfield] 
+                                            [&::-webkit-outer-spin-button]:appearance-none 
+                                            [&::-webkit-inner-spin-button]:appearance-none
+                                        "
+                                    />
+
+                                    <button
+                                        className="px-2 py-1 border rounded bg-gray-200"
+                                        onClick={() =>
+                                            setItems((prev) => {
+                                                const updated = [...prev];
+                                                updated[idx] = {
+                                                    ...updated[idx],
+                                                    amount: updated[idx].amount + 1,
+                                                };
+                                                return updated;
+                                            })
+                                        }
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -167,7 +278,13 @@ const OfflinePayCreate = () => {
                         <span>총 결제 금액</span>
                         <span>{total.toLocaleString()}원</span>
                     </div>
-                    <CustomCommonButton className="w-full mt-2 bg-black" onClick={handleSubmit} children="결제하기" />
+                    <CustomCommonButton
+                        className="w-full mt-2 bg-black"
+                        onClick={handleSubmit}
+                        disabled={total <= 0}
+                    >
+                        결제하기
+                    </CustomCommonButton>
                 </div>
             </div>
 
@@ -176,7 +293,10 @@ const OfflinePayCreate = () => {
                 {products.map((p) => (
                     <button
                         key={p.productId}
-                        className={`${(p.name == '텀블러 할인' || p.name == '종이백') ? 'bg-emerald-300' : 'bg-emerald-500 hover:bg-emerald-600'} text-white p-3 rounded-lg text-sm`}
+                        className={`${p.name === "텀블러 할인" || p.name === "종이백"
+                            ? "bg-emerald-300"
+                            : "bg-emerald-500 hover:bg-emerald-600"
+                            } text-white p-3 rounded-lg text-sm`}
                         onClick={() => addItem(p)}
                     >
                         <div className="font-medium">{p.name}</div>
