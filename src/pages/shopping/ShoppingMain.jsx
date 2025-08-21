@@ -24,7 +24,7 @@ export default function ShoppingMain() {
     () =>
       (categories || []).map((c) => ({
         key: c.categoryId,
-        name: c.categoryName ?? `카테고리 ${c.categoryId}`,
+        name: c.name ?? `카테고리 ${c.categoryId}`,
         // 이미지가 있다면 CategoryBar 내부에서 처리하도록 하고, 기본 이모지는 일단 고정
         emoji: "🏷️",
         imageUrl: c.image_url || c.imageUrl || null,
