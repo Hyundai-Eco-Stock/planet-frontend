@@ -13,7 +13,7 @@ const Header = () => {
 
     const onCartClick = () => {
         // 원하는 경로로 변경하세요
-        navigate("/~~~~~~");
+        navigate("/cart/main");
     };
 
     return (
