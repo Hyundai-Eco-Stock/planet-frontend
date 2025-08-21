@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CategoryBar from "./CategoryBar";
 import CategorySheet from "./CategorySheet";
-import { fetchProductsByCategory } from "../../api/product/product.api";
+import { fetchProductsByCategory, fetchCategories } from "../../api/product/product.api";
+import { useSearchParams } from "react-router-dom";
 
 export default function ShoppingMain() {
   const [expanded, setExpanded] = useState(false);
@@ -13,6 +14,9 @@ export default function ShoppingMain() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // URL 쿼리(category) 동기화
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // CategoryBar/Sheet가 기대하는 형태로 변환
   const barCategories = useMemo(
@@ -29,8 +33,28 @@ export default function ShoppingMain() {
     [categories]
   );
 
+  // 서버 검색을 사용할 것이므로 클라이언트 필터링은 사용하지 않음
+  const filteredItems = items;
+
   // 연속 클릭 시 이전 요청 취소용
   const pendingReq = useRef(null);
+
+  // 초기 렌더링 시 카테고리 목록 로드 (/products/categories)
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const json = await fetchCategories({ signal: controller.signal });
+        // API 형태가 [{categoryId, categoryName, ...}] 또는 {categories: [...] } 모두 수용
+        const list = Array.isArray(json) ? json : (Array.isArray(json?.categories) ? json.categories : []);
+        setCategories(list ?? []);
+      } catch (e) {
+        // 카테고리 로드 오류는 치명적이지 않으므로 items 로딩에는 영향 X
+        console.error("카테고리 로드 실패:", e);
+      }
+    })();
+    return () => controller.abort();
+  }, []);
 
   const fetchCategory = async (key) => {
     // 이전 요청 취소
@@ -43,17 +67,7 @@ export default function ShoppingMain() {
 
     try {
       const data = await fetchProductsByCategory(key, { signal: controller.signal });
-      if (Array.isArray(data)) {
-        // 구형 응답: 상품 배열만 내려오는 경우
-        setItems(data);
-        setCategories((prev) => prev); // 유지
-      } else if (data && typeof data === "object") {
-        // 번들 응답: { products, categories }
-        setItems(Array.isArray(data.products) ? data.products : []);
-        setCategories(Array.isArray(data.categories) ? data.categories : []);
-      } else {
-        setItems([]);
-      }
+      setItems(data);
     } catch (e) {
       if (e.name !== "AbortError") setError(e.message || "요청에 실패했어요");
     } finally {
@@ -62,18 +76,35 @@ export default function ShoppingMain() {
     }
   };
 
-  // 카테고리 클릭 시: 상태 변경 + API 요청
+  // 카테고리 클릭 시: URL만 갱신(데이터 로드는 URL 변화 감지로 처리)
   const handleSelect = (key) => {
     setActive(key);
     setExpanded(false);
-    fetchCategory(key);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (key == null) {
+        next.delete("category");
+      } else {
+        next.set("category", String(key));
+      }
+      return next;
+    });
   };
 
-  // 최초 진입 시 기본 카테고리 로드
+  // URL의 category 쿼리 변화에 따라 데이터 로드
   useEffect(() => {
-    fetchCategory();
+    const urlCat = searchParams.get("category");
+    if (urlCat) {
+      const parsed = isNaN(Number(urlCat)) ? urlCat : Number(urlCat);
+      setActive(parsed);
+      fetchCategory(parsed);
+    } else {
+      // 파라미터가 없으면 기본 목록 로드(카테고리 고정 방지)
+      fetchCategory();
+      setActive(null);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -111,13 +142,13 @@ export default function ShoppingMain() {
             <div className="h-56 flex items-center justify-center text-red-500">{error}</div>
           )}
 
-          {!loading && !error && items.length === 0 && (
+          {!loading && !error && filteredItems.length === 0 && (
             <div className="h-56 flex items-center justify-center text-gray-400">표시할 상품이 없어요</div>
           )}
 
-          {!loading && !error && items.length > 0 && (
+          {!loading && !error && filteredItems.length > 0 && (
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {items.map((p, idx) => {
+              {filteredItems.map((p, idx) => {
                 const id = p.productId ?? p.product_id ?? p.id ?? idx;
                 const name = p.product_name ?? p.productName ?? p.name ?? "상품명";
                 const brand = p.brand_name ?? p.brandName ?? p.brand ?? "";
