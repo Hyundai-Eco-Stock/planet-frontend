@@ -21,10 +21,11 @@ export async function fetchProductsByCategory(categoryKey) {
 
 /* 상품 검색 */
 export async function searchProducts(query, { signal } = {}) {
-  const url = `/products/search?query=${encodeURIComponent(query)}`;
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`검색 실패: ${res.status}`);
-  return res.json();
+  const response = await apiClient.get("/products/search", {
+    params: { searchKeyword: query },
+    signal,
+  });
+  return response.data;
 }
 
 /* 카테고리 목록 조회 */

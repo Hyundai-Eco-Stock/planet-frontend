@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CategoryBar from "./CategoryBar";
 import CategorySheet from "./CategorySheet";
-import { fetchProductsByCategory, fetchCategories } from "../../api/product/product.api";
+import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
 import { useSearchParams } from "react-router-dom";
 
 export default function ShoppingMain() {
@@ -14,6 +14,7 @@ export default function ShoppingMain() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   // URL 쿼리(category) 동기화
   const [searchParams, setSearchParams] = useSearchParams();
@@ -91,6 +92,32 @@ export default function ShoppingMain() {
     });
   };
 
+  // 검색 버튼/Enter 제출: 서버에 검색 요청 → items로 매핑
+  const handleSearchSubmit = async (e) => {
+    e?.preventDefault?.();
+    const keyword = searchKeyword.trim();
+    if (!keyword) return; // 빈 검색어는 무시
+
+    // 진행 중 요청 취소
+    if (pendingReq.current) pendingReq.current.abort();
+    const controller = new AbortController();
+    pendingReq.current = controller;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await searchProducts(keyword, { signal: controller.signal });
+      // 서버 응답: List<Product>
+      setItems(Array.isArray(data) ? data : []);
+    } catch (e) {
+      if (e.name !== "AbortError") setError(e.message || "검색에 실패했어요");
+    } finally {
+      if (pendingReq.current === controller) pendingReq.current = null;
+      setLoading(false);
+    }
+  };
+
   // URL의 category 쿼리 변화에 따라 데이터 로드
   useEffect(() => {
     const urlCat = searchParams.get("category");
@@ -115,6 +142,26 @@ export default function ShoppingMain() {
         onSelect={handleSelect}
         onToggle={() => setExpanded((v) => !v)}
       />
+
+      {/* 검색 바: CategoryBar 아래 */}
+      <div className="px-4 mt-2">
+        <form onSubmit={handleSearchSubmit} className="max-w-screen-md mx-auto flex gap-2">
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="상품명·브랜드 검색"
+            className="flex-1 h-10 rounded-md border border-gray-200 px-3 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300"
+          />
+          <button
+            type="submit"
+            className="h-10 px-4 rounded-md bg-gray-900 text-white"
+            aria-label="검색"
+          >
+            검색
+          </button>
+        </form>
+      </div>
 
       <CategorySheet
         categories={barCategories}
