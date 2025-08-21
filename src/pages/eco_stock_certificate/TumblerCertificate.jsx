@@ -46,11 +46,11 @@ const TumblerCertificate = () => {
                     }
                 });
             })
-            .catch(() => {
+            .catch((error) => {
                 Swal.fire({
                     icon: "error",
                     title: "인증 실패",
-                    text: "영수증 바코드가 잘못되었습니다.",
+                    text: error.response.data.message,
                     confirmButtonText: "확인",
                 });
             });

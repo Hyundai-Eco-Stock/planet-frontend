@@ -44,6 +44,7 @@ function App() {
     "/eco-stock/certificate/tumbler",
     "/eco-stock/certificate/electronic-car-parking",
     "/eco-stock/certificate/paper-bag-no-use",
+    "/offline-pay/create",
   ];
   const showBackButtonHeader = showBackButtonHeaderPaths.includes(location.pathname);
 
@@ -51,6 +52,7 @@ function App() {
   const hideFooterPaths = [
     "/signup/local",
     "/login",
+    "/offline-pay/create",
   ];
   const hideFooter = hideFooterPaths.includes(location.pathname);
 
