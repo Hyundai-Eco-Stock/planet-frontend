@@ -17,8 +17,17 @@ export const localLogin = async (email, password) => {
  * @param {String} password
  * @param {*} profileImage 
  */
-export const signUpByKakao = async (email, name, password, profileImage) => {
-	const signUpData = { email, name, password };
+export const signUpByKakao = async ({
+	email,
+	name,
+	password,
+	profileFile,
+	sex,
+	birth,
+	address,
+	detailAddress,
+}) => {
+	const signUpData = { email, name, password, sex, birth, address, detailAddress, };
 
 	const multipartForm = new FormData();
 	multipartForm.append(
@@ -26,9 +35,9 @@ export const signUpByKakao = async (email, name, password, profileImage) => {
 		new Blob([JSON.stringify(signUpData)], { type: "application/json" })
 	);
 
-	if (profileImage) {
-		const filename = profileImage.name || "profile.jpg";
-		multipartForm.append("profileImage", profileImage, filename);
+	if (profileFile) {
+		const filename = profileFile.name || "profile.jpg";
+		multipartForm.append("profileImage", profileFile, filename);
 	}
 
 	await apiClient.post("/auth/signup/kakao", multipartForm, {

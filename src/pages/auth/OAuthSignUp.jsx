@@ -9,6 +9,7 @@ import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import useAuthStore from '@/store/authStore';
 import "@/main.css"; // 전역 공통 유틸(@layer) 사용
 import { signUpByKakao } from "@/api/auth/auth.api";
+import CustomProfileImageInput from '../../components/_custom/CustomProfileImageInput';
 
 const OAuthSignUp = () => {
     const location = useLocation();
@@ -27,6 +28,14 @@ const OAuthSignUp = () => {
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
 
+    // 추가된 필드
+    const [sex, setSex] = useState("");  // 'M' or 'F'
+    const [birthYear, setBirthYear] = useState("");
+    const [birthMonth, setBirthMonth] = useState("");
+    const [birthDay, setBirthDay] = useState("");
+    const [address, setAddress] = useState("");
+    const [detailAddress, setDetailAddress] = useState("");
+
     useEffect(() => {
         if (accessToken && email && nameParam) {
             console.log(`accessToken: ${accessToken}`)
@@ -36,7 +45,7 @@ const OAuthSignUp = () => {
             useAuthStore.getState().setName(name);
             useAuthStore.getState().setProfile(profileUrl);
 
-            // URL에서 토큰 흔적 제거 후 이동(
+            // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/signup");
         }
     }, [accessToken, email, nameParam]);
@@ -49,11 +58,13 @@ const OAuthSignUp = () => {
         }
     }, [password, passwordCheck]);
 
-    const handleProfileChange = (e) => {
-        const file = e.target.files?.[0];
+    const handleProfileChange = (file) => {
         if (file) {
             setProfileUrl(URL.createObjectURL(file)); // 미리보기 용
             setProfileFile(file); // 서버 전송 용
+        } else {
+            setProfileUrl(null);
+            setProfileFile(null);
         }
     };
 
@@ -62,8 +73,22 @@ const OAuthSignUp = () => {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
+
+        const birth = birthYear && birthMonth && birthDay
+            ? `${birthYear}-${birthMonth}-${birthDay}`
+            : null;
+
         console.log("회원가입 요청");
-        signUpByKakao(email, name, password, profileFile)
+        signUpByKakao({
+            email,
+            name,
+            password,
+            profileFile,
+            sex,
+            birth,
+            address,
+            detailAddress,
+        })
             .then(() => {
                 Swal.fire({
                     icon: "success",
@@ -76,13 +101,14 @@ const OAuthSignUp = () => {
                 Swal.fire({
                     icon: "error",
                     title: "회원가입 실패",
-                    text: err.response.data,
+                    text: err.response?.data || "알 수 없는 오류",
                     confirmButtonText: "확인",
                 });
             });
     };
 
-    const isSubmitDisabled = !passwordMatch || !password || !passwordCheck || !name;
+    const isSubmitDisabled =
+        !passwordMatch || !password || !passwordCheck || !name || !sex;
 
     return (
         <div className="min-h-dvh bg-gray-50 flex flex-col gap-3 px-4 pb-4 pb-safe pt-2">
@@ -97,7 +123,13 @@ const OAuthSignUp = () => {
                 {/* 프로필 */}
                 <section className="flex flex-col gap-2">
                     <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
-                    <div className="flex items-center gap-3">
+                    <CustomProfileImageInput
+                        value={profileFile}
+                        onChange={handleProfileChange}
+                        previewUrl={profileUrl}
+
+                    />
+                    {/* <div className="flex items-center gap-3">
                         <img
                             src={profileUrl || "/placeholder-avatar.svg"}
                             alt="profile"
@@ -107,7 +139,7 @@ const OAuthSignUp = () => {
                             <CustomCommonInput type="file" onChange={handleProfileChange} className="py-2" />
                             <p className="mt-1 text-xs text-gray-500">정사각형 이미지를 추천합니다 (최대 5MB).</p>
                         </div>
-                    </div>
+                    </div> */}
                 </section>
 
                 <div className="h-px bg-gray-200 my-3" />
@@ -157,6 +189,69 @@ const OAuthSignUp = () => {
                             <div className="mt-1 text-xs text-red-500">비밀번호가 일치하지 않습니다.</div>
                         )}
                     </div>
+                </section>
+
+                {/* 성별 */}
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">성별</label>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            className={`flex-1 py-2 rounded-lg border ${sex === "M" ? "bg-green-500 text-white" : "bg-white"}`}
+                            onClick={() => setSex("M")}
+                        >
+                            남자
+                        </button>
+                        <button
+                            type="button"
+                            className={`flex-1 py-2 rounded-lg border ${sex === "F" ? "bg-green-500 text-white" : "bg-white"}`}
+                            onClick={() => setSex("F")}
+                        >
+                            여자
+                        </button>
+                    </div>
+                </section>
+
+                {/* 생년월일 */}
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">생년월일</label>
+                    <div className="flex gap-2">
+                        <CustomCommonInput
+                            type="number"
+                            value={birthYear}
+                            placeholder="YYYY"
+                            onChange={(e) => setBirthYear(e.target.value)}
+                        />
+                        <CustomCommonInput
+                            type="number"
+                            value={birthMonth}
+                            placeholder="MM"
+                            onChange={(e) => setBirthMonth(e.target.value)}
+                        />
+                        <CustomCommonInput
+                            type="number"
+                            value={birthDay}
+                            placeholder="DD"
+                            onChange={(e) => setBirthDay(e.target.value)}
+                        />
+                    </div>
+                </section>
+
+                {/* 주소 */}
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">주소</label>
+                    <CustomCommonInput
+                        type="text"
+                        value={address}
+                        placeholder="주소 검색"
+                        onChange={(e) => setAddress(e.target.value)}
+                    />
+                    <CustomCommonInput
+                        type="text"
+                        value={detailAddress}
+                        placeholder="상세 주소 입력"
+                        onChange={(e) => setDetailAddress(e.target.value)}
+                    />
                 </section>
             </main>
 
