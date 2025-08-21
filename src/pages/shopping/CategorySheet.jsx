@@ -35,7 +35,17 @@ export default function CategorySheet({ categories, active, expanded, onClose, o
                   active === c.key ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
                 }`}
               >
-                {c.emoji}
+                {(c.imageUrl || c.image) ? (
+                  <img
+                    src={c.imageUrl || c.image}
+                    alt={c.name || "카테고리 이미지"}
+                    className="w-12 h-12 object-contain"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <span aria-hidden>{c.emoji || "🏷️"}</span>
+                )}
               </div>
               <div className="mt-1 text-sm">{c.name}</div>
             </button>
