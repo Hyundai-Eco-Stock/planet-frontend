@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 
 export default function ShoppingMain() {
   const [expanded, setExpanded] = useState(false);
-  const [active, setActive] = useState(null); // 초기엔 선택 없음
+  const [activeCategoryId, setActiveCategoryId] = useState(null); // 초기엔 선택 없음
   // 서버에서 받은 카테고리 보관
   const [categories, setCategories] = useState([]);
 
@@ -36,7 +36,7 @@ export default function ShoppingMain() {
     const urlCat = searchParams.get("category");
     const key = urlCat ? (isNaN(Number(urlCat)) ? urlCat : Number(urlCat)) : null;
     
-    setActive(key);
+    setActiveCategoryId(key);
     setLoading(true);
     setError(null);
 
@@ -58,7 +58,7 @@ export default function ShoppingMain() {
   /* 카테고리 클릭 : URL 갱신 & 즉시 상품 목록 로드 */
   const handleSelect = async (key) => {
     const nextKey = key == null || key === "" ? null : (isNaN(Number(key)) ? key : Number(key));
-    setActive(nextKey);
+    setActiveCategoryId(nextKey);
     setExpanded(false);
     setSearchParams((prev) => { // URL 동기화
       const next = new URLSearchParams(prev);
@@ -86,7 +86,7 @@ export default function ShoppingMain() {
     setLoading(true);
     setError(null);
     try {
-      const data = await searchProducts(keyword);
+      const data = await searchProducts(keyword, activeCategoryId);
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
       setError(e.message || "검색에 실패했어요");
@@ -100,7 +100,7 @@ export default function ShoppingMain() {
     <div className="min-h-screen bg-white text-gray-900">
       <CategoryBar
         categories={barCategories}
-        active={active}
+        active={activeCategoryId}
         expanded={expanded}
         onSelect={handleSelect}
         onToggle={() => setExpanded((v) => !v)}
@@ -128,7 +128,7 @@ export default function ShoppingMain() {
 
       <CategorySheet
         categories={barCategories}
-        active={active}
+        active={activeCategoryId}
         expanded={expanded}
         onClose={() => setExpanded(false)}
         onSelect={handleSelect}

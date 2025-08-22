@@ -10,19 +10,20 @@ export const searchRecommendProducts = async (name, categoryId, id, size) => {
 
 
 /* 카테고리별 상품 조회 */
-export async function fetchProductsByCategory(categoryKey) {
+export async function fetchProductsByCategory(categoryId) {
   console.log("여기까지 왓다 !!")
   const response = await apiClient.get("/products", {
-    params: { categoryId: categoryKey }
+    params: { categoryId: categoryId }
   });
   console.log(response.data);
   return response.data;
 }
 
 /* 상품 검색 */
-export async function searchProducts(query, { signal } = {}) {
+export async function searchProducts(query, categoryId, { signal } = {}) {
+  console.log("searchProducts called with query:", query, "and categoryId:", categoryId);
   const response = await apiClient.get("/products/search", {
-    params: { searchKeyword: query },
+    params: { searchKeyword: query, categoryId },
     signal,
   });
   return response.data;
