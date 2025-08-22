@@ -96,7 +96,7 @@ const CarAccessHistoryCreate = () => {
                     )}
                     {histories.map((h) => (
                         <li
-                            key={h.id}
+                            key={h.carAccessHistoryId}
                             className="border rounded-lg px-3 py-2 flex justify-between"
                         >
                             <span>{h.carNumber}</span>
