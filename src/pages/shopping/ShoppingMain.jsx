@@ -18,7 +18,7 @@ export default function ShoppingMain() {
   const [searchKeyword, setSearchKeyword] = useState("");
 
   // URL 쿼리(category) 동기화용
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   /* CategoryBar.jsx CategotySheet.jsx 데이터 맵핑 */
   const barCategories = useMemo(
@@ -31,11 +31,28 @@ export default function ShoppingMain() {
     [categories]
   );
 
-  /* 초기 렌더링 시 카테고리 목록 로드 */
+  /* 초기 렌더링: 카테고리 + 초기 상품 동시 로드 (URL의 category 우선) */
   useEffect(() => {
-    fetchCategories()
-      .then((list) => setCategories(Array.isArray(list) ? list : []))
-      .catch((e) => console.error("카테고리 로드 실패:", e));
+    const urlCat = searchParams.get("category");
+    const key = urlCat ? (isNaN(Number(urlCat)) ? urlCat : Number(urlCat)) : null;
+    
+    setActive(key);
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      fetchCategories().then((list) => (Array.isArray(list) ? list : [])),
+      fetchProductsByCategory(key).then((data) => (Array.isArray(data) ? data : [])),
+    ])
+      .then(([cats, products]) => {
+        setCategories(cats);
+        setItems(products);
+      })
+      .catch((e) => {
+        console.error("초기 로드 실패:", e);
+        setError(e?.message || "초기 데이터 로드에 실패했어요");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   /* 카테고리 클릭 : URL 갱신 & 즉시 상품 목록 로드 */
