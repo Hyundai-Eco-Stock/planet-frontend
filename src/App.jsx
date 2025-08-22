@@ -37,6 +37,9 @@ import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
 
 // 차량 입출차 기록 생성
 import CarAccessHistoryCreate from '@/pages/car_access/CarAccessHistoryCreate'
+
+// 장바구니
+import CartMain from '@/pages/cart/CartMain'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -57,6 +60,7 @@ function App() {
     "/signup/local",
     "/login",
     "/offline-pay/create",
+    "/cart/main",
   ];
   const hideFooter = hideFooterPaths.includes(location.pathname);
 
@@ -67,8 +71,8 @@ function App() {
           ? <HeaderWithBack />
           : <Header />
       }
-      
-      
+
+
       <main className='flex-grow px-2'>
         <Routes>
           {/* 홈 */}
@@ -93,6 +97,10 @@ function App() {
           <Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
           <Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
           <Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
+
+          {/* 장바구니 - 새로 추가할 부분 */}
+          <Route path="/cart" element={<Navigate to="/cart/main" />} />
+          <Route path="/cart/main" element={<CartMain />} />
 
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
