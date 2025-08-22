@@ -19,7 +19,6 @@ const CarAccessHistoryCreate = () => {
         try {
             const data = await fetchCarHistories();
             setHistories(data);
-            console.log(data);
         } catch (err) {
             console.error(err);
             Swal.fire("불러오기 실패", "입출차 기록을 불러올 수 없습니다.", "error");
