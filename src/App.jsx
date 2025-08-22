@@ -32,8 +32,11 @@ import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate
 import VolunteerWorkCertificate from '@/pages/eco_stock_certificate/VolunteerWorkCertificate'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
-// 영수증
+// 결제 정보 생성
 import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
+
+// 차량 입출차 기록 생성
+import CarAccessHistoryCreate from '@/pages/car_access/CarAccessHistoryCreate'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -96,8 +99,11 @@ function App() {
           <Route path="/my-page/main" element={<MyPageMain />} />
           <Route path="/my-page/my-car" element={<MyCarInfo />} />
 
-          {/* 영수증 생성 페이지 */}
+          {/* 오프라인 결제 정보 생성 페이지 */}
           <Route path="/offline-pay/create" element={<OfflinePayCreate />} />
+
+          {/* 차량 입출차 생성 페이지 */}
+          <Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
