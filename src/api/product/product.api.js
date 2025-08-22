@@ -33,5 +33,6 @@ export async function fetchCategories({ signal } = {}) {
   const response = await apiClient.get("/products/categories", {
     signal,
   });
+  console.log("카테고리 !!", response.data);
   return response.data;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CategoryBar from "./CategoryBar";
 import CategorySheet from "./CategorySheet";
 import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
@@ -17,119 +17,67 @@ export default function ShoppingMain() {
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // URL 쿼리(category) 동기화
-  const [searchParams, setSearchParams] = useSearchParams();
+  // URL 쿼리(category) 동기화용
+  const [, setSearchParams] = useSearchParams();
 
-  // CategoryBar/Sheet가 기대하는 형태로 변환
+  /* CategoryBar.jsx CategotySheet.jsx 데이터 맵핑 */
   const barCategories = useMemo(
     () =>
       (categories || []).map((c) => ({
         key: c.categoryId,
         name: c.name ?? `카테고리 ${c.categoryId}`,
-        // 이미지가 있다면 CategoryBar 내부에서 처리하도록 하고, 기본 이모지는 일단 고정
-        emoji: "🏷️",
-        imageUrl: c.image_url || c.imageUrl || null,
-        // 일부 컴포넌트가 imageUrl 대신 image 키를 참조할 수 있어 동시 제공
-        image: c.image_url || c.imageUrl || null,
+        imageUrl: c.image_url || c.imageUrl || null
       })),
     [categories]
   );
 
-  // 연속 클릭 시 이전 요청 취소용
-  const pendingReq = useRef(null);
-
-  // 초기 렌더링 시 카테고리 목록 로드 (/products/categories)
+  /* 초기 렌더링 시 카테고리 목록 로드 */
   useEffect(() => {
-    const controller = new AbortController();
-    (async () => {
-      try {
-        const json = await fetchCategories({ signal: controller.signal });
-        // API 형태가 [{categoryId, categoryName, ...}] 또는 {categories: [...] } 모두 수용
-        const list = Array.isArray(json) ? json : (Array.isArray(json?.categories) ? json.categories : []);
-        setCategories(list ?? []);
-      } catch (e) {
-        // 카테고리 로드 오류는 치명적이지 않으므로 items 로딩에는 영향 X
-        console.error("카테고리 로드 실패:", e);
-      }
-    })();
-    return () => controller.abort();
+    fetchCategories()
+      .then((list) => setCategories(Array.isArray(list) ? list : []))
+      .catch((e) => console.error("카테고리 로드 실패:", e));
   }, []);
 
-  const fetchCategory = async (key) => {
-    // 이전 요청 취소
-    if (pendingReq.current) pendingReq.current.abort();
-    const controller = new AbortController();
-    pendingReq.current = controller;
-
+  /* 카테고리 클릭 : URL 갱신 & 즉시 상품 목록 로드 */
+  const handleSelect = async (key) => {
+    const nextKey = key == null || key === "" ? null : (isNaN(Number(key)) ? key : Number(key));
+    setActive(nextKey);
+    setExpanded(false);
+    setSearchParams((prev) => { // URL 동기화
+      const next = new URLSearchParams(prev);
+      if (nextKey == null) next.delete("category");
+      else next.set("category", String(nextKey));
+      return next;
+    });
     setLoading(true);
     setError(null);
-
-    try {
-      const data = await fetchProductsByCategory(key, { signal: controller.signal });
-      setItems(data);
+    try {  // 데이터 로드
+      const data = await fetchProductsByCategory(nextKey ?? undefined);
+      setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      if (e.name !== "AbortError") setError(e.message || "요청에 실패했어요");
+      setError(e?.message || "상품 목록 조회에 실패했어요");
     } finally {
-      if (pendingReq.current === controller) pendingReq.current = null;
       setLoading(false);
     }
   };
 
-  // 카테고리 클릭 시: URL만 갱신(데이터 로드는 URL 변화 감지로 처리)
-  const handleSelect = (key) => {
-    setActive(key);
-    setExpanded(false);
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (key == null) {
-        next.delete("category");
-      } else {
-        next.set("category", String(key));
-      }
-      return next;
-    });
-  };
-
-  // 검색 버튼/Enter 제출: 서버에 검색 요청 → items로 매핑
+  /* 검색 */
   const handleSearchSubmit = async (e) => {
     e?.preventDefault?.();
     const keyword = searchKeyword.trim();
-    if (!keyword) return; // 빈 검색어는 무시
-
-    // 진행 중 요청 취소
-    if (pendingReq.current) pendingReq.current.abort();
-    const controller = new AbortController();
-    pendingReq.current = controller;
-
+    if (!keyword) return;
     setLoading(true);
     setError(null);
-
     try {
-      const data = await searchProducts(keyword, { signal: controller.signal });
-      // 서버 응답: List<Product>
+      const data = await searchProducts(keyword);
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      if (e.name !== "AbortError") setError(e.message || "검색에 실패했어요");
+      setError(e.message || "검색에 실패했어요");
     } finally {
-      if (pendingReq.current === controller) pendingReq.current = null;
       setLoading(false);
     }
   };
 
-  // URL의 category 쿼리 변화에 따라 데이터 로드
-  useEffect(() => {
-    const urlCat = searchParams.get("category");
-    if (urlCat) {
-      const parsed = isNaN(Number(urlCat)) ? urlCat : Number(urlCat);
-      setActive(parsed);
-      fetchCategory(parsed);
-    } else {
-      // 파라미터가 없으면 기본 목록 로드(카테고리 고정 방지)
-      fetchCategory();
-      setActive(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
