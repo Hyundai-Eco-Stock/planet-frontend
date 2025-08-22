@@ -24,6 +24,7 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
+import MyCarInfo from '@/pages/mypage/MyCarInfo'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -93,6 +94,7 @@ function App() {
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
           <Route path="/my-page/main" element={<MyPageMain />} />
+          <Route path="/my-page/my-car" element={<MyCarInfo />} />
 
           {/* 영수증 생성 페이지 */}
           <Route path="/offline-pay/create" element={<OfflinePayCreate />} />

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import ProfileButton from "@/components/auth/ProfileButtons";
 import { logout } from "@/api/auth/auth.api";
@@ -65,6 +65,7 @@ const MyPageMain = () => {
                 <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
                 <CustomCommonButton onClick={() => { navigate("/offline-pay/create") }} children="오프라인 결제 포스기" />
                 <CustomCommonButton onClick={() => { navigate("/eco-stock/certificate") }} children="에코 스톡 인증 페이지로 이동" />
+                <Link to="/my-page/my-car">내 차 관리하기</Link>
             </div>
         </div>
     );

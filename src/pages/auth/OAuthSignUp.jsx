@@ -73,10 +73,48 @@ const OAuthSignUp = () => {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
+        if (!name.trim()) {
+            Swal.fire({ icon: "warning", title: "이름을 입력해주세요" });
+            return;
+        }
+        if (!email) {
+            Swal.fire({ icon: "warning", title: "이메일 정보가 없습니다." });
+            return;
+        }
+        if (!password) {
+            Swal.fire({ icon: "warning", title: "비밀번호를 입력해주세요" });
+            return;
+        }
+        if (password.length < 8) {
+            Swal.fire({ icon: "warning", title: "비밀번호는 8자 이상이어야 합니다." });
+            return;
+        }
+        if (!passwordMatch) {
+            Swal.fire({ icon: "warning", title: "비밀번호가 일치하지 않습니다." });
+            return;
+        }
+        if (!sex) {
+            Swal.fire({ icon: "warning", title: "성별을 선택해주세요" });
+            return;
+        }
+        if (!birthYear || !birthMonth || !birthDay) {
+            Swal.fire({ icon: "warning", title: "생년월일을 모두 입력해주세요" });
+            return;
+        }
+        if (birthYear.length !== 4 || birthMonth.length > 2 || birthDay.length > 2) {
+            Swal.fire({ icon: "warning", title: "생년월일 형식이 올바르지 않습니다." });
+            return;
+        }
+        if (!address.trim()) {
+            Swal.fire({ icon: "warning", title: "주소를 입력해주세요" });
+            return;
+        }
+        if (!detailAddress.trim()) {
+            Swal.fire({ icon: "warning", title: "상세 주소를 입력해주세요" });
+            return;
+        }
 
-        const birth = birthYear && birthMonth && birthDay
-            ? `${birthYear}-${birthMonth}-${birthDay}`
-            : null;
+        const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
         console.log("회원가입 요청");
         signUpByKakao({
