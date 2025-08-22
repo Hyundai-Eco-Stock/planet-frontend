@@ -32,7 +32,7 @@ const Login = () => {
     };
 
     return (
-        <div className="mx-auto max-w-[640px] px-6 pt-16 pb-28">
+        <div className="mx-auto max-w-[640px] px-6 pt-12">
             {/* 제목 */}
             <h1 className="text-center text-3xl font-extrabold tracking-tight mb-10">로그인</h1>
 

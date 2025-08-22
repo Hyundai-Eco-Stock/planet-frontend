@@ -6,9 +6,6 @@ import Header from '@/components/_layout/Header'
 import HeaderWithBack from './components/_layout/HeaderWithBack'
 import Footer from '@/components/_layout/Footer'
 
-// PWA/FCM 관련 UI 컨트롤러
-import { NotificationController } from '@/components/fcm/NotificationController';
-
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
 import HomeMain from '@/pages/home/Home'
@@ -27,15 +24,22 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
+import MyCarInfo from '@/pages/mypage/MyCarInfo'
 
 // 에코스톡 인증
-import EcoStockCertificate from './pages/eco_stock/EcoStockCertificate'
-import TumblerCertificate from './pages/eco_stock/TumblerCertificate'
-import VolunteerWorkCertificate from './pages/eco_stock/VolunteerWorkCertificate'
-import PaperBagNoUseCertificate from './pages/eco_stock/PaperBagNoUseCertificate'
+import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
+import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
+import VolunteerWorkCertificate from '@/pages/eco_stock_certificate/VolunteerWorkCertificate'
+import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
-// 영수증
-import PaperBagNoUseReceiptCreate from './pages/receipt/PaperBagNoUseReceiptCreate'
+// 결제 정보 생성
+import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
+
+// 차량 입출차 기록 생성
+import CarAccessHistoryCreate from '@/pages/car_access/CarAccessHistoryCreate'
+
+// 장바구니
+import CartMain from '@/pages/cart/CartMain'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -47,12 +51,16 @@ function App() {
     "/eco-stock/certificate/tumbler",
     "/eco-stock/certificate/electronic-car-parking",
     "/eco-stock/certificate/paper-bag-no-use",
+    "/offline-pay/create",
   ];
   const showBackButtonHeader = showBackButtonHeaderPaths.includes(location.pathname);
 
   // 푸터 안보이게 할 경로 
   const hideFooterPaths = [
     "/signup/local",
+    "/login",
+    "/offline-pay/create",
+    "/cart/main",
   ];
   const hideFooter = hideFooterPaths.includes(location.pathname);
 
@@ -63,8 +71,8 @@ function App() {
           ? <HeaderWithBack />
           : <Header />
       }
-      <NotificationController />
-      
+
+
       <main className='flex-grow px-2'>
         <Routes>
           {/* 홈 */}
@@ -90,12 +98,20 @@ function App() {
           <Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
           <Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
 
+          {/* 장바구니 - 새로 추가할 부분 */}
+          <Route path="/cart" element={<Navigate to="/cart/main" />} />
+          <Route path="/cart/main" element={<CartMain />} />
+
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
           <Route path="/my-page/main" element={<MyPageMain />} />
+          <Route path="/my-page/my-car" element={<MyCarInfo />} />
 
-          {/* 영수증 생성 페이지 */}
-          <Route path="/receipt/create/paper-bag-no-use" element={<PaperBagNoUseReceiptCreate />} />
+          {/* 오프라인 결제 정보 생성 페이지 */}
+          <Route path="/offline-pay/create" element={<OfflinePayCreate />} />
+
+          {/* 차량 입출차 생성 페이지 */}
+          <Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}

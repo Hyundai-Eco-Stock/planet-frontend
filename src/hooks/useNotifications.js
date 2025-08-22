@@ -9,18 +9,18 @@ export const useNotifications = () => {
 	const [notification, setNotification] = useState({ title: '', body: '' });
 
 	useEffect(() => {
-		// 1. 페이지 로드 시 자동으로 토큰 요청
-		if (
-			'serviceWorker' in navigator &&
-			'PushManager' in window &&
-			(window.location.protocol === 'https:' || window.location.hostname === 'localhost')
-		) {
-			requestForToken();
-		} else {
-			console.log('HTTPS 환경이 아니거나 Push API를 지원하지 않아 FCM을 초기화할 수 없습니다.');
-		}
+		// 페이지 로드 시 자동으로 토큰 요청
+		// if (
+		// 	'serviceWorker' in navigator &&
+		// 	'PushManager' in window &&
+		// 	(window.location.protocol === 'https:' || window.location.hostname === 'localhost')
+		// ) {
+		// 	requestForToken();
+		// } else {
+		// 	console.log('HTTPS 환경이 아니거나 Push API를 지원하지 않아 FCM을 초기화할 수 없습니다.');
+		// }
 
-		// 2. 포그라운드 메시지 리스너 설정
+		// 포그라운드 메시지 리스너 설정
 		const unsubscribePromise = onMessageListener().then((payload) => {
 			console.log('포그라운드 메시지 수신:', payload);
 			setNotification({
