@@ -101,3 +101,21 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => {
     e.waitUntil(self.clients.claim());
 });
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    const targetPath = event.notification.data?.targetUrl || '/';
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then(windowClients => {
+            // 이미 열려 있는 탭이 있으면 포커스
+            for (const client of windowClients) {
+                if (client.url.includes(targetPath)) {
+                    return client.focus();
+                }
+            }
+            // 없으면 새 탭으로 열기, 도메인 기반 URL 생성
+            const origin = self.location.origin;
+            return clients.openWindow(origin + targetPath);
+        })
+    );
+});
