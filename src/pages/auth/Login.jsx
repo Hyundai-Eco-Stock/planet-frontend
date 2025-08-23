@@ -64,13 +64,21 @@ const Login = () => {
             </form>
 
             {/* 회원가입 링크 */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-6 flex justify-center gap-10">
                 <button
                     type="button"
                     onClick={() => navigate("/signup/local")}
                     className="text-black text-base underline-offset-4 hover:underline"
                 >
                     회원가입하기
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/reset/password")}
+                    className="text-black text-base underline-offset-4 hover:underline"
+                >
+                    비밀번호 재설정
                 </button>
             </div>
 
