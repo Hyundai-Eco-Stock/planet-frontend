@@ -4,7 +4,7 @@ export const searchRecommendProducts = async (name, categoryId, id, size) => {
   const response = await apiClient.get("/products/recommend", {
     params: { name, categoryId, id, size },
   });
-  console.log(response.data);
+  console.log("searchRecommendProducts API 응답:", response.data);
   return response.data;
 };
 
@@ -15,7 +15,7 @@ export async function fetchProductsByCategory(categoryId) {
   const response = await apiClient.get("/products", {
     params: { categoryId: categoryId }
   });
-  console.log(response.data);
+  console.log("fetchProductsByCategory API 응답:", response.data);
   return response.data;
 }
 
@@ -26,6 +26,7 @@ export async function searchProducts(query, categoryId, { signal } = {}) {
     params: { searchKeyword: query, categoryId },
     signal,
   });
+  console.log("searchProducts API 응답:", response.data);
   return response.data;
 }
 
@@ -34,16 +35,16 @@ export async function fetchCategories({ signal } = {}) {
   const response = await apiClient.get("/products/categories", {
     signal,
   });
-  console.log("카테고리 !!", response.data);
+  console.log("fetchCategories API 응답:", response.data);
   return response.data;
 }
 
-/* 상품 상세 조회 (navigation과 동일 경로) */
+/* 상품 상세 조회 */
 export async function fetchProductDetail(productId, { signal } = {}) {
   const response = await apiClient.get(`/products/${productId}`, {
     params: { productId },
     signal,
   });
-  console.log("상품 상세 조회 응답:", response.data);
+  console.log("fetchProductDetail API 응답:", response.data);
   return response.data;
 }
