@@ -37,3 +37,13 @@ export async function fetchCategories({ signal } = {}) {
   console.log("카테고리 !!", response.data);
   return response.data;
 }
+
+/* 상품 상세 조회 (navigation과 동일 경로) */
+export async function fetchProductDetail(productId, { signal } = {}) {
+  const response = await apiClient.get(`/products/${productId}`, {
+    params: { productId },
+    signal,
+  });
+  console.log("상품 상세 조회 응답:", response.data);
+  return response.data;
+}
