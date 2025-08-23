@@ -37,6 +37,20 @@ import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
 // 장바구니
 import CartMain from '@/pages/cart/CartMain'
 
+// 주문
+import DeliveryOrderPage from '@/pages/order/DeliveryOrderPage'
+import PickupOrderPage from '@/pages/order/PickupOrderPage'
+
+const OrderRedirect = () => {
+  const location = useLocation()
+  const deliveryType = location.state?.deliveryType || 'DELIVERY'
+  
+  if (deliveryType === 'PICKUP') {
+    return <Navigate to="/orders/pickup" state={location.state} replace />
+  }
+  return <Navigate to="/orders/delivery" state={location.state} replace />
+}
+
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -58,19 +72,28 @@ function App() {
     "/login",
     "/offline-pay/create",
     "/cart/main",
+    "/orders/delivery",
+    "/orders/pickup",
   ];
   const hideFooter = hideFooterPaths.includes(location.pathname);
 
+  // 헤더를 완전히 숨길 경로들 (주문서 페이지는 자체 헤더 사용)
+  const hideHeaderPaths = [
+    "/orders/delivery",
+    "/orders/pickup",
+  ];
+  const hideHeader = hideHeaderPaths.includes(location.pathname);
+
   return (
     <div className='w-full h-full flex flex-col'>
-      {
+      {/* 주문서 페이지에서는 헤더 완전 숨김 */}
+      {!hideHeader && (
         showBackButtonHeader
           ? <HeaderWithBack />
           : <Header />
-      }
+      )}
 
-
-      <main className='flex-grow px-2'>
+      <main className={`flex-grow ${hideHeader ? '' : 'px-2'}`}>
         <Routes>
           {/* 홈 */}
           <Route path="/" element={<Navigate to="/home" />} />
@@ -95,9 +118,14 @@ function App() {
           <Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
           <Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
 
-          {/* 장바구니 - 새로 추가할 부분 */}
+          {/* 장바구니 */}
           <Route path="/cart" element={<Navigate to="/cart/main" />} />
           <Route path="/cart/main" element={<CartMain />} />
+
+          {/* 주문 */}
+          <Route path="/orders" element={<OrderRedirect />} />
+          <Route path="/orders/delivery" element={<DeliveryOrderPage />} />
+          <Route path="/orders/pickup" element={<PickupOrderPage />} />
 
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
