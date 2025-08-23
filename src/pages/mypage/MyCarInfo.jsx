@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchMyCarInfo, registerCarInfo } from "@/api/car/car.api";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
-import { SimpleSelect } from "@/components/_custom/CustomSelect";
+// import { SimpleSelect } from "@/components/_custom/CustomSelect";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 
 
@@ -12,7 +12,7 @@ const MyCarInfo = () => {
     const [carNumberLeft, setCarNumberLeft] = useState(null);
     const [carNumberMiddle, setCarNumberMiddle] = useState(null);
     const [carNumberRight, setCarNumberRight] = useState(null);
-    const [carEcoType, setCarEcoType] = useState(null);
+    // const [carEcoType, setCarEcoType] = useState(null);
     const [carInfoExist, setCarInfoExist] = useState(null);
 
     // 내 차 정보 가져오기
@@ -31,13 +31,13 @@ const MyCarInfo = () => {
                     setCarNumberRight(match[3]);
                 }
 
-                setCarEcoType(data.carEcoType || "NORMAL");
+                // setCarEcoType(data.carEcoType || "NORMAL");
                 setCarInfoExist(true);
             } else {
                 setCarNumberLeft("");
                 setCarNumberMiddle("");
                 setCarNumberRight("");
-                setCarEcoType("NORMAL");
+                // setCarEcoType("NORMAL");
                 setCarInfoExist(false);
             }
         } catch (err) {
@@ -62,7 +62,7 @@ const MyCarInfo = () => {
         }
 
         const carNumber = `${carNumberLeft}${carNumberMiddle}${carNumberRight}`;
-        const request = { carNumber, carEcoType };
+        const request = { carNumber };
 
         try {
             const response = await registerCarInfo(request);
@@ -120,7 +120,7 @@ const MyCarInfo = () => {
                 </div>
             </div>
 
-            <div>
+            {/* <div>
                 <label className="block mb-1 font-semibold">차 종류</label>
                 <SimpleSelect
                     value={carEcoType}
@@ -132,21 +132,21 @@ const MyCarInfo = () => {
                     ]}
                     placeholder="선택하세요"
                 />
-            </div>
+            </div> */}
 
-                <CustomCommonButton
-                    onClick={handleRegisterCarInfo}
-                    disabled={carInfoExist}
-                >
-                    차량 정보 등록
-                </CustomCommonButton>
+            <CustomCommonButton
+                onClick={handleRegisterCarInfo}
+                disabled={carInfoExist}
+            >
+                차량 정보 등록
+            </CustomCommonButton>
 
-                <CustomCommonButton
-                    onClick={handleDeleteCarInfo}
-                    disabled={!carInfoExist}
-                >
-                    차량 정보 삭제 (개발 전)
-                </CustomCommonButton>
+            <CustomCommonButton
+                onClick={handleDeleteCarInfo}
+                disabled={!carInfoExist}
+            >
+                차량 정보 삭제 (개발 전)
+            </CustomCommonButton>
         </div>
     );
 }
