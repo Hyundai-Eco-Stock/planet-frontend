@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CustomCommonInput } from "../../components/_custom/CustomInputs";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 import Swal from "sweetalert2";
+import { postPasswordResetmail } from "../../api/auth/auth.api";
 
 const ResetPassword = () => {
     const [email, setEmail] = useState("");
@@ -33,17 +34,28 @@ const ResetPassword = () => {
             return;
         }
 
-        
+        postPasswordResetmail({ email })
+            .then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '안내 메일 발송',
+                    text: '해당 이메일로 안내 메일을 발송했습니다.',
+                    confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+                    }
+                });
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: '서버 에러',
+                    text: '일시적인 서버 오류입니다.',
+                    confirmButtonText: '확인',
+                });
+            });
 
-        Swal.fire({
-            icon: 'success',
-            title: '안내 메일 발송',
-            text: '해당 이메일로 안내 메일을 발송했습니다.',
-            confirmButtonText: '확인',
-            customClass: {
-                confirmButton: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
-            }
-        });
+        
     }
 
     const handleEmail = (e) => {
