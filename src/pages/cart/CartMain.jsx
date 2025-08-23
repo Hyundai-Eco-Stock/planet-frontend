@@ -75,16 +75,22 @@ const CartMain = () => {
   // 주문하기 버튼 클릭
   const handleOrderClick = () => {
     const selectedProducts = getSelectedProducts()
-    
+  
     if (selectedProducts.length === 0) {
       alert('주문할 상품을 선택해주세요.')
       return
     }
+
+    // 주문서에서 사용할 데이터 구조로 변환
+    const orderProducts = selectedProducts.map(product => ({
+      ...product,
+      ecoDealStatus: product.isEcoDeal,
+    }))
     
     // 주문 페이지로 이동
     navigate('/orders', { 
       state: { 
-        products: selectedProducts, 
+        products: orderProducts, 
         deliveryType: activeTab === 'pickup' ? 'PICKUP' : 'DELIVERY'
       } 
     })
