@@ -40,9 +40,10 @@ export const signUpByKakao = async ({
 		multipartForm.append("profileImage", profileFile, filename);
 	}
 
-	await apiClient.post("/auth/signup/kakao", multipartForm, {
+	const response = await apiClient.post("/auth/signup/kakao", multipartForm, {
 		headers: { "Content-Type": "multipart/form-data" },
 	});
+	return response.data;
 };
 
 /**
