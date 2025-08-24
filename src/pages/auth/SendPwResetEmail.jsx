@@ -36,15 +36,7 @@ const SendPwResetEmail = () => {
 
         postPasswordResetmail({ email })
             .then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: '안내 메일 발송',
-                    text: '해당 이메일로 안내 메일을 발송했습니다.',
-                    confirmButtonText: '확인',
-                    customClass: {
-                        confirmButton: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
-                    }
-                });
+                
             })
             .catch(() => {
                 Swal.fire({
@@ -54,7 +46,16 @@ const SendPwResetEmail = () => {
                     confirmButtonText: '확인',
                 });
             });
-
+            
+        Swal.fire({
+            icon: 'success',
+            title: '안내 메일 발송',
+            text: '해당 이메일로 안내 메일을 발송했습니다.',
+            confirmButtonText: '확인',
+            customClass: {
+                confirmButton: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+            }
+        });
         
     }
 

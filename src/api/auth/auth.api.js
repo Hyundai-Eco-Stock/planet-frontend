@@ -59,3 +59,13 @@ export const postPasswordResetmail = async ({ email }) => {
 	const res = await apiClient.post("/auth/password-reset-mail", { email });
 	return res.status;
 };
+
+export const validatePasswordResetToken = async ({ token }) => {
+	const res = await apiClient.post("/auth/password-reset-token/valid", { token });
+	return res.status;
+};
+
+export const resetPassword = async ({ token, password }) => {
+	const res = await apiClient.post("/auth/reset-password", { token, password });
+	return res.status;
+};
