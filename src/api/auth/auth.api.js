@@ -55,17 +55,17 @@ export const logout = async () => {
 	return res.status;
 };
 
-export const postPasswordResetmail = async ({ email }) => {
-	const res = await apiClient.post("/auth/password-reset-mail", { email });
+export const postPasswordChangeMail = async ({ email }) => {
+	const res = await apiClient.post("/auth/password-change-mail", { email });
 	return res.status;
 };
 
-export const validatePasswordResetToken = async ({ token }) => {
-	const res = await apiClient.post("/auth/password-reset-token/valid", { token });
+export const validatePasswordChangeToken = async ({ token }) => {
+	const res = await apiClient.post("/auth/password-change-token/valid", { token });
 	return res.status;
 };
 
-export const resetPassword = async ({ token, password }) => {
-	const res = await apiClient.post("/auth/reset-password", { token, password });
+export const changePassword = async ({ token, password }) => {
+	const res = await apiClient.post("/auth/change-password", { token, password });
 	return res.status;
 };

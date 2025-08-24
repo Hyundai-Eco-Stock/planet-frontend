@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { CustomCommonInput } from "../../components/_custom/CustomInputs";
-import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 import Swal from "sweetalert2";
-import { postPasswordResetmail } from "../../api/auth/auth.api";
 
-const SendPwResetEmail = () => {
+import { useState } from "react";
+
+import { CustomCommonInput } from "@/components/_custom/CustomInputs";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+
+import { postPasswordChangeMail } from "@/api/auth/auth.api";
+
+
+const SendPasswordChangeMail = () => {
     const [email, setEmail] = useState("");
 
     const validateEmail = (email) => {
@@ -34,7 +38,7 @@ const SendPwResetEmail = () => {
             return;
         }
 
-        postPasswordResetmail({ email })
+        postPasswordChangeMail({ email })
             .then(() => {
                 
             })
@@ -78,4 +82,4 @@ const SendPwResetEmail = () => {
     )
 }
 
-export default SendPwResetEmail;
+export default SendPasswordChangeMail;

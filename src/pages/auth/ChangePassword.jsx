@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 
-import { resetPassword, validatePasswordResetToken } from "@/api/auth/auth.api";
+import { changePassword, validatePasswordChangeToken } from "@/api/auth/auth.api";
 
 
-const ResetPassword = () => {
+const ChangePassword = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
@@ -20,7 +20,7 @@ const ResetPassword = () => {
 
     useEffect(() => {
         const handleToken = () => {
-            validatePasswordResetToken({ token })
+            validatePasswordChangeToken({ token })
                 .catch(() => {
                     Swal.fire({
                         icon: 'error',
@@ -44,7 +44,7 @@ const ResetPassword = () => {
     }
 
     const handleSubmit = () => {
-        resetPassword({ token, password })
+        changePassword({ token, password })
             .then(() => {
                 Swal.fire({
                     icon: 'success',
@@ -85,4 +85,4 @@ const ResetPassword = () => {
     )
 }
 
-export default ResetPassword;
+export default ChangePassword;
