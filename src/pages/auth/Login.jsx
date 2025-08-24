@@ -75,7 +75,7 @@ const Login = () => {
 
                 <button
                     type="button"
-                    onClick={() => navigate("/reset/password")}
+                    onClick={() => navigate("/send/password-reset-email")}
                     className="text-black text-base underline-offset-4 hover:underline"
                 >
                     비밀번호 재설정

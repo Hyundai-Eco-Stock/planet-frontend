@@ -15,6 +15,7 @@ import Login from '@/pages/auth/Login'
 import LoginSuccess from '@/pages/auth/LoginSuccess'
 import OAuthSignUp from '@/pages/auth/OAuthSignUp'
 import LocalSignUp from '@/pages/auth/LocalSignUp'
+import SendPwResetEmail from '@/pages/auth/SendPwResetEmail'
 import ResetPassword from '@/pages/auth/ResetPassword'
 
 // 쇼핑
@@ -86,8 +87,9 @@ function App() {
           <Route path="/login/success" element={<LoginSuccess />} />
           <Route path="/signup/oauth" element={<OAuthSignUp />} />
           <Route path="/signup/local" element={<LocalSignUp />} />
+          <Route path="/send/password-reset-email" element={<SendPwResetEmail />} />
           <Route path="/reset/password" element={<ResetPassword />} />
-
+          
           {/* 쇼핑 */}
           <Route path="/shopping" element={<Navigate to="/shopping/main" />} />
           <Route path="/shopping/main" element={<ShoppingMain />} />
