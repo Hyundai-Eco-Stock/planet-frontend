@@ -194,7 +194,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
             <input
               type="text"
               value={formData.address}
-              readOnly={isEditing || !formData.isDefaultAddress}
+              readOnly
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
               placeholder="주소 검색 버튼을 클릭하세요"
             />

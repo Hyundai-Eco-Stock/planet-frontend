@@ -82,7 +82,7 @@ const PaymentSummary = ({ payment }) => {
               <li>• 에코딜 할인: {discountAmount.toLocaleString()}원</li>
             )}
             {pointUsage > 0 && (
-              <li>• 포인트 할인: {pointUsage.toLocaleString()}원</li>
+              <li>• 포인트 사용: {pointUsage.toLocaleString()}원</li>
             )}
             {donationAmount > 0 && (
               <li>• 환경 기부: {donationAmount.toLocaleString()}원</li>
@@ -93,8 +93,8 @@ const PaymentSummary = ({ payment }) => {
       
       {/* 주의사항 */}
       <div className="mt-3 text-xs text-gray-500">
-        <p>• 결제 완료 후 주문 취소 및 변경이 어려울 수 있습니다.</p>
-        <p>• 포인트는 결제 완료 후 차감됩니다.</p>
+        <p>• 결제 완료 후, 주문 취소 및 변경이 어려울 수 있습니다.</p>
+        <p>• 포인트는 결제 완료 후, 차감됩니다.</p>
       </div>
     </div>
   )

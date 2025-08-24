@@ -41,6 +41,10 @@ import CartMain from '@/pages/cart/CartMain'
 import DeliveryOrderPage from '@/pages/order/DeliveryOrderPage'
 import PickupOrderPage from '@/pages/order/PickupOrderPage'
 
+// 결제
+import PaymentSuccessPage from './pages/payment/PaymentSuccessPage'
+import PaymentFailPage from './pages/payment/PaymentFailPage'
+
 const OrderRedirect = () => {
   const location = useLocation()
   const deliveryType = location.state?.deliveryType || 'DELIVERY'
@@ -81,6 +85,8 @@ function App() {
   const hideHeaderPaths = [
     "/orders/delivery",
     "/orders/pickup",
+    "/payments/success",
+    "/payments/fail",
   ];
   const hideHeader = hideHeaderPaths.includes(location.pathname);
 
@@ -126,6 +132,10 @@ function App() {
           <Route path="/orders" element={<OrderRedirect />} />
           <Route path="/orders/delivery" element={<DeliveryOrderPage />} />
           <Route path="/orders/pickup" element={<PickupOrderPage />} />
+
+          {/* 결제 */}
+          <Route path="/payments/success" element={<PaymentSuccessPage />} />
+          <Route path="/payments/fail" element={<PaymentFailPage />} />
 
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
