@@ -18,7 +18,8 @@ const CustomCommonInput = ({
     value,
     onChange,
     className = "",
-    readOnly = false
+    readOnly = false,
+    autoFocus = false,
 }) => {
 
     return (
@@ -29,6 +30,7 @@ const CustomCommonInput = ({
                 value={value}
                 onChange={onChange}
                 readOnly={readOnly}
+                autoFocus={autoFocus}
                 className={`w-full px-4 py-4 rounded-xl outline-none placeholder:text-black/40
                     ${className}`}
             />

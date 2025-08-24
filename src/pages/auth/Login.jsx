@@ -45,6 +45,7 @@ const Login = () => {
                     onChange={(e) => setId(e.target.value)}
                     placeholder="아이디를 입력하세요."
                     aria-label="아이디"
+                    autoFocus={true}
                 />
 
                 {/* 비밀번호 입력 */}
