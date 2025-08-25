@@ -1,7 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 // Named export (so `import { ProductComponent } from ...` works)
 export function ProductComponent({ items = [], loading = false, error = null }) {
+  const navigate = useNavigate();
   return (
     // 중앙 컨텐츠
     <main className="p-4 flex justify-center">
@@ -27,18 +29,13 @@ export function ProductComponent({ items = [], loading = false, error = null }) 
 
         {!loading && !error && items.length > 0 && (
           <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {items.map((p, idx) => {
-              // 같은 id가 여러 개여도 유니크 보장
-              const rawId = p.productId ?? p.product_id ?? p.id;
-              const key = (rawId !== null && rawId !== undefined && String(rawId) !== "")
-                ? `id-${String(rawId)}-${idx}`
-                : `idx-${idx}`;
-              const name = p.product_name ?? p.productName ?? p.name ?? "상품명";
-              const brand = p.brand_name ?? p.brandName ?? p.brand ?? "";
+            {items.map((p) => {
+              const name = p.productName ?? "상품명";
+              const brand = p.brandName;
               const price = p.price;
-              const img = p.image_url ?? p.imageUrl ?? p.thumbnail ?? p.image ?? "";
+              const img = p.imageUrl;
               return (
-                <li key={key} className="rounded-xl border border-gray-100 overflow-hidden bg-white">
+                <li key={p.productId} className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer" onClick={() => navigate(`/shopping/detail?productId=${p.productId}`)}>
                   <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
                     {img ? (
                       <img src={img} alt={name} className="w-full h-full object-cover" />

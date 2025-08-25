@@ -18,6 +18,7 @@ import LocalSignUp from '@/pages/auth/LocalSignUp'
 
 // 쇼핑
 import ShoppingMain from '@/pages/shopping/ShoppingMain'
+import ShoppingDetail from '@/pages/shopping/ShoppingDetail'
 
 // 에코 스톡
 import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
@@ -90,6 +91,7 @@ function App() {
           {/* 쇼핑 */}
           <Route path="/shopping" element={<Navigate to="/shopping/main" />} />
           <Route path="/shopping/main" element={<ShoppingMain />} />
+          <Route path="/shopping/detail" element={<ShoppingDetail />} />
 
           {/* 에코 스톡 */}
           <Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
