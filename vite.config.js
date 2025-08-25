@@ -48,4 +48,11 @@ export default defineConfig({
       ],
     },
   },
+  define: {
+    global: 'globalThis',
+    'process.env': {}
+  },
+  optimizeDeps: {
+    include: ['sockjs-client']
+  }
 })
