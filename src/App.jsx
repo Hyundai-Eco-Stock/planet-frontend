@@ -35,7 +35,6 @@ import Settings from '@/pages/mypage/Settings'
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
 import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
-import VolunteerWorkCertificate from '@/pages/eco_stock_certificate/VolunteerWorkCertificate'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
 // 결제 정보 생성
@@ -140,7 +139,6 @@ function App() {
 					<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
 					<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 					<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
-					<Route path="/eco-stock/certificate/volunteer-work" element={<VolunteerWorkCertificate />} />
 
 					{/* 장바구니 */}
 					<Route path="/cart" element={<Navigate to="/cart/main" />} />
