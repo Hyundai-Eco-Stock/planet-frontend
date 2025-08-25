@@ -66,6 +66,7 @@ const OrderRedirect = () => {
 
 // 에코딜
 import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
+import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -165,6 +166,7 @@ function App() {
 
           {/* 에코딜 */}
           <Route path="/eco-deal/main" element={<EcoDealMain />} />
+          <Route path="/eco-deal/detail" element={<EcoDealDetail />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}

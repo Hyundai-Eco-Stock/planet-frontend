@@ -34,7 +34,7 @@ export function EcoDealProductComponent({ items = [], loading = false, error = n
               const price = p.price;
               const img = p.imageUrl;
               return (
-                <li key={p.productId} className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer" onClick={() => navigate(`/shopping/detail?productId=${p.productId}`)}>
+                <li key={p.productId} className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer" onClick={() => navigate(`/eco-deal/detail?productId=${p.productId}`)}>
                   <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
                     {img ? (
                       <img src={img} alt={name} className="w-full h-full object-cover" />

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { searchTodayAllEcoDealProducts } from "../../api/product/ecoProduct.api";
 import {EcoDealProductComponent} from "../../components/product/EcoDealProductComponent"
 
