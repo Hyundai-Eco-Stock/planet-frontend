@@ -34,7 +34,6 @@ export default function ShoppingDetail() {
   // 메인 정보 파생
   const main = useMemo(() => rows[0] || null, [rows]);
   const name = main?.productName ?? "상품명";
-  const brand = main?.brandName ?? "브랜드명";
   const price = main?.price;
 
   // 수량 상태 및 핸들러
@@ -127,7 +126,6 @@ export default function ShoppingDetail() {
 
         {/* 기본 정보 */}
         <div className="p-4">
-          {brand && <div className="text-sm text-gray-500 mb-1">{brand}</div>}
           <div className="flex items-start justify-between">
             <div className="text-lg font-medium">{name}</div>
             {price != null && (
@@ -174,7 +172,6 @@ export default function ShoppingDetail() {
                           <span className={`inline-block h-4 w-4 rounded-full border ${active ? 'bg-black border-black' : 'border-gray-400'}`} />
                           <span className="text-sm font-medium">{r.departmentStoreName}</span>
                         </div>
-                        <span className="text-xs text-gray-500">#{r.departmentStoreId}</span>
                       </div>
                     </button>
                   );
