@@ -27,6 +27,7 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
+import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 
@@ -153,6 +154,7 @@ function App() {
 					{/* 마이 페이지 */}
 					<Route path="/my-page" element={<Navigate to="/my-page/main" />} />
 					<Route path="/my-page/main" element={<MyPageMain />} />
+					<Route path="/my-page/profile" element={<MyProfile />} />
 					<Route path="/my-page/my-car" element={<MyCarInfo />} />
 					<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 

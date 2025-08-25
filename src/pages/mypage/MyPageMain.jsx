@@ -44,7 +44,7 @@ const MyPageMain = () => {
     }
 
     const navigations = [
-        { title: '내 정보 수정', path: '/my-page/update/profile' },
+        { title: '내 정보', path: '/my-page/profile' },
         { title: '보유 에코스톡', path: '/my-page/my-eco-stock' },
         { title: '구매 내역', path: '/my-page/my-buy-history' },
         { title: '예약한 에코딜 상품', path: '/my-page/eco-deal-reservation' },

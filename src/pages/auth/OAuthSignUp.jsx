@@ -28,7 +28,6 @@ const OAuthSignUp = () => {
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
 
-    // 추가된 필드
     const [sex, setSex] = useState("");  // 'M' or 'F'
     const [birthYear, setBirthYear] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
