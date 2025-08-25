@@ -99,15 +99,16 @@ function App() {
   const hideHeader = hideHeaderPaths.includes(location.pathname);
 
   return (
-    <div className='w-full h-full flex flex-col'>
-      {/* 주문서 페이지에서는 헤더 완전 숨김 */}
+    <div className='min-h-screen flex flex-col'>
+      
       {!hideHeader && (
         showBackButtonHeader
           ? <HeaderWithBack />
           : <Header />
       )}
 
-      <main className={`flex-grow ${hideHeader ? '' : 'px-2'}`}>
+      <main className={`flex-grow ${hideHeader ? '' : 'px-2'} overflow-y-auto`}
+  style={{ paddingBottom: '6rem' }}>
         <Routes>
           {/* 홈 */}
           <Route path="/" element={<Navigate to="/home" />} />
@@ -161,7 +162,11 @@ function App() {
           <Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
         </Routes>
       </main>
-      {!hideFooter && <Footer />}
+      {!hideFooter && (
+        <footer className="fixed bottom-0 left-0 right-0 z-50 h-24">
+          <Footer />
+        </footer>
+      )}
     </div>
   )
 }
