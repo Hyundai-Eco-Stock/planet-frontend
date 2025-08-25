@@ -1,28 +1,15 @@
-import { useNotifications } from '@/hooks/useNotifications';
-import { useEffect, useState } from 'react';
-
+import { useNotifications } from "@/hooks/useNotifications";
+import useNotificationStore from "@/store/notificationStore";
 
 const Settings = () => {
-    const { isTokenExist, requestPermission, revokePushToken } = useNotifications();
-    const [isEnabled, setIsEnabled] = useState(false);
-
-    useEffect(() => {
-        const checkToken = async () => {
-            const exists = await isTokenExist();
-            setIsEnabled(exists);
-        };
-        checkToken();
-    }, []);
+    const { requestPermission, revokePushToken } = useNotifications();
+    const { pushEnabled } = useNotificationStore();
 
     const handleToggle = async () => {
-        if (isEnabled) {
-            // 현재 알림 ON → OFF로 전환
+        if (pushEnabled) {
             await revokePushToken();
-            setIsEnabled(false);
         } else {
-            // 현재 알림 OFF → ON으로 전환
             await requestPermission();
-            setIsEnabled(true);
         }
     };
 
@@ -32,20 +19,20 @@ const Settings = () => {
 
             <button
                 onClick={handleToggle}
-                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300 ${isEnabled ? "bg-green-500" : "bg-gray-300"
+                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300 ${pushEnabled ? "bg-green-500" : "bg-gray-300"
                     }`}
             >
                 <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${isEnabled ? "translate-x-6" : "translate-x-1"
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${pushEnabled ? "translate-x-6" : "translate-x-1"
                         }`}
                 />
             </button>
 
             <span className="text-sm text-gray-600">
-                {isEnabled ? "ON" : "OFF"}
+                {pushEnabled ? "ON" : "OFF"}
             </span>
         </div>
     );
-}
+};
 
 export default Settings;
