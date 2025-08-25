@@ -30,8 +30,7 @@ export function EcoDealProductComponent({ items = [], loading = false, error = n
         {!loading && !error && items.length > 0 && (
           <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {items.map((p) => {
-              const name = p.productName ?? "상품명";
-              const brand = p.brandName;
+              const name = p.name ?? "상품명";
               const price = p.price;
               const img = p.imageUrl;
               return (
@@ -44,10 +43,25 @@ export function EcoDealProductComponent({ items = [], loading = false, error = n
                     )}
                   </div>
                   <div className="p-2">
-                    <div className="text-[13px] text-gray-500 line-clamp-1">{brand}</div>
                     <div className="text-sm font-medium line-clamp-2">{name}</div>
                     {price != null && (
-                      <div className="mt-1 font-semibold">{Number(price).toLocaleString()}원</div>
+                      <div className="mt-1 font-semibold flex items-center gap-2">
+                        {p.salePercent ? (
+                          <>
+                            <span className="text-red-500 font-bold text-sm">
+                              {p.salePercent}%
+                            </span>
+                            <span className="text-red-500 font-bold text-sm">
+                              {(price * (1 - p.salePercent / 100)).toLocaleString()}원
+                            </span>
+                            <span className="line-through text-gray-400 text-xs">
+                              {Number(price).toLocaleString()}원
+                            </span>
+                          </>
+                        ) : (
+                          <span>{Number(price).toLocaleString()}원</span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </li>
