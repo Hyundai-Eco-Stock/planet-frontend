@@ -4,7 +4,7 @@ import {
     createCarEnterHistory,
     createCarExitHistory,
     fetchCarHistories,
-} from "@/api/car/carAccessHistory.api"; // 경로 맞게 수정하세요
+} from "@/api_department_core_backend/car/carAccessHistory.api"; // 경로 맞게 수정하세요
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { SimpleSelect } from "@/components/_custom/CustomSelect";

@@ -1,4 +1,4 @@
-import apiClient from "@/api/_base/apiClient";
+import apiClient from "@/api_department_core_backend/_base/apiClient";
 
 /**
  * 영수증 발행 이벤트 생성

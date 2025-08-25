@@ -25,6 +25,7 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
+import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -106,6 +107,7 @@ function App() {
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
           <Route path="/my-page/main" element={<MyPageMain />} />
           <Route path="/my-page/my-car" element={<MyCarInfo />} />
+          <Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 
           {/* 오프라인 결제 정보 생성 페이지 */}
           <Route path="/offline-pay/create" element={<OfflinePayCreate />} />

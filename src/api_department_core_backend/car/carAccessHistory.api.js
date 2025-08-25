@@ -1,4 +1,4 @@
-import apiClient from "@/api/_base/apiClient";
+import apiClient from "@/api_department_core_backend/_base/apiClient";
 
 export const createCarEnterHistory = async (carNumber) => {
 	const response = await apiClient.post('/cars/access/enter', { carNumber });
