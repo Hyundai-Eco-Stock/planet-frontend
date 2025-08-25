@@ -1,18 +1,11 @@
-import styles from "./Header.module.css";
-
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-
 /**
- * 
  * @param {*} title 제목
- * @returns 
  */
-const HeaderWithBack = ({
-    title = "",
-}) => {
+const HeaderWithBack = ({ title = "" }) => {
     const navigate = useNavigate();
 
     const onBackClick = () => {
@@ -20,24 +13,23 @@ const HeaderWithBack = ({
     };
 
     return (
-        <header className={styles.header}>
-            <div className={styles.inner}>
+        <header className="sticky top-0 z-50 bg-white text-[#0b1020]">
+            <div className="flex items-center justify-between px-5 py-3">
                 {/* 왼쪽: 뒤로가기 버튼 */}
                 <button
                     type="button"
-                    className={styles.iconBtn}
                     onClick={onBackClick}
                     aria-label="뒤로가기"
+                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                 >
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                    <span className={styles.srOnly}>뒤로가기</span>
+                    <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
+                    <span className="sr-only">뒤로가기</span>
                 </button>
 
-                <h1 className={styles.title}>{title}</h1>
+                <h1 className="font-bold text-xl">{title}</h1>
 
-                <div className={styles.actions}>
-
-                </div>
+                {/* 오른쪽 비워둠 */}
+                <div className="flex items-center gap-5"></div>
             </div>
         </header>
     );

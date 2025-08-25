@@ -1,0 +1,38 @@
+import { useNotifications } from "@/hooks/useNotifications";
+import useNotificationStore from "@/store/notificationStore";
+
+const Settings = () => {
+    const { requestPermission, revokePushToken } = useNotifications();
+    const { pushEnabled } = useNotificationStore();
+
+    const handleToggle = async () => {
+        if (pushEnabled) {
+            await revokePushToken();
+        } else {
+            await requestPermission();
+        }
+    };
+
+    return (
+        <div className="flex items-center gap-4 p-4">
+            <span className="text-gray-800 font-medium">푸시 알림</span>
+
+            <button
+                onClick={handleToggle}
+                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300 ${pushEnabled ? "bg-green-500" : "bg-gray-300"
+                    }`}
+            >
+                <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${pushEnabled ? "translate-x-6" : "translate-x-1"
+                        }`}
+                />
+            </button>
+
+            <span className="text-sm text-gray-600">
+                {pushEnabled ? "ON" : "OFF"}
+            </span>
+        </div>
+    );
+};
+
+export default Settings;
