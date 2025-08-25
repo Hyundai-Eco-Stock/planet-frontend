@@ -73,8 +73,7 @@ const MyPageMain = () => {
                 <CustomCommonButton onClick={() => { navigate("/car-access-history/create") }} children="차량 입출차 시스템" />
                 <CustomCommonButton onClick={() => { navigate("/eco-stock/certificate") }} children="에코 스톡 인증 페이지로 이동" />
                 <Link to="/my-page/my-car">내 차 관리하기</Link>
-                <CustomCommonButton onClick={handleProductRecommend} children="상품 추천" />
-
+                <Link to="/eco-deal/main">에코딜로 이동</Link>
             </div>
         </div>
     );

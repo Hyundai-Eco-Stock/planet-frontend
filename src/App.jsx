@@ -63,6 +63,9 @@ const OrderRedirect = () => {
   return <Navigate to="/orders/delivery" state={location.state} replace />
 }
 
+
+// 에코딜
+import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -159,6 +162,9 @@ function App() {
 
           {/* 차량 입출차 생성 페이지 */}
           <Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
+
+          {/* 에코딜 */}
+          <Route path="/eco-deal/main" element={<EcoDealMain />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
