@@ -4,28 +4,28 @@ import { persist } from "zustand/middleware";
 const useAuthStore = create(
 	persist(
 		(set) => ({
+			loginStatus: null,
 			accessToken: null,
 			email: null,
 			name: null,
 			profile: null,
 
+			setLoginStatus: (loginStatus) => set({ loginStatus }),
+
 			setAccessToken: (accessToken) => set({ accessToken }),
-			clearAccessToken: () => set({ accessToken: null }),
 
 			setEmail: (email) => set({ email }),
-			clearEmail: () => set({ email: null }),
 
 			setName: (name) => set({ name }),
-			clearName: () => set({ name: null }),
 
 			setProfile: (profile) => set({ profile }),
-			clearProfile: () => set({ profile: null }),
 
-			clearAuth: () => set({ accessToken: null, email: null, name: null, profile: null, }),
+			clearAuth: () => set({ loginStatus: null, accessToken: null, email: null, name: null, profile: null, }),
 		}),
 		{
 			name: "template-auth-storage",
 			partialize: (state) => ({
+				loginStatus: state.loginStatus,
 				accessToken: state.accessToken,
 				email: state.email,
 				name: state.name,

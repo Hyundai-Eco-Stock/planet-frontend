@@ -39,7 +39,7 @@ const OAuthSignUp = () => {
     useEffect(() => {
         if (accessToken && email && nameParam) {
             console.log(`accessToken: ${accessToken}`)
-
+            useAuthStore.getState().setLoginStatus(true);
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
