@@ -4,6 +4,8 @@ import { useStockHistory } from "@/hooks/eco-stock/useStockHistory";
 import StockChart from "@/components/eco-stock/StockChart";
 import StockChartHeader from "@/components/eco-stock/StockChartHeader";
 import StockConnection from "@/components/eco-stock/StockConnection";
+import MyPortfolio from "@/components/eco-stock/MyPortfolio";
+import { useMemo } from "react";
 
 const EcoStockMain = () => {
     const [selectedStock, setSelectedStock] = useState(1);
@@ -67,6 +69,8 @@ const EcoStockMain = () => {
                 data={chartData[selectedStock]}
                 loading={historyLoading}
             />
+            {/* 해당 차트의 포폴  */}
+            <MyPortfolio currentData={currentStockData} stockInfo={currentStockInfo} />
         </div>
     );
 }
