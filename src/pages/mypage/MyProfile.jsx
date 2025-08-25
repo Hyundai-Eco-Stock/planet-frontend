@@ -104,6 +104,7 @@ const MyProfile = () => {
                     value={name}
                     placeholder="이름을 입력하세요."
                     onChange={(e) => setName(e.target.value)}
+                    readOnly={true}
                 />
             </label>
 
@@ -112,7 +113,7 @@ const MyProfile = () => {
                 <CustomCommonInput
                     value={email}
                     placeholder="이메일을 입력하세요."
-                    readOnly
+                    readOnly={true}
                 />
             </label>
 

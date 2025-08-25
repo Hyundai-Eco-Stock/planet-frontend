@@ -5,14 +5,9 @@ import useAuthStore from "@/store/authStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-
 import ProfileButton from "@/components/auth/ProfileButtons";
-import { CustomCommonButton } from "@/components/_custom/CustomButtons";
-import { NotificationController } from '@/components/fcm/NotificationController';
 
 import { logout } from "@/api/auth/auth.api";
-import { searchRecommendProducts } from "@/api/product/product.api";
-import { searchTodayAllEcoDealProducts } from "@/api/product/ecoProduct.api";
 
 
 const MyPageMain = () => {
@@ -31,18 +26,6 @@ const MyPageMain = () => {
         navigate("/login");
     };
 
-    const handleEcoDealProducts = () => {
-        const res = searchTodayAllEcoDealProducts();
-        console.log(res);
-    }
-
-    const handleProductRecommend = () => {
-        const products = searchRecommendProducts(
-            "스트래피 실크 탑", 1, 32, 5
-        );
-        console.log(products);
-    }
-
     const navigations = [
         { title: '내 정보', path: '/my-page/profile' },
         { title: '보유 에코스톡', path: '/my-page/my-eco-stock' },
@@ -51,6 +34,7 @@ const MyPageMain = () => {
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
         { title: '내 차 관리하기', path: '/my-page/my-car' },
         { title: '에코 스톡 인증 페이지로 이동', path: '/eco-stock/certificate' },
+        { title: '설정', path: '/my-page/settings' }
     ]
 
     return (
@@ -100,12 +84,6 @@ const MyPageMain = () => {
                         )
                     })
                 }
-
-                <NotificationController />
-                <CustomCommonButton onClick={handleProductRecommend} children="상품 추천" />
-                <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
-                <CustomCommonButton onClick={() => { navigate("/offline-pay/create") }} children="오프라인 결제 포스기" />
-                <CustomCommonButton onClick={() => { navigate("/car-access-history/create") }} children="차량 입출차 시스템" />
             </div>
         </div>
     );
