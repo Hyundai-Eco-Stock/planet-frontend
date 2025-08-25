@@ -41,6 +41,23 @@ const EcoStockMain = () => {
 
     return (
         <div>
+            {/* 웹소켓 연결 */}
+            <StockConnection
+                stockListLoading={stockListLoading}
+                stockList={stockList}
+                onStockDataUpdate={handleStockDataUpdate}
+                selectedStock={selectedStock}
+                onStockChange={handleStockChange}
+            />
+            {/* 차트 헤더 */}
+            <StockChartHeader
+                stockList={stockList}
+                stockId={selectedStock}
+                onStockChange={handleStockChange}
+                getStockName={getStockName}
+                currentData={currentStockData}
+                data={chartData[selectedStock]}
+            />
         </div>
     );
 }
