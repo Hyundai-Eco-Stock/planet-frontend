@@ -55,6 +55,7 @@ export default function ShoppingDetail() {
     const nm = main.productName ?? "";
     const cid = main.categoryId;
     const pid = main.productId;
+
     const params = { name: nm, categoryId: cid, productId: pid, size: 10 };
     // 유사상품 추천
     searchRecommendProducts(params)
