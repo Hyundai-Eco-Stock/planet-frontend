@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useEcoStocks } from "@/hooks/eco-stock/useEcoStocks";
 import { useStockHistory } from "@/hooks/eco-stock/useStockHistory";
+import StockChart from "@/components/eco-stock/StockChart";
+import StockChartHeader from "@/components/eco-stock/StockChartHeader";
+import StockConnection from "@/components/eco-stock/StockConnection";
 
 const EcoStockMain = () => {
     const [selectedStock, setSelectedStock] = useState(1);
@@ -57,6 +60,12 @@ const EcoStockMain = () => {
                 getStockName={getStockName}
                 currentData={currentStockData}
                 data={chartData[selectedStock]}
+            />
+            {/* 차트  */}
+            <StockChart
+                currentData={currentStockData}
+                data={chartData[selectedStock]}
+                loading={historyLoading}
             />
         </div>
     );
