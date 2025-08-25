@@ -5,10 +5,8 @@ const EcoStockCertificate = () => {
 
     const ecoStockCertificateList = [
         { name: '텀블러 인증', path: '/eco-stock/certificate/tumbler' },
-        { name: '전기차 주차 인증', path: '/eco-stock/certificate/electronic-car-parking' },
         { name: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
-        { name: '봉사활동 인증', path: '/eco-stock/certificate/volunteer-work' },
-        // { name: '기부 인증', path: '/eco-stock/certificate/donation' },
+        // { name: '전기차 주차 인증', path: '/eco-stock/certificate/electronic-car-parking' },
     ]
 
     return (
