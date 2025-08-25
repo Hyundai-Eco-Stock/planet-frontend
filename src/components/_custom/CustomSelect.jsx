@@ -2,7 +2,40 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
-const CustomSelect = ({
+export const SimpleSelect = ({
+    value,
+    onChange,
+    options = [],
+    placeholder = "선택하세요",
+    className = "",
+}) => {
+    return (
+        <div
+            className={`relative w-full border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors ${className}`}
+        >
+            <select
+                className="w-full px-4 py-4 pr-10 rounded-xl outline-none appearance-none bg-white placeholder:text-black/40"
+                value={value}
+                onChange={onChange}
+            >
+                <option value="">{placeholder}</option>
+
+                {options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </option>
+                ))}
+            </select>
+
+            {/* ▼ 아이콘 */}
+            <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
+                <FontAwesomeIcon icon={faChevronDown} />
+            </div>
+        </div>
+    );
+};
+
+export const CustomSelect = ({
     value,
     onChange,
     options = [],
@@ -47,5 +80,3 @@ const CustomSelect = ({
         </div>
     );
 };
-
-export { CustomSelect };

@@ -18,12 +18,15 @@ import LocalSignUp from '@/pages/auth/LocalSignUp'
 
 // 쇼핑
 import ShoppingMain from '@/pages/shopping/ShoppingMain'
+import ShoppingDetail from '@/pages/shopping/ShoppingDetail'
 
 // 에코 스톡
 import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 
 // 마이 페이지
 import MyPageMain from '@/pages/mypage/MyPageMain'
+import MyCarInfo from '@/pages/mypage/MyCarInfo'
+import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -31,8 +34,11 @@ import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate
 import VolunteerWorkCertificate from '@/pages/eco_stock_certificate/VolunteerWorkCertificate'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
-// 영수증
+// 결제 정보 생성
 import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
+
+// 차량 입출차 기록 생성
+import CarAccessHistoryCreate from '@/pages/car_access/CarAccessHistoryCreate'
 
 // 장바구니
 import CartMain from '@/pages/cart/CartMain'
@@ -115,6 +121,7 @@ function App() {
           {/* 쇼핑 */}
           <Route path="/shopping" element={<Navigate to="/shopping/main" />} />
           <Route path="/shopping/main" element={<ShoppingMain />} />
+          <Route path="/shopping/detail" element={<ShoppingDetail />} />
 
           {/* 에코 스톡 */}
           <Route path="/eco-stock" element={<Navigate to="/eco-stock/main" />} />
@@ -140,9 +147,14 @@ function App() {
           {/* 마이 페이지 */}
           <Route path="/my-page" element={<Navigate to="/my-page/main" />} />
           <Route path="/my-page/main" element={<MyPageMain />} />
+          <Route path="/my-page/my-car" element={<MyCarInfo />} />
+          <Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 
-          {/* 영수증 생성 페이지 */}
+          {/* 오프라인 결제 정보 생성 페이지 */}
           <Route path="/offline-pay/create" element={<OfflinePayCreate />} />
+
+          {/* 차량 입출차 생성 페이지 */}
+          <Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
