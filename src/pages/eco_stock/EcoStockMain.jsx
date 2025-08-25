@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { useEcoStocks } from "@/hooks/eco-stock/useEcoStocks";
+import { useStockHistory } from "@/hooks/eco-stock/useStockHistory";
 
 const EcoStockMain = () => {
     const [selectedStock, setSelectedStock] = useState(1);
 
     // 커스텀 훅들 사용
     const { stockList, loading: stockListLoading } = useEcoStocks();
+
+    const {
+        chartData,
+        currentStockData,
+        loading: historyLoading,
+        updateCurrentStockData
+    } = useStockHistory(selectedStock);
 
     // 주식 선택 변경 처리
     const handleStockChange = (newStockId) => {
@@ -21,6 +29,14 @@ const EcoStockMain = () => {
     const getStockName = (id) => {
         const stock = stockList?.find(stock => stock.id === id);
         return stock ? stock.name : `주식 ${id}`;
+    };
+
+    // 웹소켓에서 데이터 업데이트 처리
+    const handleStockDataUpdate = (stockId, newChartPoint) => {
+        if (stockId === selectedStock) {
+            console.log('현재 주식 데이터 업데이트:', newChartPoint);
+            updateCurrentStockData(newChartPoint);
+        }
     };
 
     return (
