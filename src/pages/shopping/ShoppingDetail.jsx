@@ -55,8 +55,10 @@ export default function ShoppingDetail() {
     const nm = main.productName ?? "";
     const cid = main.categoryId;
     const pid = main.productId;
+
+    const params = { name: nm, categoryId: cid, productId: pid, size: 10 };
     // 유사상품 추천
-    searchRecommendProducts(nm, cid, pid, 10)
+    searchRecommendProducts(params)
       .then((list) => setRecommends(Array.isArray(list) ? list : []))
       .catch(() => setRecommends([]));
   }, [main]);
