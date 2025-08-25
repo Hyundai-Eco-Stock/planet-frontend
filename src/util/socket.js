@@ -23,11 +23,6 @@ export const connect = () => {
             const socket = new SockJS(import.meta.env.VITE_APP_BASE_API_BASE_URL + '/ws');
             client = Stomp.over(socket);
 
-            // 디버그 설정
-            client.debug = import.meta.env.DEV ? 
-                (str) => !str.includes('heart-beat') && console.log('[STOMP]', str) : 
-                () => {};
-
             client.connect({},
                 () => {
                     console.log('WebSocket 연결 성공');
@@ -74,10 +69,9 @@ export const disconnect = () => {
 
 // 주식 데이터 구독
 export const subscribeToStock = async (stockId, onStockUpdate) => {
-    if (subscriptions.has(stockId)) {
+    if (isStockSubscribed(stockId)) {
         return subscriptions.get(stockId);
     }
-
     try {
         await connect();
         
