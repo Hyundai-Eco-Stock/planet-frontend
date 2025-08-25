@@ -30,7 +30,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true, // 개발환경(https 아님)에서는 SW 비활성 권장
+        enabled: false, // 개발환경(https 아님)에서는 SW 비활성 권장
         type: 'module',
       },
     }),

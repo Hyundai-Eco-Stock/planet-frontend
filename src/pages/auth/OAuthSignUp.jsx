@@ -127,7 +127,11 @@ const OAuthSignUp = () => {
             address,
             detailAddress,
         })
-            .then(() => {
+            .then((data) => {
+                // 프로필 이미지 업데이트
+                const profileUrl = data.profileUrl;
+                useAuthStore.getState().setProfile(profileUrl);
+
                 Swal.fire({
                     icon: "success",
                     title: "회원가입 성공",
