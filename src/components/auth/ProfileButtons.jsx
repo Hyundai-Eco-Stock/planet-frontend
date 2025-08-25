@@ -28,7 +28,7 @@ const ProfileButton = () => {
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
-                    style={{ fontSize: "50px", color: "#ccc" }}
+                    style={{ fontSize: "50px",  width: "50px", height: "50px", color: "#ccc" }}
                 />
             )}
         </>
