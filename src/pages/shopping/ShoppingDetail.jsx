@@ -50,6 +50,49 @@ export default function ShoppingDetail() {
   const brand = main?.brandName ?? "브랜드명";
   const price = main?.price;
 
+  // 수량 상태 및 핸들러
+  const [qty, setQty] = useState(1);
+  const inc = () => setQty((q) => q+1);
+  const dec = () => setQty((q) => q-1);
+  const onQtyChange = (e) => setQty(parseInt(e.target.value, 10));
+
+  // 구매/장바구니 핸들러
+  const handleBuyNow = () => {
+    if (!productId) return;
+    navigate(`/order/checkout?productId=${productId}&qty=${qty}`);
+  };
+
+  // 장바구니 담기 (localstorage 사용)
+  const handleAddToCart = () => {
+    if (!main) return;
+    const item = {
+      productId: main.productId,
+      productName: main.productName,
+      price: main.price,
+      imageUrl: main.imageUrl,
+      brandName: main.brandName,
+      qty: qty,
+      addedAt: new Date().toISOString(),
+    };
+    try {
+    // 기존 장바구니 내역 가져와서 동일한 상품이 있다면 거기에 +수량
+      const raw = localStorage.getItem('cartItems');
+      const list = raw ? JSON.parse(raw) : [];
+      const idx = list.findIndex((i) => String(i.productId) === String(item.productId));
+      if (idx >= 0) {
+        const prev = Number(list[idx].qty || 1);
+        list[idx].qty = prev + qty;
+      } else {
+        list.push(item);
+      }
+      localStorage.setItem('cartItems', JSON.stringify(list));
+      alert('장바구니에 담았습니다.');
+    } catch (e) {
+      console.error('장바구니 저장 실패', e);
+      alert('장바구니 저장에 실패했습니다.');
+    }
+  };
+
   useEffect(() => {
     if (!main) return;
     const nm = main.productName ?? "";
@@ -103,9 +146,23 @@ export default function ShoppingDetail() {
             {price != null && (
               <div className="text-rose-500 font-extrabold text-xl">{Number(price).toLocaleString()}원</div>
             )}
+            {/* 수량 선택 */}
+            <div className="mt-3 flex items-center gap-3">
+              <span className="text-sm text-gray-500">수량</span>
+              <div className="inline-flex items-center rounded-lg border border-gray-300 overflow-hidden">
+                <button type="button" onClick={dec} aria-label="수량 감소" className="px-3 py-1.5 hover:bg-gray-50">-</button>
+                <input
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={qty}
+                  onChange={onQtyChange}
+                  className="w-14 text-center outline-none py-1.5"
+                />
+                <button type="button" onClick={inc} aria-label="수량 증가" className="px-3 py-1.5 hover:bg-gray-50">+</button>
+              </div>
+            </div>
           </div>
-
-        </div>
 
       {/* 탭 바 */}
       <div className="mt-6 border-b grid grid-cols-2 w-full">
@@ -177,7 +234,7 @@ export default function ShoppingDetail() {
         <section className="mt-4" />
       )}
       </div>
-
+    </div>
       {/* 유사상품추천 */}
       <section className="mt-8">
         <h2 className="text-lg font-semibold mb-3">유사상품추천</h2>
@@ -207,6 +264,33 @@ export default function ShoppingDetail() {
           </div>
         </div>
       </section>
+
+      {/* 하단 여백: 고정 바와 겹침 방지 */}
+      <div className="h-24" />
+
+      {/* 하단 고정 버튼 바 */}
+      <div className="fixed bottom-0 left-0 right-0">
+        <div className="mx-auto max-w-screen-md px-4 pb-4">
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="grid grid-cols-2 gap-2 p-3">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="w-full rounded-lg border border-gray-300 bg-white py-3 text-sm font-semibold hover:bg-gray-50 active:scale-[0.99]"
+              >
+                장바구니
+              </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="w-full rounded-lg bg-black py-3 text-sm font-semibold text-white hover:bg-gray-900 active:scale-[0.99]"
+              >
+                구매하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
