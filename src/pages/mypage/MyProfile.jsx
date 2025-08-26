@@ -7,11 +7,13 @@ import { fetchMemberProfile, updateProfile } from "@/api/member/member.api";
 import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInput";
 
 import useAuthStore from "@/store/authStore";
+import DaumPostcode from "@/components/address/DaumPostcode";
 
 const MyProfile = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sex, setSex] = useState(""); // 'M' or 'F'
+    const [zonecode, setZonecode] = useState(""); // 'M' or 'F'
 
     const [birthYear, setBirthYear] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
@@ -22,10 +24,26 @@ const MyProfile = () => {
     const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기
     const [profileImageFile, setProfileImageFile] = useState(null); // 서버 전송용 파일
 
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // ✅ 버튼 활성화 상태
 
     const yearRef = useRef(null);
     const monthRef = useRef(null);
     const dayRef = useRef(null);
+
+    // ✅ 실시간 유효성 검사
+    useEffect(() => {
+        const disabled =
+            !name.trim() ||
+            !email.trim() ||
+            !sex ||
+            !birthYear || birthYear.length !== 4 ||
+            !birthMonth || birthMonth.length > 2 ||
+            !birthDay || birthDay.length > 2 ||
+            !address.trim() ||
+            !detailAddress.trim();
+
+        setIsSubmitDisabled(disabled);
+    }, [name, email, sex, birthYear, birthMonth, birthDay, address, detailAddress]);
 
     // 프로필 이미지 변경 핸들러
     const handleProfileImageChange = (file) => {
@@ -69,7 +87,6 @@ const MyProfile = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchMemberProfile();
-            console.log(data);
             setName(data.name);
             setEmail(data.email);
             setSex(data.sex);
@@ -87,9 +104,9 @@ const MyProfile = () => {
     }, []);
 
     return (
-        <div className="space-y-4 p-4 bg-white rounded-2xl shadow-md">
+        <div className="flex flex-col gap-3 px-2">
             {/* 프로필 이미지 */}
-            <section className="flex flex-col gap-2">
+            <section className="flex flex-col">
                 <span className="text-sm font-semibold text-gray-900">프로필</span>
                 <CustomProfileImageInput
                     value={profileImageFile}
@@ -118,25 +135,25 @@ const MyProfile = () => {
             </label>
 
             {/* 성별 */}
-            <section className="flex flex-col gap-2 mt-3">
-                <label className="text-sm font-semibold text-gray-900">성별</label>
+            <label className="block">
+                <span className="text-sm font-semibold">성별</span>
                 <div className="flex gap-3">
                     <button
                         type="button"
-                        className={`flex-1 py-2 rounded-lg border ${sex === "M" ? "bg-green-500 text-white" : "bg-white"}`}
+                        className={`px-4 py-4 flex-1 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
                         onClick={() => setSex("M")}
                     >
                         남자
                     </button>
                     <button
                         type="button"
-                        className={`flex-1 py-2 rounded-lg border ${sex === "F" ? "bg-green-500 text-white" : "bg-white"}`}
+                        className={`px-4 py-4 flex-1 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
                         onClick={() => setSex("F")}
                     >
                         여자
                     </button>
                 </div>
-            </section>
+            </label>
 
             {/* 생년월일 */}
             <label className="block">
@@ -176,29 +193,52 @@ const MyProfile = () => {
                 </div>
             </label>
 
-            <label className="block">
-                <span className="text-sm font-semibold">주소</span>
-                <CustomCommonInput
-                    value={address}
-                    placeholder="주소를 입력하세요."
-                    onChange={(e) => setAddress(e.target.value)}
-                />
-            </label>
+            {/* 주소 */}
+            <section className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
 
-            <label className="block">
-                <span className="text-sm font-semibold">상세 주소</span>
-                <CustomCommonInput
-                    value={detailAddress}
-                    placeholder="상세 주소를 입력하세요."
-                    onChange={(e) => setDetailAddress(e.target.value)}
-                />
-            </label>
+                <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                        <CustomCommonInput
+                            type="text"
+                            value={zonecode}
+                            placeholder="우편번호"
+                            readOnly
+                            className="flex-1"
+                        />
+                        <DaumPostcode
+                            onComplete={({ zonecode, address }) => {
+                                setZonecode(zonecode);
+                                setAddress(address);
+                            }}
+                        />
+                    </div>
 
-            <CustomCommonButton
-                onClick={handleSubmit}
-                children="수정"
-                className="btn-primary w-full"
-            />
+                    <CustomCommonInput
+                        type="text"
+                        value={address}
+                        placeholder="기본 주소"
+                        readOnly
+                    />
+
+                    <CustomCommonInput
+                        type="text"
+                        value={detailAddress}
+                        placeholder="상세 주소 입력"
+                        onChange={(e) => setDetailAddress(e.target.value)}
+                    />
+                </div>
+            </section>
+
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
+                <CustomCommonButton
+                    onClick={handleSubmit}
+                    disabled={isSubmitDisabled}
+                    className="btn-primary w-full"
+                >
+                    수정
+                </CustomCommonButton>
+            </footer>
         </div>
     );
 };
