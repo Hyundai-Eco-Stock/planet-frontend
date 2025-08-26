@@ -71,16 +71,18 @@ export default function ShoppingDetail() {
       isEcoDeal: true,
       quantity: Number(qty || 1),
       salePercent: Number(main.salePercent ?? 0),
+      selectedStore: sel ? {
+        id: sel.departmentStoreId,
+        name: sel.departmentStoreName,
+        latitude: sel.lat ?? null,
+        longitude: sel.lng ?? null,
+      } : null,
     };
 
     // 상태 로드/초기화
     let store;
-    try {
       const raw = localStorage.getItem('shoppingState');
       store = raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      store = null;
-    }
     if (!store || typeof store !== 'object') {
       store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
     } else {
@@ -95,22 +97,11 @@ export default function ShoppingDetail() {
     const idx = list.findIndex((i) => String(i.id) === String(item.id));
     if (idx >= 0) {
       const prevQty = Number(list[idx].quantity || 0);
-      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity };
+      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity, selectedStore: item.selectedStore };
     } else {
       list.push(item);
     }
 
-    // 선택 지점 저장
-    if (sel) {
-      store.state.selectedStore = {
-        id: sel.departmentStoreId,
-        name: sel.departmentStoreName,
-        address: sel.address || sel.departmentStoreAddress || '',
-        phone: sel.phone || '',
-        latitude: sel.lat ?? null,
-        longitude: sel.lng ?? null,
-      };
-    }
 
     // 저장
     try {
