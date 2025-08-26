@@ -322,7 +322,7 @@ const OAuthSignUp = () => {
 
                 {/* 주소 */}
                 <section className="flex flex-col gap-2 mt-3">
-                    <label className="text-sm font-semibold text-gray-900">주소</label>
+                    <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
                     <div className="flex gap-2">
                         <CustomCommonInput
                             type="text"
