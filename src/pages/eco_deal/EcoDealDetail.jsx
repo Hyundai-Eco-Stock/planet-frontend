@@ -50,24 +50,37 @@ export default function ShoppingDetail() {
       alert('지점을 선택해주세요.');
       return;
     }
+    navigate(`/cart/main?${productId}&qty=${qty}&departmentStoreId=${selectedStoreId}`);
+  };
 
+  // 장바구니 담기 (localstorage 사용)
+  const handleAddToCart = () => {
+    if (!main) return;
+    if (!selectedStoreId) {
+      alert('지점을 선택해주세요.');
+      return;
+    }
     const sel = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
 
-    // 1) 아이템 스키마(사진과 동일): id, name, price, imageUrl, isEcoDeal, quantity, salePercent
+    // 사진과 동일한 스키마로 저장
     const item = {
-      id: main?.productId,
-      name: main?.productName,
-      price: Number(main?.price ?? 0),
-      imageUrl: main?.imageUrl || '',
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      imageUrl: main.imageUrl || '',
       isEcoDeal: true,
       quantity: Number(qty || 1),
-      salePercent: Number(main?.salePercent ?? 0),
+      salePercent: Number(main.salePercent ?? 0),
     };
 
-    // 2) 현재 상태 로드(없으면 기본 생성)
+    // 상태 로드/초기화
     let store;
-    const raw = localStorage.getItem('shoppingState');
-    store = raw ? JSON.parse(raw) : null;
+    try {
+      const raw = localStorage.getItem('shoppingState');
+      store = raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      store = null;
+    }
     if (!store || typeof store !== 'object') {
       store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
     } else {
@@ -77,7 +90,7 @@ export default function ShoppingDetail() {
       if (typeof store.version !== 'number') store.version = 0;
     }
 
-    // 3) pickupCart 갱신(동일 id면 수량 누적)
+    // pickupCart 갱신(동일 id면 수량 누적)
     const list = store.state.pickupCart;
     const idx = list.findIndex((i) => String(i.id) === String(item.id));
     if (idx >= 0) {
@@ -87,7 +100,7 @@ export default function ShoppingDetail() {
       list.push(item);
     }
 
-    // 4) 선택 지점 정보 저장 (selectedStore)
+    // 선택 지점 저장
     if (sel) {
       store.state.selectedStore = {
         id: sel.departmentStoreId,
@@ -99,56 +112,12 @@ export default function ShoppingDetail() {
       };
     }
 
-    // 5) 저장
+    // 저장
     try {
       localStorage.setItem('shoppingState', JSON.stringify(store));
-    } catch (e) {
-      console.error('shoppingState 저장 실패', e);
-      alert('픽업 목록 저장에 실패했습니다.');
-      return;
-    }
-
-    // 6) 결제 페이지로 이동
-    const params = new URLSearchParams({ productId: String(productId), qty: String(qty), departmentStoreId: String(selectedStoreId) });
-    if (sel?.departmentStoreName) params.set('departmentStoreName', sel.departmentStoreName);
-    navigate(`/order/checkout?${params.toString()}`);
-  };
-
-  // 장바구니 담기 (localstorage 사용)
-  const handleAddToCart = () => {
-    if (!main) return;
-    if (!selectedStoreId) {
-      alert('지점을 선택해주세요.');
-      return;
-    }
-    const sel = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
-    const item = {
-      productId: main.productId,
-      productName: main.productName,
-      price: main.price,
-      imageUrl: main.imageUrl,
-      brandName: main.brandName,
-      qty: qty,
-      departmentStoreId: sel?.departmentStoreId,
-      departmentStoreName: sel?.departmentStoreName,
-      lat: sel?.lat,
-      lng: sel?.lng,
-      addedAt: new Date().toISOString(),
-    };
-    try {
-      const raw = localStorage.getItem('cartItems');
-      const list = raw ? JSON.parse(raw) : [];
-      const idx = list.findIndex((i) => String(i.productId) === String(item.productId) && String(i.departmentStoreId) === String(item.departmentStoreId));
-      if (idx >= 0) {
-        const prev = Number(list[idx].qty ?? 1);
-        list[idx].qty = clampQty(prev + qty);
-      } else {
-        list.push(item);
-      }
-      localStorage.setItem('cartItems', JSON.stringify(list));
       alert('장바구니에 담았습니다.');
     } catch (e) {
-      console.error('장바구니 저장 실패', e);
+      console.error('shoppingState 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
     }
   };
