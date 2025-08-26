@@ -28,7 +28,6 @@ const OAuthSignUp = () => {
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
 
-    // 추가된 필드
     const [sex, setSex] = useState("");  // 'M' or 'F'
     const [birthYear, setBirthYear] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
@@ -39,7 +38,7 @@ const OAuthSignUp = () => {
     useEffect(() => {
         if (accessToken && email && nameParam) {
             console.log(`accessToken: ${accessToken}`)
-
+            useAuthStore.getState().setLoginStatus(true);
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);

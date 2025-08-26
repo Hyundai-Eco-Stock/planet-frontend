@@ -12,12 +12,14 @@ export default function LoginSuccess() {
     const email = queryParams.get("email");
     const name = queryParams.get("name");
     const profileUrl = queryParams.get("profileUrl");
+    
 
     useEffect(() => {
         if (accessToken && email && name) {
             console.log(`accessToken: ${accessToken}`)
             
             // Zustand에 저장
+            useAuthStore.getState().setLoginStatus(true);
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);

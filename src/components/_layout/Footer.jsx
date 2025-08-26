@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 
-import Hamburger from '@/assets/navigation_icon/Hamburger.png';
-import House from '@/assets/navigation_icon/House.png';
-import My from '@/assets/navigation_icon/My.png';
-import Planet from '@/assets/navigation_icon/Planet.png';
+import Hamburger from '@/assets/navigation_icon/Hamburger.svg';
+import House from '@/assets/navigation_icon/House.svg';
+import My from '@/assets/navigation_icon/My.svg';
+import Planet from '@/assets/navigation_icon/Planet.svg';
 
 const Footer = () => {
 
@@ -21,7 +21,7 @@ const Footer = () => {
     }
 
     return (
-        <div className="flex w-full justify-between h-24">
+        <div className="flex w-full justify-between h-full">
             {
                 menus.map((menu) => {
                     return <button

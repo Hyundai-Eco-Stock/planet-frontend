@@ -13,17 +13,17 @@ const Login = () => {
     const navigate = useNavigate();
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
-    const { setAccessToken, setEmail, setName, setProfile } = useAuthStore();
 
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await localLogin(id, pw);
             const { accessToken, email, name, profileUrl } = response.data;
-            setAccessToken(accessToken);
-            setEmail(email);
-            setName(name);
-            setProfile(profileUrl);
+            useAuthStore.getState().setLoginStatus(true);
+            useAuthStore.getState().setAccessToken(accessToken);
+            useAuthStore.getState().setEmail(email);
+            useAuthStore.getState().setName(name);
+            useAuthStore.getState().setProfile(profileUrl);
             navigate("/");
         } catch (error) {
             console.error("Login failed:", error);
