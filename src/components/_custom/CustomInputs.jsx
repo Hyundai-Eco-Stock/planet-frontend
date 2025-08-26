@@ -24,26 +24,44 @@ const CustomCommonInput = forwardRef(
             className = "",
             readOnly = false,
             autoFocus = false,
+            closeBtnVisible = true,
+            maxLength,
             ...props
         },
         ref
     ) => {
 
+        const handleChange = (e) => {
+            let newValue = e.target.value;
+
+            // 숫자 타입이면 숫자만 허용 + 길이 제한
+            if (type === "number") {
+                newValue = newValue.replace(/\D/g, ""); // 숫자만 남기기
+                if (maxLength) {
+                    newValue = newValue.slice(0, maxLength);
+                }
+            }
+
+            onChange({ target: { value: newValue } });
+        };
+
         return (
             <div className="relative w-full border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors">
                 <input
                     ref={ref}
-                    type={type}
+                    type={type === "number" ? "text" : type}
+                    inputMode={type === "number" ? "numeric" : undefined}
                     placeholder={placeholder}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleChange}
                     readOnly={readOnly}
                     autoFocus={autoFocus}
+                    maxLength={maxLength}
                     className={`w-full px-4 py-4 rounded-xl outline-none placeholder:text-black/40
                     ${className}`}
                 />
 
-                {value && !readOnly && (
+                {value && closeBtnVisible && !readOnly && (
                     <button
                         type="button"
                         onClick={() => onChange({ target: { value: "" } })}

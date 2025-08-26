@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
@@ -35,6 +35,10 @@ const OAuthSignUp = () => {
     const [birthDay, setBirthDay] = useState("");
     const [address, setAddress] = useState("");
     const [detailAddress, setDetailAddress] = useState("");
+
+    const yearRef = useRef(null);
+    const monthRef = useRef(null);
+    const dayRef = useRef(null);
 
     // ✅ 비밀번호 규칙 정규식
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
@@ -275,19 +279,38 @@ const OAuthSignUp = () => {
                             type="number"
                             value={birthYear}
                             placeholder="YYYY"
-                            onChange={(e) => setBirthYear(e.target.value)}
+                            closeBtnVisible={false}
+                            onChange={(e) => {
+                                setBirthYear(e.target.value);
+                                if (e.target.value.length === 4) {
+                                    monthRef.current?.focus();
+                                }
+                            }}
+                            ref={yearRef}
+                            maxLength={4}
                         />
                         <CustomCommonInput
                             type="number"
                             value={birthMonth}
                             placeholder="MM"
-                            onChange={(e) => setBirthMonth(e.target.value)}
+                            closeBtnVisible={false}
+                            onChange={(e) => {
+                                setBirthMonth(e.target.value);
+                                if (e.target.value.length === 2) {
+                                    dayRef.current?.focus();
+                                }
+                            }}
+                            ref={monthRef}
+                            maxLength={2}
                         />
                         <CustomCommonInput
                             type="number"
                             value={birthDay}
                             placeholder="DD"
-                            onChange={(e) => setBirthDay(e.target.value)}
+                            closeBtnVisible={false}
+                            onChange={(e) => { setBirthDay(e.target.value); }}
+                            ref={dayRef}
+                            maxLength={2}
                         />
                     </div>
                 </section>
