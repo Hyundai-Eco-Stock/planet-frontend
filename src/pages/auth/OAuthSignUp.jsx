@@ -27,6 +27,7 @@ const OAuthSignUp = () => {
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
+    const [passwordValid, setPasswordValid] = useState(true); // ✅ 비밀번호 규칙 상태
 
     const [sex, setSex] = useState("");  // 'M' or 'F'
     const [birthYear, setBirthYear] = useState("");
@@ -34,6 +35,9 @@ const OAuthSignUp = () => {
     const [birthDay, setBirthDay] = useState("");
     const [address, setAddress] = useState("");
     const [detailAddress, setDetailAddress] = useState("");
+
+    // ✅ 비밀번호 규칙 정규식
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
 
     useEffect(() => {
         if (accessToken && email && nameParam) {
@@ -49,6 +53,7 @@ const OAuthSignUp = () => {
         }
     }, [accessToken, email, nameParam]);
 
+    // ✅ 비밀번호 확인 실시간 검사
     useEffect(() => {
         if (password && passwordCheck) {
             setPasswordMatch(password === passwordCheck);
@@ -56,6 +61,15 @@ const OAuthSignUp = () => {
             setPasswordMatch(true);
         }
     }, [password, passwordCheck]);
+
+    // ✅ 비밀번호 규칙 실시간 검사
+    useEffect(() => {
+        if (password) {
+            setPasswordValid(passwordRegex.test(password));
+        } else {
+            setPasswordValid(true); // 입력 안 했을 땐 기본 true
+        }
+    }, [password]);
 
     const handleProfileChange = (file) => {
         if (file) {
@@ -68,28 +82,32 @@ const OAuthSignUp = () => {
     };
 
     const handleSubmit = () => {
-        if (!passwordMatch) {
-            alert("비밀번호가 일치하지 않습니다.");
+        if (!password) {
+            Swal.fire({ icon: "warning", title: "비밀번호를 입력해주세요" });
             return;
         }
+
+        // ✅ 최종 제출 시에도 규칙 확인
+        if (!passwordRegex.test(password)) {
+            Swal.fire({
+                icon: "warning",
+                title: "비밀번호 규칙 오류",
+                text: "영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.",
+            });
+            return;
+        }
+
+        if (!passwordMatch) {
+            Swal.fire({ icon: "warning", title: "비밀번호가 일치하지 않습니다." });
+            return;
+        }
+        
         if (!name.trim()) {
             Swal.fire({ icon: "warning", title: "이름을 입력해주세요" });
             return;
         }
         if (!email) {
             Swal.fire({ icon: "warning", title: "이메일 정보가 없습니다." });
-            return;
-        }
-        if (!password) {
-            Swal.fire({ icon: "warning", title: "비밀번호를 입력해주세요" });
-            return;
-        }
-        if (password.length < 8) {
-            Swal.fire({ icon: "warning", title: "비밀번호는 8자 이상이어야 합니다." });
-            return;
-        }
-        if (!passwordMatch) {
-            Swal.fire({ icon: "warning", title: "비밀번호가 일치하지 않습니다." });
             return;
         }
         if (!sex) {
@@ -127,7 +145,6 @@ const OAuthSignUp = () => {
             detailAddress,
         })
             .then((data) => {
-                // 프로필 이미지 업데이트
                 const profileUrl = data.profileUrl;
                 useAuthStore.getState().setProfile(profileUrl);
 
@@ -149,7 +166,7 @@ const OAuthSignUp = () => {
     };
 
     const isSubmitDisabled =
-        !passwordMatch || !password || !passwordCheck || !name || !sex;
+        !passwordValid || !passwordMatch || !password || !passwordCheck || !name || !sex;
 
     return (
         <div className="min-h-dvh bg-gray-50 flex flex-col gap-3 px-4 pb-4 pb-safe pt-2">
@@ -168,19 +185,7 @@ const OAuthSignUp = () => {
                         value={profileFile}
                         onChange={handleProfileChange}
                         previewUrl={profileUrl}
-
                     />
-                    {/* <div className="flex items-center gap-3">
-                        <img
-                            src={profileUrl || "/placeholder-avatar.svg"}
-                            alt="profile"
-                            className="w-24 h-24 rounded-full object-cover bg-gray-100 border border-gray-200"
-                        />
-                        <div className="flex-1">
-                            <CustomCommonInput type="file" onChange={handleProfileChange} className="py-2" />
-                            <p className="mt-1 text-xs text-gray-500">정사각형 이미지를 추천합니다 (최대 5MB).</p>
-                        </div>
-                    </div> */}
                 </section>
 
                 <div className="h-px bg-gray-200 my-3" />
@@ -216,7 +221,15 @@ const OAuthSignUp = () => {
                             placeholder="비밀번호를 입력해주세요"
                             onChange={(e) => setPassword(e.target.value)}
                         />
-                        <p className="mt-1 text-xs text-gray-500">영문/숫자/특수문자 조합 8자 이상을 권장합니다.</p>
+                        {/* ✅ 실시간 규칙 검증 문구 */}
+                        {!passwordValid && (
+                            <p className="mt-1 text-xs text-red-500">
+                                영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.
+                            </p>
+                        )}
+                        {passwordValid && password && (
+                            <p className="mt-1 text-xs text-green-600">사용 가능한 비밀번호입니다.</p>
+                        )}
                     </div>
 
                     <div>
