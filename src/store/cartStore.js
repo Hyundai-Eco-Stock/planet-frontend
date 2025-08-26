@@ -64,6 +64,55 @@ const useCartStore = create(
         })
       },
       
+      // 결제 완료된 상품들만 선택적 삭제
+      removeOrderedProducts: (orderedProducts) => {
+        const { deliveryCart, pickupCart } = get()
+        
+        // 주문된 상품 ID 목록 생성
+        const orderedProductIds = orderedProducts.map(product => product.productId || product.id)
+        
+        // 배송 장바구니에서 주문된 상품들 제거
+        const newDeliveryCart = deliveryCart.filter(cartProduct => {
+          const orderedProduct = orderedProducts.find(op => 
+            (op.productId || op.id) === cartProduct.id
+          )
+          
+          if (!orderedProduct) return true // 주문되지 않은 상품은 유지
+          
+          // 주문 수량보다 장바구니 수량이 많으면 차감만
+          if (cartProduct.quantity > orderedProduct.quantity) {
+            cartProduct.quantity -= orderedProduct.quantity
+            return true
+          }
+          
+          // 주문 수량과 같거나 적으면 제거
+          return false
+        })
+        
+        // 픽업 장바구니에서 주문된 상품들 제거 
+        const newPickupCart = pickupCart.filter(cartProduct => {
+          const orderedProduct = orderedProducts.find(op => 
+            (op.productId || op.id) === cartProduct.id
+          )
+          
+          if (!orderedProduct) return true // 주문되지 않은 상품은 유지
+          
+          // 주문 수량보다 장바구니 수량이 많으면 차감만
+          if (cartProduct.quantity > orderedProduct.quantity) {
+            cartProduct.quantity -= orderedProduct.quantity
+            return true
+          }
+          
+          // 주문 수량과 같거나 적으면 제거
+          return false
+        })
+        
+        set({
+          deliveryCart: newDeliveryCart,
+          pickupCart: newPickupCart
+        })
+      },
+      
       // 전체 삭제
       clearCart: (cartType = 'all') => {
         if (cartType === 'all') {
