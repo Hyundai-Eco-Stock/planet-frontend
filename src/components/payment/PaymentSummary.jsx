@@ -23,14 +23,14 @@ const PaymentSummary = ({ payment }) => {
         </div>
         
         {/* 상품 할인 */}
-        {discountAmount > 0 && (
+        {/* {discountAmount > 0 && (
           <div className="flex justify-between items-center">
             <span className="text-gray-600">상품 할인</span>
             <span className="text-red-600">
               -{discountAmount.toLocaleString()}원
             </span>
           </div>
-        )}
+        )} */}
         
         {/* 배송비 */}
         <div className="flex justify-between items-center">
