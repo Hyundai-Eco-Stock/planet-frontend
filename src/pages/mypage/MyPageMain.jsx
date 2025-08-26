@@ -34,11 +34,11 @@ const MyPageMain = () => {
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
         { title: '내 차 관리하기', path: '/my-page/my-car' },
         { title: '에코 스톡 인증 페이지로 이동', path: '/eco-stock/certificate' },
-        { title: '설정', path: '/my-page/settings' }
+        { title: '앱 설정', path: '/my-page/settings' }
     ]
 
     return (
-        <div className="px-3">
+        <div className="pt-3 px-3">
             <div className="w-full flex justify-between items-center pb-[1rem] border-b border-gray-200">
                 {/* 왼쪽 */}
                 <div className="flex items-center gap-3">
