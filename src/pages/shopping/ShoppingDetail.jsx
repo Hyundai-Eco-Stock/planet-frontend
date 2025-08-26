@@ -269,7 +269,10 @@ export default function ShoppingDetail() {
       <div className="h-24" />
 
       {/* 하단 고정 버튼 바 */}
-      <div className="fixed bottom-0 left-0 right-0">
+      <div
+        className="fixed left-0 right-0 z-50"
+        style={{ bottom: 'calc(var(--app-footer-height, 80px) + env(safe-area-inset-bottom))' }}
+      >
         <div className="mx-auto max-w-screen-md px-4 pb-4">
           <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="grid grid-cols-2 gap-2 p-3">
