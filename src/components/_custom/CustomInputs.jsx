@@ -58,7 +58,9 @@ const CustomCommonInput = forwardRef(
                     autoFocus={autoFocus}
                     maxLength={maxLength}
                     className={`w-full px-4 py-4 rounded-xl outline-none placeholder:text-black/40
-                    ${className}`}
+                        ${readOnly ? "bg-emerald-500 text-white cursor-not-allowed" : "bg-white"}
+                        ${className}`}
+                    {...props}
                 />
 
                 {value && closeBtnVisible && !readOnly && (
