@@ -10,9 +10,10 @@ const Footer = () => {
     const navigate = useNavigate();
 
     const menus = [
-        { name: "홈", icon: House, path: "/home/main" },
         { name: "쇼핑", icon: Hamburger, path: "/shopping/main" },
-        { name: "에코", icon: Planet, path: "/eco-stock/main" },
+        { name: "에코스톡", icon: Planet, path: "/eco-stock/main" },
+        { name: "홈", icon: House, path: "/home/main" },
+        { name: "에코딜", icon: Planet, path: "/eco-deal/main" },
         { name: "마이", icon: My, path: "/my-page/main" },
     ]
 
@@ -30,7 +31,7 @@ const Footer = () => {
                         key={menu.name}
                     >
                         <img src={menu.icon} className="w-6 h-6 mb-1"/>
-                        <span>{menu.name}</span>
+                        <span className='text-sm font-semibold text-gray-900'>{menu.name}</span>
                     </button>
                 })
             }

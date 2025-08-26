@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faBagShopping } from "@fortawesome/free-solid-svg-icons";
 import useCartStore from "@/store/cartStore";
 
-const Header = () => {
+const HeaderWithShopping = () => {
     const navigate = useNavigate();
 
     const onSearchClick = () => {
@@ -18,8 +18,8 @@ const Header = () => {
     const totalCartCount = getTotalProducts("delivery") + getTotalProducts("pickup");
 
     return (
-        <header className="sticky top-0 z-50 bg-white text-[#0b1020]">
-            <div className="flex items-center justify-between px-5 py-3">
+        <header className="px-4 sticky top-0 z-50 bg-white text-[#0b1020]">
+            <div className="flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 로고 텍스트 */}
                 <Link
                     to="/home"
@@ -35,7 +35,7 @@ const Header = () => {
                         type="button"
                         onClick={onSearchClick}
                         aria-label="검색 열기"
-                        className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
+                        className="flex items-center justify-center w-9  rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                     >
                         <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
                         <span className="sr-only">검색</span>
@@ -52,7 +52,7 @@ const Header = () => {
 
                         {/* 장바구니 개수 배지 */}
                         {totalCartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5  flex items-center justify-center font-medium">
                                 {totalCartCount > 99 ? "99+" : totalCartCount}
                             </span>
                         )}
@@ -63,4 +63,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default HeaderWithShopping;
