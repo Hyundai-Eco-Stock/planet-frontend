@@ -50,7 +50,65 @@ export default function ShoppingDetail() {
       alert('지점을 선택해주세요.');
       return;
     }
+
     const sel = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
+
+    // 1) 아이템 스키마(사진과 동일): id, name, price, imageUrl, isEcoDeal, quantity, salePercent
+    const item = {
+      id: main?.productId,
+      name: main?.productName,
+      price: Number(main?.price ?? 0),
+      imageUrl: main?.imageUrl || '',
+      isEcoDeal: true,
+      quantity: Number(qty || 1),
+      salePercent: Number(main?.salePercent ?? 0),
+    };
+
+    // 2) 현재 상태 로드(없으면 기본 생성)
+    let store;
+    const raw = localStorage.getItem('shoppingState');
+    store = raw ? JSON.parse(raw) : null;
+    if (!store || typeof store !== 'object') {
+      store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
+    } else {
+      store.state = store.state || {};
+      if (!Array.isArray(store.state.deliveryCart)) store.state.deliveryCart = [];
+      if (!Array.isArray(store.state.pickupCart)) store.state.pickupCart = [];
+      if (typeof store.version !== 'number') store.version = 0;
+    }
+
+    // 3) pickupCart 갱신(동일 id면 수량 누적)
+    const list = store.state.pickupCart;
+    const idx = list.findIndex((i) => String(i.id) === String(item.id));
+    if (idx >= 0) {
+      const prevQty = Number(list[idx].quantity || 0);
+      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity };
+    } else {
+      list.push(item);
+    }
+
+    // 4) 선택 지점 정보 저장 (selectedStore)
+    if (sel) {
+      store.state.selectedStore = {
+        id: sel.departmentStoreId,
+        name: sel.departmentStoreName,
+        address: sel.address || sel.departmentStoreAddress || '',
+        phone: sel.phone || '',
+        latitude: sel.lat ?? null,
+        longitude: sel.lng ?? null,
+      };
+    }
+
+    // 5) 저장
+    try {
+      localStorage.setItem('shoppingState', JSON.stringify(store));
+    } catch (e) {
+      console.error('shoppingState 저장 실패', e);
+      alert('픽업 목록 저장에 실패했습니다.');
+      return;
+    }
+
+    // 6) 결제 페이지로 이동
     const params = new URLSearchParams({ productId: String(productId), qty: String(qty), departmentStoreId: String(selectedStoreId) });
     if (sel?.departmentStoreName) params.set('departmentStoreName', sel.departmentStoreName);
     navigate(`/order/checkout?${params.toString()}`);
@@ -224,7 +282,7 @@ export default function ShoppingDetail() {
                 disabled={!selectedStoreId}
                 className={`w-full rounded-lg bg-black py-3 text-sm font-semibold text-white active:scale-[0.99] ${!selectedStoreId ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900'}`}
               >
-                구매하기
+                픽업하기
               </button>
             </div>
           </div>

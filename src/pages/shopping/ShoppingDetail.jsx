@@ -58,8 +58,52 @@ export default function ShoppingDetail() {
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
-    if (!productId) return;
-    navigate(`/order/checkout?productId=${productId}&qty=${qty}`);
+    if (!main) return;
+
+    const item = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      imageUrl: main.imageUrl || main.productImageUrl || '',
+      isEcoDeal: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
+      quantity: Number(qty || 1),
+      salePercent: Number(main.salePercent ?? 0),
+    };
+
+    // 1) 현재 상태 읽기 (없으면 기본 스키마 생성)
+    let store;
+    const raw = localStorage.getItem('shoppingState');
+    store = raw ? JSON.parse(raw) : null;
+    if (!store || typeof store !== 'object') {
+      store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
+    } else {
+      // 필드 보정
+      store.state = store.state || {};
+      if (!Array.isArray(store.state.deliveryCart)) store.state.deliveryCart = [];
+      if (!Array.isArray(store.state.pickupCart)) store.state.pickupCart = [];
+      if (typeof store.version !== 'number') store.version = 0;
+    }
+
+    // 2) deliveryCart 갱신 (동일 id면 수량 누적 및 최신 정보 반영)
+    const list = store.state.deliveryCart;
+    const idx = list.findIndex((i) => String(i.id) === String(item.id));
+    if (idx >= 0) {
+      const prevQty = Number(list[idx].quantity || 0);
+      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity }; // quantity 갱신
+    } else {
+      list.push(item);
+    }
+
+    // 3) 저장
+    try {
+      localStorage.setItem('shoppingState', JSON.stringify(store));
+    } catch (e) {
+      console.error('shoppingState 저장 실패', e);
+      alert('구매 목록 저장에 실패했습니다.');
+      return;
+    }
+    // 4) 구매 페이지로 이동
+    navigate(`/order/checkout?productId=${item.id}&qty=${item.quantity}`);
   };
 
   // 장바구니 담기 (localstorage 사용)
