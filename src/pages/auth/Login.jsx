@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import Planet from '@/assets/navigation_icon/Planet.svg';
+
 import { KakaoLoginButton } from "@/components/auth/SocialLoginButtons";
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
@@ -32,10 +34,11 @@ const Login = () => {
     };
 
     return (
-        <div className="max-w-[640px] min-h-screen px-8 flex justify-center">
+        <div className="max-w-[640px] px-8 flex justify-center">
             <main className="w-full h-fit-content">
                 {/* 제목 */}
-                <div className="text-center py-10">
+                <div className="flex flex-col gap-3 justify-center items-center text-center pt-20 pb-10">
+                    <img src={Planet} className="w-24"/>
                     <Link
                         to="/home"
                         className="font-extrabold tracking-[.2px] text-[24px] leading-none no-underline"

@@ -2,7 +2,7 @@ import './App.css'
 
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import useNotificationStore from '@/store/notificationStore'
+import { useNotifications } from '@/hooks/fcm_notification/useNotifications'
 
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
@@ -77,6 +77,11 @@ const OrderRedirect = () => {
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
+	const { syncPushEnabledState } = useNotifications();
+
+	useEffect(() => {
+		syncPushEnabledState();
+	}, [syncPushEnabledState]);
 
 	return (
 		<Routes>
