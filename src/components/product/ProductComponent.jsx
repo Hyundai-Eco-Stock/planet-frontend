@@ -1,4 +1,13 @@
 import React from "react";
+const EcoBadge = React.memo(() => (
+  <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <path d="M12 3c-3.5 0-6.5 2.8-6.5 6.3 0 1.3.4 2.4 1.1 3.5C5.2 13.8 4.5 15 4.5 16.5 4.5 18.4 6.1 20 8 20h2v2h4v-2h2c1.9 0 3.5-1.6 3.5-3.5 0-1.5-.7-2.7-2.1-3.7.7-1.1 1.1-2.3 1.1-3.5C18.5 5.8 15.5 3 12 3z" fill="currentColor"/>
+      <rect x="11" y="17" width="2" height="5" fill="currentColor"/>
+    </svg>
+    친환경
+  </span>
+));
 import { useNavigate } from "react-router-dom";
 
 // Named export (so `import { ProductComponent } from ...` works)
@@ -34,9 +43,11 @@ export function ProductComponent({ items = [], loading = false, error = null }) 
               const brand = p.brandName;
               const price = p.price;
               const img = p.imageUrl;
+              
               return (
                 <li key={p.productId} className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer" onClick={() => navigate(`/shopping/detail?productId=${p.productId}`)}>
-                  <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
+                  <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative">
+                    <EcoBadge />
                     {img ? (
                       <img src={img} alt={name} className="w-full h-full object-cover" />
                     ) : (
