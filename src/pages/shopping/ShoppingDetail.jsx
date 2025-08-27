@@ -78,7 +78,7 @@ export default function ShoppingDetail() {
     // 상태 로드/초기화
     let store;
     try {
-      const raw = localStorage.getItem('shoppingState');
+      const raw = localStorage.getItem('cart-storage');
       store = raw ? JSON.parse(raw) : null;
     } catch (_) {
       store = null;
@@ -103,10 +103,10 @@ export default function ShoppingDetail() {
     }
 
     try {
-      localStorage.setItem('shoppingState', JSON.stringify(store));
+      localStorage.setItem('cart-storage', JSON.stringify(store));
       alert('장바구니에 담았습니다.');
     } catch (e) {
-      console.error('shoppingState 저장 실패', e);
+      console.error('cart-storage 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
     }
   };
