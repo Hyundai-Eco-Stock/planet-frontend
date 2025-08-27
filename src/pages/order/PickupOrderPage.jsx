@@ -15,19 +15,19 @@ import PaymentSummary from '../../components/payment/PaymentSummary'
 const PickupOrderPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  
-  const { 
-    orderDraft, 
-    createOrderDraft, 
+
+  const {
+    orderDraft,
+    createOrderDraft,
     updatePointUsage,
     updateDonationAmount,
     updateOrderDraft,
     clearOrderDraft,
-    isLoading 
+    isLoading
   } = useOrderStore()
-  
+
   const { pickupCart } = useCartStore()
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 결제위젯 refs
@@ -43,65 +43,108 @@ const PickupOrderPage = () => {
       const locationData = location.state
       const selectedProducts = locationData?.products || pickupCart
       const deliveryType = locationData?.deliveryType || 'PICKUP'
-      
+
       // deliveryType이 PICKUP이 아니면 잘못된 접근
       if (deliveryType !== 'PICKUP') {
         alert('잘못된 접근입니다.')
         navigate('/cart/main')
         return
       }
-      
+
       if (selectedProducts.length === 0) {
         alert('주문할 상품이 없습니다.')
         navigate('/cart/main')
         return
       }
-      
+    
       // 장바구니 → 주문서 데이터 변환
       const convertedProducts = selectedProducts.map(product => ({
         ...product,
-        ecoDealStatus: product.isEcoDeal || false, 
+        ecoDealStatus: product.isEcoDeal || false,
         salePercent: product.salePercent || 0
       }))
-      
-      // 가격 계산
+
+      // 매장 정보 검증 
+      const productsWithStore = convertedProducts.filter(p => p.selectedStore)
+
+      if (productsWithStore.length === 0) {
+        alert('픽업 매장 정보가 없습니다. 장바구니에서 매장을 선택해주세요.')
+        navigate('/cart/main')
+        return
+      }
+
+      if (productsWithStore.length !== convertedProducts.length) {
+        alert('일부 상품에 픽업 매장 정보가 없습니다. 장바구니에서 확인해주세요.')
+        navigate('/cart/main')
+        return
+      }
+
+      // 첫 번째 상품의 매장 정보 사용
+      const selectedStore = productsWithStore[0].selectedStore
+
+      const originalTotal = convertedProducts.reduce((total, product) => {
+        return total + (product.price * product.quantity)
+      }, 0)
+
       const productTotal = convertedProducts.reduce((total, product) => {
-        const finalPrice = product.ecoDealStatus && product.salePercent > 0
-          ? product.price * (1 - product.salePercent / 100)  // 할인 적용
-          : product.price  // 일반 가격
-        return total + (finalPrice * product.quantity)
+        const discountedPrice = product.price * (1 - product.salePercent / 100)
+        return total + (discountedPrice * product.quantity)
       }, 0)
-      
-      // 총 할인 금액 계산 
-      const discountAmount = convertedProducts.reduce((total, product) => {
-        if (product.ecoDealStatus && product.salePercent > 0) {
-          const discount = product.price * (product.salePercent / 100) * product.quantity
-          return total + discount
-        }
-        return total
-      }, 0)
-      
-      // 주문서 생성 
+
+      const discountAmount = originalTotal - productTotal
+
+      const getTodayKST = () => {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date())
+      }
+
+      // 픽업 정보 생성
+      const pickupInfo = {
+        departmentStoreId: selectedStore.id,
+        departmentStoreName: selectedStore.name,
+        pickupDate: getTodayKST(),
+        pickupMemo: '',
+        // PickupStoreInfo 컴포넌트용 storeGroups
+        storeGroups: [{
+          store: {
+            id: selectedStore.id,
+            name: selectedStore.name,
+            address: selectedStore.address,
+            phone: selectedStore.phone,
+            operatingHours: selectedStore.operatingHours
+          },
+          products: convertedProducts.map(product => ({
+            id: product.id,
+            name: product.name,
+            quantity: product.quantity,
+            ecoDealStatus: product.ecoDealStatus
+          }))
+        }]
+      }
+
+      // 주문서 생성 데이터
       const cartData = {
         selectedProducts: convertedProducts.map(product => ({
           ...product,
           originalPrice: product.price,
-          discountAmount: product.ecoDealStatus && product.salePercent > 0 
-            ? product.price * (product.salePercent / 100) * product.quantity 
-            : 0,
-          paidPrice: product.ecoDealStatus && product.salePercent > 0
-            ? product.price * (1 - product.salePercent / 100)
-            : product.price
+          discountedPrice: product.price * (1 - product.salePercent / 100),
+          discountAmount: product.price * (product.salePercent / 100) * product.quantity,
+          paidPrice: product.price * (1 - product.salePercent / 100)
         })),
         orderInfo: {
           totalPrice: productTotal,
           discountAmount: discountAmount
-        }
+        },
+        pickupInfo
       }
-      
+
       await createOrderDraft(cartData, 'PICKUP')
     }
-    
+
     initializeOrder()
   }, [location.state, pickupCart, navigate, createOrderDraft])
 
@@ -110,28 +153,27 @@ const PickupOrderPage = () => {
     if (!clientKey || !orderDraft?.payment?.finalAmount) return
 
     let mounted = true
-    ;(async () => {
-      try {
-        // customerKey: 유저 식별자
-        const customerKey =
-          (orderDraft?.orderUser?.email && orderDraft.orderUser.email.trim()) ||
-          orderDraft?.orderUser?.name ||
-          'guest'
+      ; (async () => {
+        try {
+          const customerKey =
+            (orderDraft?.orderUser?.email && orderDraft.orderUser.email.trim()) ||
+            orderDraft?.orderUser?.name ||
+            'guest'
 
-        const widget = await loadPaymentWidget(clientKey, customerKey)
-        if (!mounted) return
-        widgetRef.current = widget
+          const widget = await loadPaymentWidget(clientKey, customerKey)
+          if (!mounted) return
+          widgetRef.current = widget
 
-        // 결제수단 영역 렌더 (전체 위젯으로 표시)
-        methodsRef.current = widget.renderPaymentMethods(
-          '#payment-widget',
-          { value: orderDraft.payment.finalAmount, currency: 'KRW' },
-          { variantKey: 'DEFAULT' }
-        )
-      } catch {
-        console.error('결제 위젯 렌더 실패')
-      }
-    })()
+          // 결제수단 영역 렌더 (전체 위젯으로 표시)
+          methodsRef.current = widget.renderPaymentMethods(
+            '#payment-widget',
+            { value: orderDraft.payment.finalAmount, currency: 'KRW' },
+            { variantKey: 'DEFAULT' }
+          )
+        } catch {
+          console.error('결제 위젯 렌더 실패')
+        }
+      })()
 
     return () => { mounted = false }
   }, [clientKey, orderDraft?.payment?.finalAmount, orderDraft?.orderUser?.email, orderDraft?.orderUser?.name])
@@ -155,24 +197,24 @@ const PickupOrderPage = () => {
     }
   }
 
-  // 기부 금액 자동 계산 (1000 미만 단위로 맞추기)
+  // 기부금 계산
   const calculateRecommendedDonation = () => {
     if (!orderDraft) return 0
-    
-    const currentAmount = orderDraft.payment.productTotal - orderDraft.payment.discountAmount - orderDraft.payment.pointUsage
-    const remainder = currentAmount % 1000
 
-    return remainder > 0 ? (1000 - remainder) : 0
+    // 기부금 제외한 실제 결제 금액
+    const baseAmount = orderDraft.payment.productTotal - orderDraft.payment.pointUsage
+    const remainder = baseAmount % 1000
+
+    return remainder === 0 ? 0 : (1000 - remainder)
   }
 
   // 결제하기 버튼 클릭
   const handlePayment = async () => {
     if (!orderDraft) return
-    
+
     // 유효성 검사 (픽업은 매장 정보만 확인)
-    const validation = validateOrder()
-    if (!validation.isValid) {
-      alert(validation.message)
+    if (!orderDraft.pickupInfo?.storeGroups[0].store.id || !orderDraft.pickupInfo?.departmentStoreName) {
+      alert('픽업 매장을 먼저 선택해 주세요.')
       return
     }
 
@@ -181,21 +223,69 @@ const PickupOrderPage = () => {
       alert('유효하지 않은 결제 금액입니다.')
       return
     }
-    
+
+    const pickupDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+
     setIsSubmitting(true)
-    
+
     try {
       // 주문서 최종 업데이트
-      updateOrderDraft({
-        pickupInfo: orderDraft.pickupInfo,
+      const finalOrderDraft = {
+        ...orderDraft,
+        pickupInfo: {
+          ...orderDraft.pickupInfo,
+          pickupDate,
+        },
         payment: {
           ...orderDraft.payment,
           finalAmount: amount,
         },
-      })
+      }
+
+      updateOrderDraft(finalOrderDraft)
 
       // 성공 페이지 금액 검증용
       sessionStorage.setItem('expectedAmount', String(amount))
+
+      // 주문 ID/이름 확정
+      const finalOrderId = orderDraft.orderId || `PICKUP-${Date.now()}`;
+      const orderName =
+        (finalOrderDraft.products?.length ?? 0) > 1
+          ? `${finalOrderDraft.products[0].name} 외 ${finalOrderDraft.products.length - 1}건`
+          : finalOrderDraft.products?.[0]?.name || '주문 상품';
+
+      const orderDataForPayment = {
+        orderType: 'PICKUP',
+        orderId: finalOrderId,
+        orderName,
+        products: finalOrderDraft.products.map(product => ({
+          productId: product.id,
+          productName: product.name || product.productName || '상품명',
+          quantity: product.quantity,
+          price: product.originalPrice || product.paidPrice || product.price,
+          salePercent: product.salePercent || 0,
+          ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false
+        })),
+        deliveryInfo: null,
+        pickupInfo: {
+          departmentStoreId: finalOrderDraft.pickupInfo.departmentStoreId,
+          departmentStoreName: finalOrderDraft.pickupInfo.departmentStoreName,
+          pickupDate,
+          pickupMemo: finalOrderDraft.pickupInfo.pickupMemo ?? '',
+        },
+        pointsUsed: finalOrderDraft.payment.pointUsage || 0,
+        donationAmount: finalOrderDraft.payment.donationAmount || 0,
+        customerName: finalOrderDraft.orderUser.name || '',
+        customerEmail: finalOrderDraft.orderUser.email || '',
+        customerPhone: finalOrderDraft.orderUser.phone || ''
+      }
+
+      sessionStorage.setItem('paymentOrderDraft', JSON.stringify(orderDataForPayment));
 
       // 결제위젯 인스턴스 확보
       let widget = widgetRef.current
@@ -272,7 +362,7 @@ const PickupOrderPage = () => {
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center">
-            <button 
+            <button
               onClick={handleGoBack}
               className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -294,7 +384,7 @@ const PickupOrderPage = () => {
         <OrderProductList products={orderDraft.products} />
 
         {/* 픽업 매장 정보 */}
-        <PickupStoreInfo 
+        <PickupStoreInfo
           storeGroups={orderDraft.pickupInfo?.storeGroups || []}
         />
 
