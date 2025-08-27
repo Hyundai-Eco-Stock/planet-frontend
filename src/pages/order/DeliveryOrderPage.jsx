@@ -15,20 +15,20 @@ import PaymentSummary from '../../components/payment/PaymentSummary'
 const DeliveryOrderPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  
-  const { 
-    orderDraft, 
-    createOrderDraft, 
+
+  const {
+    orderDraft,
+    createOrderDraft,
     updateDeliveryInfo,
     updatePointUsage,
     updateDonationAmount,
     updateOrderDraft,
     clearOrderDraft,
-    isLoading 
+    isLoading
   } = useOrderStore()
-  
+
   const { deliveryCart } = useCartStore()
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 결제위젯 refs
@@ -44,65 +44,62 @@ const DeliveryOrderPage = () => {
       const locationData = location.state
       const selectedProducts = locationData?.products || deliveryCart
       const deliveryType = locationData?.deliveryType || 'DELIVERY'
-      
+
       // deliveryType이 DELIVERY가 아니면 잘못된 접근
       if (deliveryType !== 'DELIVERY') {
         alert('잘못된 접근입니다.')
         navigate('/cart/main')
         return
       }
-      
+
       if (selectedProducts.length === 0) {
         alert('주문할 상품이 없습니다.')
         navigate('/cart/main')
         return
       }
-      
+
       // 장바구니 → 주문서 데이터 변환
       const convertedProducts = selectedProducts.map(product => ({
         ...product,
-        ecoDealStatus: product.isEcoDeal || false, 
-        salePercent: product.salePercent || 0
+        ecoDealStatus: product.isEcoDeal || false,
+        salePercent: product.salePercent || 0 
       }))
+
+      // 원가 총액
+      const originalTotal = convertedProducts.reduce((total, product) => {
+        return total + (product.price * product.quantity)
+      }, 0)
       
-      // 가격 계산 
+      // 할인 적용 총액 
       const productTotal = convertedProducts.reduce((total, product) => {
-        const finalPrice = product.ecoDealStatus && product.salePercent > 0
-          ? product.price * (1 - product.salePercent / 100)  // 할인 적용
-          : product.price  // 일반 가격
-        return total + (finalPrice * product.quantity)
+        const discountedPrice = product.price * (1 - product.salePercent / 100)
+        return total + (discountedPrice * product.quantity)
       }, 0)
       
-      // 총 할인 금액 계산 
-      const discountAmount = convertedProducts.reduce((total, product) => {
-        if (product.ecoDealStatus && product.salePercent > 0) {
-          const discount = product.price * (product.salePercent / 100) * product.quantity
-          return total + discount
-        }
-        return total
-      }, 0)
-      
+      // 총 할인 금액
+      const discountAmount = originalTotal - productTotal
+
       // 주문서 생성
       const cartData = {
         selectedProducts: convertedProducts.map(product => ({
           ...product,
           originalPrice: product.price,
-          discountAmount: product.ecoDealStatus && product.salePercent > 0 
-            ? product.price * (product.salePercent / 100) * product.quantity 
-            : 0,
-          paidPrice: product.ecoDealStatus && product.salePercent > 0
-            ? product.price * (1 - product.salePercent / 100)
-            : product.price
+          // 할인 적용된 개별 가격
+          discountedPrice: product.price * (1 - product.salePercent / 100),
+          // 개별 상품 할인 금액
+          discountAmount: product.price * (product.salePercent / 100) * product.quantity,
+          // 실제 지불 가격
+          paidPrice: product.price * (1 - product.salePercent / 100)
         })),
         orderInfo: {
-          totalPrice: productTotal,
-          discountAmount: discountAmount
+          totalPrice: productTotal,        // 할인 적용된 총액
+          discountAmount: discountAmount   // 총 할인 금액
         }
       }
-      
+
       await createOrderDraft(cartData, 'DELIVERY')
     }
-    
+
     initializeOrder()
   }, [location.state, deliveryCart, navigate, createOrderDraft])
 
@@ -111,28 +108,28 @@ const DeliveryOrderPage = () => {
     if (!clientKey || !orderDraft?.payment?.finalAmount) return
 
     let mounted = true
-    ;(async () => {
-      try {
-        // customerKey: 유저 식별자
-        const customerKey =
-          (orderDraft?.orderUser?.email && orderDraft.orderUser.email.trim()) ||
-          orderDraft?.orderUser?.name ||
-          'guest'
+      ; (async () => {
+        try {
+          // customerKey: 유저 식별자
+          const customerKey =
+            (orderDraft?.orderUser?.email && orderDraft.orderUser.email.trim()) ||
+            orderDraft?.orderUser?.name ||
+            'guest'
 
-        const widget = await loadPaymentWidget(clientKey, customerKey)
-        if (!mounted) return
-        widgetRef.current = widget
+          const widget = await loadPaymentWidget(clientKey, customerKey)
+          if (!mounted) return
+          widgetRef.current = widget
 
-        // 결제수단 영역 렌더 (전체 위젯으로 표시)
-        methodsRef.current = widget.renderPaymentMethods(
-          '#payment-widget',
-          { value: orderDraft.payment.finalAmount, currency: 'KRW' },
-          { variantKey: 'DEFAULT' }
-        )
-      } catch {
-        console.error('결제 위젯 렌더 실패')
-      }
-    })()
+          // 결제수단 영역 렌더 (전체 위젯으로 표시)
+          methodsRef.current = widget.renderPaymentMethods(
+            '#payment-widget',
+            { value: orderDraft.payment.finalAmount, currency: 'KRW' },
+            { variantKey: 'DEFAULT' }
+          )
+        } catch {
+          console.error('결제 위젯 렌더 실패')
+        }
+      })()
 
     return () => { mounted = false }
   }, [clientKey, orderDraft?.payment?.finalAmount, orderDraft?.orderUser?.email, orderDraft?.orderUser?.name])
@@ -156,19 +153,22 @@ const DeliveryOrderPage = () => {
     }
   }
 
-  // 기부 금액 자동 계산 (1000 미만 단위로 맞추기)
+  // 기부금 계산
   const calculateRecommendedDonation = () => {
     if (!orderDraft) return 0
     
-    const currentAmount = orderDraft.payment.productTotal - orderDraft.payment.discountAmount - orderDraft.payment.pointUsage
-    const remainder = currentAmount % 1000
-
-    return remainder > 0 ? (1000 - remainder) : 0
+    // 기부금 제외한 실제 결제 금액
+    const baseAmount = orderDraft.payment.productTotal - orderDraft.payment.pointUsage
+    const remainder = baseAmount % 1000
+    
+    return remainder === 0 ? 0 : (1000 - remainder)
   }
 
   // 결제하기 버튼 클릭
   const handlePayment = async () => {
-    if (!orderDraft) return
+    if (!orderDraft) {
+      return
+    }
 
     // 유효성 검사
     const validation = validateOrder()
@@ -187,16 +187,52 @@ const DeliveryOrderPage = () => {
 
     try {
       // 주문서 최종 업데이트
-      updateOrderDraft({
+      const finalOrderDraft = {
+        ...orderDraft,
         deliveryInfo: orderDraft.deliveryInfo,
         payment: {
           ...orderDraft.payment,
           finalAmount: amount,
         },
-      })
+      }
+
+      updateOrderDraft(finalOrderDraft)
 
       // 성공 페이지 금액 검증용
       sessionStorage.setItem('expectedAmount', String(amount))
+
+      const orderName = orderDraft.products.length > 1
+        ? `${orderDraft.products[0].name} 외 ${orderDraft.products.length - 1}건`
+        : (orderDraft.products[0]?.name || '주문 상품')
+
+      const orderDataForPayment = {
+        orderType: 'DELIVERY',
+        products: finalOrderDraft.products.map(product => ({
+          productId: product.id,
+          productName: product.name || product.productName || '상품명',
+          quantity: product.quantity,
+          price: product.originalPrice || product.paidPrice || product.price,
+          salePercent: product.salePercent || 0,
+          ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false
+        })),
+        deliveryInfo: {
+          recipientName: finalOrderDraft.deliveryInfo.recipientName,
+          recipientPhone: finalOrderDraft.deliveryInfo.phone,
+          address: finalOrderDraft.deliveryInfo.address,
+          detailAddress: finalOrderDraft.deliveryInfo.detailAddress || '',
+          zipCode: finalOrderDraft.deliveryInfo.zipCode || '',
+          deliveryMemo: finalOrderDraft.deliveryInfo.deliveryRequest || ''
+        },
+        pickupInfo: null,
+        pointsUsed: finalOrderDraft.payment.pointUsage || 0,
+        donationAmount: finalOrderDraft.payment.donationAmount || 0,
+        customerName: finalOrderDraft.orderUser.name || '',
+        customerEmail: finalOrderDraft.orderUser.email || '',
+        customerPhone: finalOrderDraft.orderUser.phone || '',
+        orderName
+      }
+
+      sessionStorage.setItem('paymentOrderDraft', JSON.stringify(orderDataForPayment))
 
       // 결제위젯 인스턴스 확보
       let widget = widgetRef.current
@@ -229,10 +265,7 @@ const DeliveryOrderPage = () => {
       // 결제위젯으로 바로 결제창 오픈
       await widget.requestPayment({
         orderId: orderDraft.orderId || `ORD-${Date.now()}`,
-        orderName:
-          orderDraft.products.length > 1
-            ? `${orderDraft.products[0].name} 외 ${orderDraft.products.length - 1}건`
-            : (orderDraft.products[0]?.name || '주문 상품'),
+        orderName,
         successUrl: `${window.location.origin}/payments/success`,
         failUrl: `${window.location.origin}/payments/fail`,
         customerEmail: orderDraft?.orderUser?.email || '',
@@ -278,7 +311,7 @@ const DeliveryOrderPage = () => {
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center">
-            <button 
+            <button
               onClick={handleGoBack}
               className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -303,7 +336,7 @@ const DeliveryOrderPage = () => {
         <OrderUserInfo userInfo={orderDraft.orderUser} />
 
         {/* 배송지 정보 */}
-        <DeliveryAddressForm 
+        <DeliveryAddressForm
           deliveryInfo={orderDraft.deliveryInfo}
           onUpdate={updateDeliveryInfo}
         />

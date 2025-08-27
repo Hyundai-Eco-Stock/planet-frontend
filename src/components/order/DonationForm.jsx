@@ -5,14 +5,22 @@ const DonationForm = ({ recommendedAmount, onUpdate }) => {
   const [donationAmount, setDonationAmount] = useState(recommendedAmount || 0)
   const [inputValue, setInputValue] = useState((recommendedAmount || 0).toString())
 
+  // recommendedAmount가 변경될 때마다 업데이트
+  useEffect(() => {
+    if (!donationEnabled) {
+      setDonationAmount(recommendedAmount || 0)
+      setInputValue((recommendedAmount || 0).toString())
+    }
+  }, [recommendedAmount, donationEnabled])
+
   useEffect(() => {
     setInputValue(donationAmount.toString())
-  }, [donationAmount, recommendedAmount])
+  }, [donationAmount])
 
   const handleDonationToggle = (checked) => {
     setDonationEnabled(checked)
     if (checked) {
-      // 체크박스 활성화 시, 현재 입력값 사용
+      // 체크박스 활성화 시, 현재 추천값이나 입력값 사용
       const amount = donationAmount > 0 ? donationAmount : (recommendedAmount > 0 ? recommendedAmount : 100)
       setDonationAmount(amount)
       setInputValue(amount.toString())

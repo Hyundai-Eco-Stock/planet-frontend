@@ -11,7 +11,7 @@ const PaymentSuccessPage = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [orderResult, setOrderResult] = useState(null);
 
-  const { clearCart } = useCartStore();
+  const { removeOrderedProducts } = useCartStore();
   const { orderDraft, clearOrderDraft } = useOrderStore();
   const { reset: resetPayment } = usePaymentStore();
 
@@ -49,11 +49,51 @@ const PaymentSuccessPage = () => {
 
     (async () => {
       try {
-        const products = Array.isArray(orderDraft?.products) ? orderDraft.products : [];
-        const orderName =
-          products.length > 1
-            ? `${products[0]?.name ?? '주문 상품'} 외 ${products.length - 1}건`
-            : (products[0]?.name ?? '주문 상품');
+        let orderData = null;
+
+        // DeliveryOrderPage에서 저장한 데이터 확인
+        const savedPaymentData = sessionStorage.getItem('paymentOrderDraft');
+        if (savedPaymentData) {
+          orderData = JSON.parse(savedPaymentData);
+        } else {
+          // fallback: orderDraft에서 데이터 추출 시도
+          const products = Array.isArray(orderDraft?.products) ? orderDraft.products : [];
+          orderData = {
+            orderType: orderDraft?.orderType || 'DELIVERY',
+            products: products.map(product => ({
+              productId: product.id,
+              productName: product.name || product.productName || '상품명',
+              quantity: product.quantity,
+              price: product.originalPrice || product.paidPrice || product.price,
+              salePercent: product.salePercent || 0,
+              ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false
+            })),
+            deliveryInfo: orderDraft?.deliveryInfo ? {
+              recipientName: orderDraft.deliveryInfo.recipientName,
+              recipientPhone: orderDraft.deliveryInfo.phone,
+              address: orderDraft.deliveryInfo.address,
+              detailAddress: orderDraft.deliveryInfo.detailAddress || '',
+              zipCode: orderDraft.deliveryInfo.zipCode || '',
+              deliveryMemo: orderDraft.deliveryInfo.deliveryRequest || ''
+            } : null,
+            pickupInfo: orderDraft?.pickupInfo || null,
+            pointsUsed: orderDraft?.payment?.pointUsage || 0,
+            donationAmount: orderDraft?.payment?.donationAmount || 0,
+            customerName: orderDraft?.orderUser?.name || '',
+            customerEmail: orderDraft?.orderUser?.email || '',
+            customerPhone: orderDraft?.orderUser?.phone || ''
+          };
+        }
+
+        const productsForName = Array.isArray(orderData?.products)
+          ? orderData.products
+          : (Array.isArray(orderDraft?.products)) ? orderDraft.products : [];
+
+        const computedOrderName = productsForName.length > 1
+          ? `${productsForName[0]?.productName ?? productsForName[0]?.name ?? '주문 상품'} 외 ${productsForName.length - 1}건`
+          : (productsForName[0]?.productName ?? productsForName[0]?.name ?? '주문 상품');
+
+        const orderName = orderData?.orderName ?? computedOrderName;
 
         // 백엔드 승인 요청 
         const payload = {
@@ -61,15 +101,22 @@ const PaymentSuccessPage = () => {
           orderId,
           amount: amountNum,
           orderName,
-          products,
-          deliveryInfo: orderDraft?.deliveryInfo ?? null,
-          pickupInfo: orderDraft?.pickupInfo ?? null,
-          pointsUsed: orderDraft?.payment?.pointUsage ?? 0,
-          donationAmount: orderDraft?.payment?.donationAmount ?? 0,
-          orderType: orderDraft?.orderType ?? 'DELIVERY',
-          customerName: orderDraft?.orderUser?.name ?? '',
-          customerEmail: orderDraft?.orderUser?.email ?? '',
-          customerPhone: orderDraft?.orderUser?.phone ?? '',
+          orderType: orderData.orderType,
+          products: orderData.products.map(product => ({
+            productId: product.productId,
+            productName: product.productName,
+            price: product.price,
+            salePercent: product.salePercent,
+            quantity: product.quantity,
+            ecoDealStatus: product.ecoDealStatus
+          })),
+          deliveryInfo: orderData.deliveryInfo,
+          pickupInfo: orderData.pickupInfo,
+          pointsUsed: orderData.pointsUsed,
+          donationAmount: orderData.donationAmount,
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone
         };
 
         const result = await confirmPayment(payload);
@@ -79,11 +126,14 @@ const PaymentSuccessPage = () => {
 
         setOrderResult(result);
 
-        // 성공 시, 클라이언트 상태 초기화
-        clearCart();
+        if (orderData.products && orderData.products.length > 0) {
+          removeOrderedProducts(orderData.products);
+        }
+
         clearOrderDraft();
         resetPayment();
         sessionStorage.removeItem('expectedAmount');
+        sessionStorage.removeItem('paymentOrderDraft');
       } catch (error) {
         console.error('결제 승인 중 오류:', error);
         alert('결제 승인 중 오류가 발생했습니다. 고객센터로 문의해 주세요.');
@@ -94,7 +144,35 @@ const PaymentSuccessPage = () => {
     })();
 
     return () => { active = false; };
-  }, [paymentKey, orderId, amount, navigate, orderDraft, clearCart, clearOrderDraft, resetPayment]);
+  }, [paymentKey, orderId, amount, navigate, orderDraft, removeOrderedProducts, clearOrderDraft, resetPayment]);
+
+  const downloadQRCode = async (rawUrl) => {
+    try {
+      const url = rawUrl?.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+
+      const res = await fetch(url, { cache: 'no-cache', credentials: 'omit' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      const obj = URL.createObjectURL(blob);
+
+      const orderNumber = orderResult?.data?.orderNumber || 'ORDER';
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = obj;
+      a.download = `${orderNumber}_pickup_qr_${date}.png`;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(obj);
+    } catch (e) {
+      console.warn('fetch 실패, 새 탭으로 열기 폴백:', e);
+      const url = rawUrl?.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+      window.open(url, '_blank'); // 폴백: 새 탭에서 저장하도록
+    }
+  };
+
 
   if (isProcessing) {
     return (
@@ -140,7 +218,7 @@ const PaymentSuccessPage = () => {
                 <div className="text-left">
                   <span className="text-gray-600">배송방식:</span>
                   <p className="font-medium">
-                    {orderResult.orderType === 'PICKUP' ? '픽업 배송' : '일반 배송'}
+                    {orderResult.orderType === 'PICKUP' ? '픽업' : '일반 배송'}
                   </p>
                 </div>
                 <div className="text-left">
@@ -151,14 +229,41 @@ const PaymentSuccessPage = () => {
             </div>
           )}
 
-          {/* 픽업 주문 QR */}
-          {orderResult?.orderType === 'PICKUP' && orderResult?.qrCode && (
+          {/* 픽업 주문 QR 코드 */}
+          {orderResult?.data?.qrCodeData && (
             <div className="bg-blue-50 rounded-lg p-6 mb-8">
-              <h3 className="font-semibold text-blue-900 mb-4">픽업용 QR코드</h3>
-              <div className="bg-white rounded-lg p-4 inline-block">
-                <img src={orderResult.qrCode} alt="픽업용 QR코드" className="w-32 h-32 mx-auto" />
+              <h3 className="font-semibold text-blue-900 mb-4 text-center">📱 픽업용 QR코드</h3>
+              <div className="flex flex-col items-center">
+                <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
+                  <img
+                    src={orderResult.data.qrCodeData}
+                    alt="픽업용 QR코드"
+                    className="w-48 h-48 mx-auto"
+                    onError={(e) => {
+                      console.error('QR 이미지 로드 실패:', e.target.src);
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                  <div className="hidden text-gray-500 text-center py-12">
+                    QR코드를 불러올 수 없습니다
+                  </div>
+                </div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-blue-700 font-medium">
+                    🏪 매장 방문 시 이 QR코드를 제시해 주세요
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    화면 캡처하거나 아래 버튼으로 저장하세요
+                  </p>
+                </div>
+                <button
+                  onClick={() => downloadQRCode(orderResult.data.qrCodeData)}
+                  className="mt-4 px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  📥 QR코드 이미지 저장
+                </button>
               </div>
-              <p className="text-sm text-blue-700 mt-4">매장 방문 시 이 QR코드를 제시해 주세요.</p>
             </div>
           )}
 
@@ -170,7 +275,7 @@ const PaymentSuccessPage = () => {
               쇼핑 계속하기
             </button>
           </div>
-          
+
           {/* 추후 주문 내역 확인 기능을 위한 공간 */}
           <div className="mt-4 text-sm text-gray-500">
             {/* 주문 내역 확인 기능은 추후 추가 예정 */}
