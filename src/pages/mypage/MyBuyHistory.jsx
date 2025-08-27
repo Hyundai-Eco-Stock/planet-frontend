@@ -99,6 +99,18 @@ export default function MyBuyHistory() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const [selectedByOrder, setSelectedByOrder] = useState({}); // { [orderHistoryId]: Set(orderProductId) }
+  const [cancelModal, setCancelModal] = useState({ open: false, orderId: null, items: [], reason: "" });
+
+  const toggleSelect = (orderId, orderProductId, checked) => {
+    setSelectedByOrder((prev) => {
+      const set = new Set(prev[orderId] || []);
+      if (checked) set.add(orderProductId);
+      else set.delete(orderProductId);
+      return { ...prev, [orderId]: set };
+    });
+  };
+
   useEffect(() => {
     setLoading(true);
     fetchMyOrders()
@@ -169,6 +181,15 @@ export default function MyBuyHistory() {
                     }
                     className="cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3"
                   >
+                    {order.orderStatus === "PAID" && (
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-rose-600 mt-0.5"
+                        checked={Boolean(selectedByOrder[order.orderHistoryId]?.has(it.orderProductId))}
+                        onChange={(e) => toggleSelect(order.orderHistoryId, it.orderProductId, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
                     <div className="w-14 h-14 rounded-lg overflow-hidden flex-none ring-1 ring-gray-100 bg-gray-50 relative">
                       {it.imageUrl ? (
                         <img src={it.imageUrl} alt={it.productName || `상품 #${it.productId}`} className="w-full h-full object-cover" />
@@ -198,6 +219,40 @@ export default function MyBuyHistory() {
               })}
             </ul>
 
+            {/* cancellation action (only for PAID) */}
+            {order.orderStatus === "PAID" && (
+              <div className="px-4 pb-3 flex items-center justify-between gap-2">
+                <div className="text-[11px] text-gray-500"></div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const selected = Array.from(selectedByOrder[order.orderHistoryId] || []);
+                      setCancelModal({ open: true, orderId: order.orderHistoryId, items: selected, reason: "" });
+                    }}
+                    disabled={!(selectedByOrder[order.orderHistoryId] && selectedByOrder[order.orderHistoryId].size > 0)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors
+                      ${selectedByOrder[order.orderHistoryId] && selectedByOrder[order.orderHistoryId].size > 0
+                        ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                        : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"}`}
+                  >
+                    구매취소
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const selected = Array.from(selectedByOrder[order.orderHistoryId] || []);
+                      const items = selected.join(",");
+                      navigate(`/orders/confirm?orderHistoryId=${order.orderHistoryId}${items ? `&items=${items}` : ""}`);
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold border bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700"
+                  >
+                    구매확정
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* footer */}
             <footer className="px-4 pb-4">
               <div className="mt-1 rounded-xl bg-gray-50/80 ring-1 ring-gray-100 p-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]">
@@ -216,6 +271,47 @@ export default function MyBuyHistory() {
           </section>
         );
       })}
+
+      {cancelModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200">
+            <div className="text-base font-semibold mb-1">정말 취소하시겠습니까?</div>
+            <p className="text-[12px] text-gray-500 mb-3">취소 사유를 작성해 주세요.</p>
+            <textarea
+              className="w-full h-28 resize-none rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
+              placeholder="예: 단순 변심, 상품 정보 오류 등"
+              value={cancelModal.reason}
+              onChange={(e) => setCancelModal((m) => ({ ...m, reason: e.target.value }))}
+            />
+            <div className="mt-3 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setCancelModal({ open: false, orderId: null, items: [], reason: "" })}
+                className="px-3 py-1.5 rounded-lg text-sm border border-gray-200 text-gray-700 hover:bg-gray-50"
+              >
+                닫기
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Placeholder: pass selection & reason. Adjust endpoint as needed.
+                  const items = cancelModal.items.join(",");
+                  const reason = encodeURIComponent(cancelModal.reason || "");
+                  navigate(`/orders/cancel?orderHistoryId=${cancelModal.orderId}&items=${items}&reason=${reason}`);
+                  setCancelModal({ open: false, orderId: null, items: [], reason: "" });
+                }}
+                disabled={cancelModal.items.length === 0}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors
+                  ${cancelModal.items.length > 0
+                    ? "bg-rose-600 text-white border-rose-600 hover:bg-rose-700"
+                    : "bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed"}`}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
