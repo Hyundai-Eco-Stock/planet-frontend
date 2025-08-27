@@ -173,9 +173,9 @@ function App() {
 					<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
 					{/* 차량 입출차 생성 페이지 */}
 					<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
-          {/* 에코딜 */}
-          <Route path="/eco-deal/main" element={<EcoDealMain />} />
-          <Route path="/eco-deal/detail" element={<EcoDealDetail />} />
+					{/* 에코딜 */}
+					<Route path="/eco-deal/main" element={<EcoDealMain />} />
+					<Route path="/eco-deal/detail" element={<EcoDealDetail />} />
 				</Routes>
 			</main>
 

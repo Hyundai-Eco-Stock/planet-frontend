@@ -160,7 +160,13 @@ export default function MyBuyHistory() {
                 return (
                   <li
                     key={it.orderProductId}
-                    onClick={() => navigate(`/shopping/detail?productId=${it.productId}`)}
+                    onClick={() =>
+                      navigate(
+                        it.ecoDealStatus === "Y"
+                          ? `/eco-deal/detail?productId=${it.productId}`
+                          : `/shopping/detail?productId=${it.productId}`
+                      )
+                    }
                     className="cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3"
                   >
                     <div className="w-14 h-14 rounded-lg overflow-hidden flex-none ring-1 ring-gray-100 bg-gray-50 relative">
