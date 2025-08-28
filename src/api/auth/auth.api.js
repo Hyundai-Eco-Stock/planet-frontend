@@ -17,8 +17,17 @@ export const localLogin = async (email, password) => {
  * @param {String} password
  * @param {*} profileImage 
  */
-export const signUpByKakao = async (email, name, password, profileImage) => {
-	const signUpData = { email, name, password };
+export const signUpByKakao = async ({
+	email,
+	name,
+	password,
+	profileFile,
+	sex,
+	birth,
+	address,
+	detailAddress,
+}) => {
+	const signUpData = { email, name, password, sex, birth, address, detailAddress, };
 
 	const multipartForm = new FormData();
 	multipartForm.append(
@@ -26,14 +35,15 @@ export const signUpByKakao = async (email, name, password, profileImage) => {
 		new Blob([JSON.stringify(signUpData)], { type: "application/json" })
 	);
 
-	if (profileImage) {
-		const filename = profileImage.name || "profile.jpg";
-		multipartForm.append("profileImage", profileImage, filename);
+	if (profileFile) {
+		const filename = profileFile.name || "profile.jpg";
+		multipartForm.append("profileImage", profileFile, filename);
 	}
 
-	await apiClient.post("/auth/signup/kakao", multipartForm, {
+	const response = await apiClient.post("/auth/signup/kakao", multipartForm, {
 		headers: { "Content-Type": "multipart/form-data" },
 	});
+	return response.data;
 };
 
 /**
@@ -46,34 +56,17 @@ export const logout = async () => {
 	return res.status;
 };
 
-// 나의 정보 가져오기
-// export const fetchUserInfo = async () => {
-// 	try {
-// 		const response = await apiClient.get("/members/personal-info");
-// 		return response.data;
-// 	} catch (error) {
-// 		console.error("사용자 정보 조회 실패:", error);
-// 		throw error;
-// 	}
-// };
+export const postPasswordChangeMail = async ({ email }) => {
+	const res = await apiClient.post("/auth/password-change-mail", { email });
+	return res.status;
+};
 
-// 로컬 로그인 요청
-// export const localLogin = async (email, password) => {
-// 	try {
-// 		await apiClient.post("/auth/login", {
-// 			email,
-// 			password,
-// 		});
-// 	} catch (err) {
-// 		console.error("로그인 실패: ", err.response.data);
+export const validatePasswordChangeToken = async ({ token }) => {
+	const res = await apiClient.post("/auth/password-change-token/valid", { token });
+	return res.status;
+};
 
-// 		Swal.fire({
-// 			icon: "error",
-// 			title: "로그인 실패",
-// 			text: "다시 시도해주세요.",
-// 			timer: 1500,
-// 			showConfirmButton: false
-// 		});
-// 		throw err;
-// 	}
-// };
+export const changePassword = async ({ token, password }) => {
+	const res = await apiClient.post("/auth/change-password", { token, password });
+	return res.status;
+};

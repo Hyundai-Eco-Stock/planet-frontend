@@ -13,17 +13,17 @@ const Login = () => {
     const navigate = useNavigate();
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
-    const { setAccessToken, setEmail, setName, setProfile } = useAuthStore();
 
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await localLogin(id, pw);
             const { accessToken, email, name, profileUrl } = response.data;
-            setAccessToken(accessToken);
-            setEmail(email);
-            setName(name);
-            setProfile(profileUrl);
+            useAuthStore.getState().setLoginStatus(true);
+            useAuthStore.getState().setAccessToken(accessToken);
+            useAuthStore.getState().setEmail(email);
+            useAuthStore.getState().setName(name);
+            useAuthStore.getState().setProfile(profileUrl);
             navigate("/");
         } catch (error) {
             console.error("Login failed:", error);
@@ -32,7 +32,7 @@ const Login = () => {
     };
 
     return (
-        <div className="mx-auto max-w-[640px] px-6 pt-16 pb-28">
+        <div className="mx-auto max-w-[640px] px-6 pt-12">
             {/* 제목 */}
             <h1 className="text-center text-3xl font-extrabold tracking-tight mb-10">로그인</h1>
 
@@ -45,6 +45,7 @@ const Login = () => {
                     onChange={(e) => setId(e.target.value)}
                     placeholder="아이디를 입력하세요."
                     aria-label="아이디"
+                    autoFocus={true}
                 />
 
                 {/* 비밀번호 입력 */}
@@ -64,13 +65,21 @@ const Login = () => {
             </form>
 
             {/* 회원가입 링크 */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-6 flex justify-center gap-10">
                 <button
                     type="button"
                     onClick={() => navigate("/signup/local")}
                     className="text-black text-base underline-offset-4 hover:underline"
                 >
                     회원가입하기
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/send/password-change-mail")}
+                    className="text-black text-base underline-offset-4 hover:underline"
+                >
+                    비밀번호 재설정
                 </button>
             </div>
 

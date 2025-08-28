@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import { faCamera, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const CustomProfileImageInput = ({
     value,
@@ -10,25 +10,66 @@ const CustomProfileImageInput = ({
     disabled = false,
     placeholderIcon = faCamera,
     className = "",
+    showClear = true,      // X 버튼 표시 여부
 }) => {
     const [localUrl, setLocalUrl] = useState(previewUrl);
+    const objectUrlRef = useRef(null);                      // revoke용
+    const [inputKey, setInputKey] = useState(0);            // input 초기화용
+
+    useEffect(() => {
+        // 외부에서 previewUrl 제공 시 우선
+        if (previewUrl) {
+            // 이전 URL revoke
+            if (objectUrlRef.current) {
+                URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = null;
+            }
+            setLocalUrl(previewUrl);
+            return;
+        }
+
+        // previewUrl이 없고, value(File)가 있으면 ObjectURL 생성
+        if (value instanceof File) {
+            const url = URL.createObjectURL(value);
+            // 기존 URL revoke
+            if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+            objectUrlRef.current = url;
+            setLocalUrl(url);
+        } else {
+            // value가 null이면 미리보기 제거
+            if (objectUrlRef.current) {
+                URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = null;
+            }
+            setLocalUrl(undefined);
+        }
+    }, [value, previewUrl]);
+
+    // 언마운트 시 revoke
+    useEffect(() => {
+        return () => {
+            if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+        };
+    }, []);
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) {
-            setLocalUrl(undefined);
-            onChange?.(null);
             return;
         }
-        const url = URL.createObjectURL(file);
-        setLocalUrl(url);
-        onChange?.(file);
+        onChange?.(file); // localUrl은 위 useEffect에서 value 변화로 세팅됨
+    };
+
+    const handleClear = () => {
+        onChange?.(null);
+        setInputKey((k) => k + 1); // 파일 인풋 초기화
     };
 
     return (
         <div className={`flex gap-3 items-center ${className}`}>
-            <label>
+            <label className="relative block">
                 <input
+                    key={inputKey}
                     type="file"
                     accept={accept}
                     disabled={disabled}
@@ -47,7 +88,7 @@ const CustomProfileImageInput = ({
                         <img
                             src={localUrl}
                             alt="preview"
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain rounded-full"
                         />
                     ) : (
                         <FontAwesomeIcon
@@ -56,6 +97,22 @@ const CustomProfileImageInput = ({
                         />
                     )}
                 </div>
+
+                {showClear && localUrl && !disabled && (
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        aria-label="이미지 제거"
+                        className="
+                            absolute -right-1 -top-1 w-6 h-6
+                            rounded-full bg-white border border-gray-300
+                            flex items-center justify-center shadow-sm
+                            hover:bg-gray-50
+                        "
+                    >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </button>
+                )}
             </label>
         </div>
     );
