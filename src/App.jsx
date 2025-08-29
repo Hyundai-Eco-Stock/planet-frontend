@@ -32,6 +32,7 @@ import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 import Settings from '@/pages/mypage/Settings'
 import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
+import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -165,6 +166,7 @@ function App() {
 					<Route path="/my-page/my-car" element={<MyCarInfo />} />
 					<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 					<Route path="/my-page/settings" element={<Settings />} />
+					<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
 					<Route path='/my-page/my-buy-history' element={<MyBuyHistory />} />
 
 					{/* 관리자 페이지 */}
