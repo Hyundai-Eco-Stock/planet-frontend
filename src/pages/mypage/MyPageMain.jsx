@@ -75,9 +75,9 @@ const MyPageMain = () => {
                 {
                     navigations.map((nav) => {
                         return (
-                            <Link to={nav.path}>
+                            <Link key={nav.path} to={nav.path}>
                                 <div className="h-[4rem] flex justify-between items-center text-start font-semibold">
-                                    <span className="">{nav.title}</span>
+                                    <span>{nav.title}</span>
                                     <FontAwesomeIcon icon={faChevronRight} />
                                 </div>
                             </Link>
