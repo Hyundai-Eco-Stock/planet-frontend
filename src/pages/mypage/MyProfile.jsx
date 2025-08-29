@@ -104,7 +104,7 @@ const MyProfile = () => {
     }, []);
 
     return (
-        <div className="flex flex-col gap-3 px-2">
+        <div className="flex flex-col gap-3">
             {/* 프로필 이미지 */}
             <section className="flex flex-col">
                 <span className="text-sm font-semibold text-gray-900">프로필</span>
