@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchMyOrders } from "@/api/order/order.api";
+import { fetchMyOrders } from "@/api/member/member.api";
 import { useNavigate } from "react-router-dom";
 
 /** utils */

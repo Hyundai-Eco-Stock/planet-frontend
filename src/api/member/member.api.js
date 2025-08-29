@@ -37,3 +37,18 @@ export const updateProfile = async ({
 	});
 	return response.data;
 };
+
+
+// 마이페이지 - 구매내역
+export const fetchMyOrders = async () => {
+	const response = await apiClient.get("members/me/orders");
+	console.log("내 주문내역 조회:", response.data);
+	return response.data;
+};
+
+// 마이페이지 - 예약한 에코딜 상품
+export const fetchMyEcoDeals = async () => {
+	const response = await apiClient.get("members/me/eco-deals");
+	console.log("내 에코딜 조회:", response.data);
+	return response.data;
+};
