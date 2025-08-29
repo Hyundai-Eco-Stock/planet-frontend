@@ -31,6 +31,9 @@ import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 import Settings from '@/pages/mypage/Settings'
+import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
+import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
+import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -164,6 +167,10 @@ function App() {
 					<Route path="/my-page/my-car" element={<MyCarInfo />} />
 					<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 					<Route path="/my-page/settings" element={<Settings />} />
+					<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
+					<Route path='/my-page/my-buy-history' element={<MyBuyHistory />} />
+					<Route path='/my-page/raffle-history' element={<MyRaffleHistory />} />
+					<Route path='/my-page/my-eco-stock' element={<MyEcoStockInfo />} />
 
 					{/* 관리자 페이지 */}
 					<Route path="/admin/test" element={<Test />} />
@@ -171,9 +178,9 @@ function App() {
 					<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
 					{/* 차량 입출차 생성 페이지 */}
 					<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
-          {/* 에코딜 */}
-          <Route path="/eco-deal/main" element={<EcoDealMain />} />
-          <Route path="/eco-deal/detail" element={<EcoDealDetail />} />
+					{/* 에코딜 */}
+					<Route path="/eco-deal/main" element={<EcoDealMain />} />
+					<Route path="/eco-deal/detail" element={<EcoDealDetail />} />
 				</Routes>
 			</main>
 
