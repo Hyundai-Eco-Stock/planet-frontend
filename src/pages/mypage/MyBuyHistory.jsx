@@ -38,6 +38,7 @@ function groupOrders(rows) {
         finalPayPrice: r.finalPayPrice,
         orderType: r.orderType,
         ecoAny: eco,
+        paymentStatus: r.paymentStatus ?? r.payment_status,
         items: [],
       });
     }
@@ -52,6 +53,7 @@ function groupOrders(rows) {
       quantity: r.quantity,
       discountPrice: r.discountPrice,
       ecoDealStatus: r.ecoDealStatus ?? r.eco_deal_status ?? (r.isEcoDeal ? "Y" : "N"),
+      cancelStatus: r.cancelStatus ?? r.cancel_status ?? r.cancel,
     });
   });
   return Array.from(map.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -63,13 +65,33 @@ const Chip = ({ children, className = "" }) => (
 );
 
 const StatusChip = ({ status }) => {
-  const map = {
-    COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-    CANCELED: "bg-rose-50 text-rose-700 border-rose-200",
+  const raw = String(status || "").toUpperCase();
+  // tolerate common typos
+  const norm = {
+    PAID: "PAID",
+    DONE: "PAID", // sometimes PAID/DONE are mixed in upstream
+    ALL_CANCELLED: "ALL_CANCELLED",
+    ALL_CANCELED: "ALL_CANCELLED",
+    ALL_CANCLLED: "ALL_CANCELLED",
+    PARTIAL_CANCELLED: "PARTIAL_CANCELLED",
+    PARTIAL_CANCELED: "PARTIAL_CANCELLED",
+    PARTIAL_CANCLLED: "PARTIAL_CANCELLED",
+    PARTIOAL_CANCLED: "PARTIAL_CANCELLED",
+  }[raw] || "PENDING";
+
+  const labelMap = {
+    PAID: "구매확정",
+    ALL_CANCELLED: "전체취소됨",
+    PARTIAL_CANCELLED: "부분취소됨",
+    PENDING: "구매확정 대기중",
   };
-  const cls = map[status] || "bg-gray-50 text-gray-700 border-gray-200";
-  return <Chip className={cls}>{status}</Chip>;
+  const colorMap = {
+    PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    ALL_CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+    PARTIAL_CANCELLED: "bg-amber-50 text-amber-700 border-amber-200",
+    PENDING: "bg-gray-50 text-gray-700 border-gray-200",
+  };
+  return <Chip className={colorMap[norm]}>{labelMap[norm]}</Chip>;
 };
 
 const TypeChip = ({ type }) => (
@@ -90,6 +112,13 @@ const EcoChip = ({ eco }) => (
   ) : (
     <Chip className="bg-gray-50 text-gray-600 border-gray-200">일반</Chip>
   )
+);
+
+const ConfirmChip = () => (
+  <Chip className="bg-emerald-50 text-emerald-700 border-emerald-200">구매확정</Chip>
+);
+const AllCancelChip = () => (
+  <Chip className="bg-rose-50 text-rose-700 border-rose-200">전체 취소</Chip>
 );
 
 /** main */
@@ -128,6 +157,16 @@ export default function MyBuyHistory() {
   return (
     <main className="p-4 max-w-screen-md mx-auto space-y-4">
       {groups.map((order) => {
+        const isPaymentDone = order.paymentStatus === "DONE";
+        const isPaid = order.orderStatus === "PAID";
+        const isAllCancelled = order.orderStatus === "ALL_CANCELLED";
+        const isPartialCancelled = order.orderStatus === "PARTIAL_CANCELLED";
+        // Special label logic: (3) ALL_CANCELLED overrides others; otherwise, when payment is DONE show "구매확정"
+        const showAllCancelledLabel = isAllCancelled;
+        const showConfirmLabel = !isAllCancelled && isPaymentDone;
+        // Action buttons logic per spec
+        const showActionButtons = isPaymentDone && !isPaid && !isAllCancelled;
+
         return (
           <section
             key={order.orderHistoryId}
@@ -145,8 +184,6 @@ export default function MyBuyHistory() {
                 </div>
                 <div className="hidden sm:flex items-center gap-1 ml-2">
                   <StatusChip status={order.orderStatus} />
-                  <TypeChip type={order.orderType} />
-                  <EcoChip eco={order.ecoAny} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -160,8 +197,6 @@ export default function MyBuyHistory() {
             {/* chips (mobile) */}
             <div className="px-4 pb-3 sm:hidden flex items-center gap-1">
               <StatusChip status={order.orderStatus} />
-              <TypeChip type={order.orderType} />
-              <EcoChip eco={order.ecoAny} />
             </div>
 
             {/* items */}
@@ -179,9 +214,9 @@ export default function MyBuyHistory() {
                           : `/shopping/detail?productId=${it.productId}`
                       )
                     }
-                    className="cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3"
+                    className={`relative cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3 ${isAllCancelled ? "opacity-60" : ""} ${isPartialCancelled && it.cancelStatus === "Y" ? "opacity-60" : ""} ${isPaid ? "ring-2 ring-emerald-300 shadow-lg bg-gradient-to-r from-emerald-50/70 to-white" : ""}`}
                   >
-                    {order.orderStatus === "PAID" && (
+                    {showActionButtons && !(isPartialCancelled && it.cancelStatus === "Y") && (
                       <input
                         type="checkbox"
                         className="w-4 h-4 accent-rose-600 mt-0.5"
@@ -206,10 +241,24 @@ export default function MyBuyHistory() {
                         </div>
                       )}
                     </div>
+                    {isPaid && (
+                      <div className="absolute right-2 top-2">
+                        <Chip className="bg-emerald-600 text-white border-emerald-600">구매확정</Chip>
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium line-clamp-1">
                         {it.productName || `상품 #${it.productId}`}
                       </div>
+                      {isPartialCancelled && (
+                        <div className="mt-1">
+                          {it.cancelStatus === "Y" ? (
+                            <Chip className="bg-rose-50 text-rose-700 border-rose-200">취소됨</Chip>
+                          ) : (
+                            <Chip className="bg-sky-50 text-sky-700 border-sky-200">유지</Chip>
+                          )}
+                        </div>
+                      )}
                       <div className="mt-0.5 text-[11px] text-gray-500">수량 {it.quantity} · 단가 {currency(it.price)}</div>
                       <div className="mt-1"><EcoChip eco={eco} /></div>
                     </div>
@@ -220,7 +269,7 @@ export default function MyBuyHistory() {
             </ul>
 
             {/* cancellation action (only for PAID) */}
-            {order.orderStatus === "PAID" && (
+            {showActionButtons && (
               <div className="px-4 pb-3 flex items-center justify-between gap-2">
                 <div className="text-[11px] text-gray-500"></div>
                 <div className="flex items-center gap-2">
