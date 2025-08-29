@@ -170,6 +170,8 @@ function App() {
 					<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
 					<Route path='/my-page/my-buy-history' element={<MyBuyHistory />} />
 					<Route path='/my-page/raffle-history' element={<MyRaffleHistory />} />
+					<Route path='/my-page/my-eco-stock' element={<MyEcoStockInfo />} />
+
 					{/* 관리자 페이지 */}
 					<Route path="/admin/test" element={<Test />} />
 					{/* 오프라인 결제 정보 생성 페이지 */}
