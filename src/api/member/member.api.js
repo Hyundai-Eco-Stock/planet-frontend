@@ -52,3 +52,11 @@ export const fetchMyEcoDeals = async () => {
 	console.log("내 에코딜 조회:", response.data);
 	return response.data;
 };
+
+
+// 마이페이지 - 래플 응모내역
+export const fetchMyRaffles = async () => {
+	const response = await apiClient.get("members/me/raffles");
+	console.log("내 래플 응모내역 조회:", response.data);
+	return response.data;
+};
