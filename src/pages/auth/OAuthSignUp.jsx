@@ -23,20 +23,22 @@ const OAuthSignUp = () => {
     const profileUrlParam = queryParams.get("profileUrl") || "";
 
     const [name, setName] = useState(nameParam);
-    const [profileUrl, setProfileUrl] = useState(profileUrlParam); // 프로필 url
-    const [profileFile, setProfileFile] = useState(null); // 파일 원본 저장
+    const [profileUrl, setProfileUrl] = useState(profileUrlParam);
+    const [profileFile, setProfileFile] = useState(null);
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
     const [passwordMatch, setPasswordMatch] = useState(true);
-    const [passwordValid, setPasswordValid] = useState(true); // ✅ 비밀번호 규칙 상태
+    const [passwordValid, setPasswordValid] = useState(true);
 
     const [sex, setSex] = useState("");  // 'M' or 'F'
     const [birthYear, setBirthYear] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
     const [birthDay, setBirthDay] = useState("");
-    const [zonecode, setZonecode] = useState(""); // ✅ 우편번호
+    const [zonecode, setZonecode] = useState("");
     const [address, setAddress] = useState("");
     const [detailAddress, setDetailAddress] = useState("");
+
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
     const yearRef = useRef(null);
     const monthRef = useRef(null);
@@ -47,19 +49,17 @@ const OAuthSignUp = () => {
 
     useEffect(() => {
         if (accessToken && email && nameParam) {
-            console.log(`accessToken: ${accessToken}`)
             useAuthStore.getState().setLoginStatus(true);
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
             useAuthStore.getState().setProfile(profileUrl);
 
-            // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/signup");
         }
     }, [accessToken, email, nameParam]);
 
-    // ✅ 비밀번호 확인 실시간 검사
+    // ✅ 비밀번호 확인
     useEffect(() => {
         if (password && passwordCheck) {
             setPasswordMatch(password === passwordCheck);
@@ -68,19 +68,49 @@ const OAuthSignUp = () => {
         }
     }, [password, passwordCheck]);
 
-    // ✅ 비밀번호 규칙 실시간 검사
+    // ✅ 비밀번호 규칙
     useEffect(() => {
         if (password) {
             setPasswordValid(passwordRegex.test(password));
         } else {
-            setPasswordValid(true); // 입력 안 했을 땐 기본 true
+            setPasswordValid(true);
         }
     }, [password]);
 
+    // ✅ 실시간 버튼 활성/비활성
+    useEffect(() => {
+        const disabled =
+            !passwordValid ||
+            !passwordMatch ||
+            !password ||
+            !passwordCheck ||
+            !name.trim() ||
+            !sex ||
+            !birthYear || birthYear.length !== 4 ||
+            !birthMonth || birthMonth.length > 2 ||
+            !birthDay || birthDay.length > 2 ||
+            !address.trim() ||
+            !detailAddress.trim();
+
+        setIsSubmitDisabled(disabled);
+    }, [
+        passwordValid,
+        passwordMatch,
+        password,
+        passwordCheck,
+        name,
+        sex,
+        birthYear,
+        birthMonth,
+        birthDay,
+        address,
+        detailAddress,
+    ]);
+
     const handleProfileChange = (file) => {
         if (file) {
-            setProfileUrl(URL.createObjectURL(file)); // 미리보기 용
-            setProfileFile(file); // 서버 전송 용
+            setProfileUrl(URL.createObjectURL(file));
+            setProfileFile(file);
         } else {
             setProfileUrl(null);
             setProfileFile(null);
@@ -88,58 +118,10 @@ const OAuthSignUp = () => {
     };
 
     const handleSubmit = () => {
-        if (!password) {
-            Swal.fire({ icon: "warning", title: "비밀번호를 입력해주세요" });
-            return;
-        }
-
-        // ✅ 최종 제출 시에도 규칙 확인
-        if (!passwordRegex.test(password)) {
-            Swal.fire({
-                icon: "warning",
-                title: "비밀번호 규칙 오류",
-                text: "영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.",
-            });
-            return;
-        }
-
-        if (!passwordMatch) {
-            Swal.fire({ icon: "warning", title: "비밀번호가 일치하지 않습니다." });
-            return;
-        }
-
-        if (!name.trim()) {
-            Swal.fire({ icon: "warning", title: "이름을 입력해주세요" });
-            return;
-        }
-        if (!email) {
-            Swal.fire({ icon: "warning", title: "이메일 정보가 없습니다." });
-            return;
-        }
-        if (!sex) {
-            Swal.fire({ icon: "warning", title: "성별을 선택해주세요" });
-            return;
-        }
-        if (!birthYear || !birthMonth || !birthDay) {
-            Swal.fire({ icon: "warning", title: "생년월일을 모두 입력해주세요" });
-            return;
-        }
-        if (birthYear.length !== 4 || birthMonth.length > 2 || birthDay.length > 2) {
-            Swal.fire({ icon: "warning", title: "생년월일 형식이 올바르지 않습니다." });
-            return;
-        }
-        if (!address.trim()) {
-            Swal.fire({ icon: "warning", title: "주소를 입력해주세요" });
-            return;
-        }
-        if (!detailAddress.trim()) {
-            Swal.fire({ icon: "warning", title: "상세 주소를 입력해주세요" });
-            return;
-        }
+        if (isSubmitDisabled) return;
 
         const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
-        console.log("회원가입 요청");
         signUpByKakao({
             email,
             name,
@@ -153,15 +135,17 @@ const OAuthSignUp = () => {
             .then((data) => {
                 const profileUrl = data.profileUrl;
                 useAuthStore.getState().setProfile(profileUrl);
-
+                
                 Swal.fire({
                     icon: "success",
                     title: "회원가입 성공",
-                    timer: 1500,
+                    text: "Planet 회원가입을 완료했습니다!",
+                    confirmButtonText: "서비스 시작!",
                 }).then(() => {
                     navigate("/home");
                 });
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 Swal.fire({
                     icon: "error",
                     title: "회원가입 실패",
@@ -171,13 +155,10 @@ const OAuthSignUp = () => {
             });
     };
 
-    const isSubmitDisabled =
-        !passwordValid || !passwordMatch || !password || !passwordCheck || !name || !sex;
-
     return (
-        <div className="min-h-dvh flex flex-col gap-3 px-4 pb-4 pb-safe pt-2">
+        <div className="min-h-dvh flex flex-col gap-3 px-4 pb-24 pt-2">
             {/* Header */}
-            <header className="pt-1">
+            <header className="pt-1 pb-5 text-center">
                 <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">회원가입</h1>
                 <p className="mt-1 text-[13px] text-gray-500">필수 정보를 입력하고 계정을 만들어주세요.</p>
             </header>
@@ -194,8 +175,6 @@ const OAuthSignUp = () => {
                     />
                 </section>
 
-                {/* <div className="h-px bg-gray-200 my-3" /> */}
-
                 {/* 이메일 */}
                 <section>
                     <label className="block text-sm font-semibold text-gray-900 mb-1">이메일</label>
@@ -206,6 +185,7 @@ const OAuthSignUp = () => {
                         readOnly={true}
                     />
                 </section>
+
                 {/* 이름 */}
                 <section>
                     <label className="block text-sm font-semibold text-gray-900 mb-1">이름</label>
@@ -217,6 +197,7 @@ const OAuthSignUp = () => {
                         onChange={(e) => setName(e.target.value)}
                     />
                 </section>
+
                 {/* 비밀번호 */}
                 <section>
                     <label className="block text-sm font-semibold text-gray-900 mb-1">비밀번호</label>
@@ -226,7 +207,6 @@ const OAuthSignUp = () => {
                         placeholder="비밀번호를 입력해주세요"
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    {/* ✅ 실시간 규칙 검증 문구 */}
                     {!passwordValid && (
                         <p className="mt-1 text-xs text-red-500">
                             영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.
@@ -355,8 +335,8 @@ const OAuthSignUp = () => {
                 </section>
             </main>
 
-            {/* Sticky CTA */}
-            <footer className="sticky bottom-0 mt-auto bg-gradient-to-b from-transparent to-gray-50 pt-2 pb-safe">
+            {/* Fixed CTA */}
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
