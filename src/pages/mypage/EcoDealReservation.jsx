@@ -7,6 +7,10 @@ export default function EcoDealReservation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrUrl, setQrUrl] = useState("");
+  const openQr = (url) => { setQrUrl(url || ""); setQrOpen(Boolean(url)); };
+  const closeQr = () => setQrOpen(false);
 
   useEffect(() => {
     let mounted = true;
@@ -24,6 +28,12 @@ export default function EcoDealReservation() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') closeQr(); };
+    if (qrOpen) document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [qrOpen]);
 
   const normalizeStatus = (s) => {
     const raw = String(s || "").toUpperCase();
@@ -122,9 +132,9 @@ export default function EcoDealReservation() {
               </div>
               <div>
                 {order.ecoDealQrUrl ? (
-                  <a href={order.ecoDealQrUrl} target="_blank" rel="noreferrer" className="inline-block px-2 py-1 border border-gray-900 rounded-md text-xs text-gray-900 no-underline">
+                  <button type="button" onClick={() => openQr(order.ecoDealQrUrl)} className="inline-block px-2 py-1 border border-gray-900 rounded-md text-xs text-gray-900">
                     QR 보기
-                  </a>
+                  </button>
                 ) : (
                   <span className="inline-block px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-500 bg-gray-100">
                     QR 미발급
@@ -175,6 +185,21 @@ export default function EcoDealReservation() {
           </section>
         ))}
       </div>
+
+      {qrOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={closeQr} />
+          <div className="relative bg-white rounded-xl shadow-2xl p-4 w-[88vw] max-w-sm mx-auto">
+            <button type="button" onClick={closeQr} className="absolute right-2 top-2 text-gray-400 hover:text-gray-600" aria-label="닫기">
+              ✕
+            </button>
+            <div className="text-center mb-2 text-sm font-medium">QR 코드</div>
+            <div className="w-full grid place-items-center">
+              <img src={qrUrl} alt="Eco Deal QR" className="w-[68vw] max-w-[280px] aspect-square object-contain"/>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
