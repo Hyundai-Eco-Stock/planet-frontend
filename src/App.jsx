@@ -108,6 +108,8 @@ function App() {
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 				<Route path="/cart/main" element={<CartMain />} />
+				<Route path='/eco-deal/main' element={<EcoDealMain />} />
+				<Route path='/eco-deal/detail/' element={<EcoDealDetail />} />
 			</Route>
 
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
