@@ -28,27 +28,7 @@ export const useNotifications = () => {
 		}
 	}, [messaging, setPushEnabled]);
 
-	useEffect(() => {
-		// 포그라운드 메시지 리스너 설정
-		const unsubscribe = onMessageListener((payload) => {
-			console.log("포그라운드 메시지 수신:", payload);
-			setNotification({
-				title: payload.notification.title,
-				body: payload.notification.body,
-			});
-
-			// 브라우저 알림도 띄움
-			new Notification(payload.notification.title, {
-				body: payload.notification.body,
-				icon: "/planet-logo-512.png",
-			});
-		});
-
-		// 클린업 함수: 컴포넌트 언마운트 시 리스너 구독 해제
-		return () => {
-			unsubscribe();
-		};
-	}, [setNotification]);
+	
 
 	// 권한 요청 및 토큰 발급
 	const requestPermission = async () => {

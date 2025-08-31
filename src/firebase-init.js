@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { registerFcmToken } from "./api/fcm_token/fcmToken.api";
 import useAuthStore from '@/store/authStore';
+import useNotificationStore from '@/store/notificationStore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDtSf2TcLa8wba4nWUu9Z71HVN0F6Lso6c",
@@ -53,12 +54,24 @@ export const requestForToken = async () => {
     }
 };
 
-// 포그라운드 메시지 리스너 (앱이 활성화되어 있을 때 알림 수신)
-export const onMessageListener = (callback) => {
-    return onMessage(messaging, (payload) => {
-        console.log('포그라운드 메시지 수신:', payload);
-        callback(payload);
+// 중앙 집중식 포그라운드 메시지 리스너 초기화 함수
+export const initializeForegroundMessaging = () => {
+    onMessage(messaging, (payload) => {
+        console.log('포그라운드 메시지 수신 (중앙 리스너):', payload);
+
+        // 스토어 상태 업데이트
+        useNotificationStore.getState().setNotification({
+            title: payload.notification.title,
+            body: payload.notification.body,
+        });
+
+        // 브라우저 알림 표시
+        new Notification(payload.notification.title, {
+            body: payload.notification.body,
+            icon: "/planet-logo-512.png",
+        });
     });
 };
+
 
 export default app;
