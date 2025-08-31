@@ -14,7 +14,7 @@ const HeaderWithBack = ({ title = "" }) => {
 
     return (
         <header className="sticky top-0 z-50 bg-white text-[#0b1020]">
-            <div className="flex items-center justify-between px-5 py-3">
+            <div className="px-4 flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 뒤로가기 버튼 */}
                 <button
                     type="button"

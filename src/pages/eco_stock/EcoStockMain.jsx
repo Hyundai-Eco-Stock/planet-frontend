@@ -12,10 +12,10 @@ const EcoStockMain = () => {
 
     // 커스텀 훅들 사용
     const { stockList, loading: stockListLoading } = useEcoStocks();
-
     const {
-        chartData,
-        currentStockData,
+        initialChartData, // 초기 데이터
+        currentStockData, // 실시간 데이터
+        previousStockData,
         loading: historyLoading,
         updateCurrentStockData
     } = useStockHistory(selectedStock);
@@ -61,13 +61,14 @@ const EcoStockMain = () => {
                 onStockChange={handleStockChange}
                 getStockName={getStockName}
                 currentData={currentStockData}
-                data={chartData[selectedStock]}
+                previousStockData={previousStockData}
             />
             {/* 차트  */}
             <StockChart
                 currentData={currentStockData}
-                data={chartData[selectedStock]}
+                initialData={initialChartData[selectedStock]} // 초기 데이터만
                 loading={historyLoading}
+                previousStockData={previousStockData}
             />
             {/* 해당 차트의 포폴  */}
             <MyPortfolio currentData={currentStockData} stockInfo={currentStockInfo} />

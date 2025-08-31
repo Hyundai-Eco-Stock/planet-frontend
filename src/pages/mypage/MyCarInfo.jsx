@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 
-import { fetchMyCarInfo, registerCarInfo } from "@/api/car/car.api";
+import { fetchMyCarInfo, registerCarInfo, unregisterCarInfo } from "@/api/car/car.api";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 // import { SimpleSelect } from "@/components/_custom/CustomSelect";
@@ -12,7 +12,6 @@ const MyCarInfo = () => {
     const [carNumberLeft, setCarNumberLeft] = useState(null);
     const [carNumberMiddle, setCarNumberMiddle] = useState(null);
     const [carNumberRight, setCarNumberRight] = useState(null);
-    // const [carEcoType, setCarEcoType] = useState(null);
     const [carInfoExist, setCarInfoExist] = useState(null);
 
     // 내 차 정보 가져오기
@@ -30,14 +29,11 @@ const MyCarInfo = () => {
                     setCarNumberMiddle(match[2]);
                     setCarNumberRight(match[3]);
                 }
-
-                // setCarEcoType(data.carEcoType || "NORMAL");
                 setCarInfoExist(true);
             } else {
                 setCarNumberLeft("");
                 setCarNumberMiddle("");
                 setCarNumberRight("");
-                // setCarEcoType("NORMAL");
                 setCarInfoExist(false);
             }
         } catch (err) {
@@ -82,8 +78,45 @@ const MyCarInfo = () => {
         }
     };
 
-    // TODO
-    const handleDeleteCarInfo = () => {
+    const handleDeleteCarInfo = async () => {
+
+        const deleteCarInfo = async() => {
+            try {
+                const response = await unregisterCarInfo();
+                Swal.fire({
+                    icon: "success",
+                    title: "삭제 완료",
+                    text: "차량 정보가 삭제되었습니다.",
+                });
+                setCarNumberLeft("");
+                setCarNumberMiddle("");
+                setCarNumberRight("");
+                setCarInfoExist(false);
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: "error",
+                    title: "차량 정보 삭제 실패",
+                    text: "잠시 후 다시 시도해주세요.",
+                });
+            }
+        }
+
+        Swal.fire({
+            icon: "warning",
+            title: "정말 삭제하시겠습니까?",
+            text: "삭제 후에는 복구할 수 없습니다.",
+            showCancelButton: true, // 취소 버튼 표시
+            confirmButtonText: "삭제",
+            cancelButtonText: "취소",
+            confirmButtonColor: "#d33", // 빨간색 (위험)
+            cancelButtonColor: "#3085d6", // 파란색
+        }).then((result) => {
+            if (result.isConfirmed) { // 확인 눌렀을 때 삭제 실행
+                deleteCarInfo();
+            }
+        });
+
 
     }
 
@@ -94,7 +127,7 @@ const MyCarInfo = () => {
     return (
         <div className="space-y-4">
             <div>
-                <label className="block mb-1 font-semibold">차 번호</label>
+                <label className="block mb-1 font-semibold">차량 번호</label>
                 <div className="flex gap-2">
                     <CustomCommonInput
                         value={carNumberLeft}
@@ -119,34 +152,25 @@ const MyCarInfo = () => {
                     />
                 </div>
             </div>
+            <footer className="fixed bottom-0 left-0 right-0 pb-28 px-4 flex flex-col gap-2">
 
-            {/* <div>
-                <label className="block mb-1 font-semibold">차 종류</label>
-                <SimpleSelect
-                    value={carEcoType}
-                    onChange={(e) => setCarEcoType(e.target.value)}
-                    options={[
-                        { value: "NORMAL", label: "일반" },
-                        { value: "ELECTRONIC", label: "전기차" },
-                        { value: "HYBRID", label: "하이브리드" },
-                    ]}
-                    placeholder="선택하세요"
-                />
-            </div> */}
-
-            <CustomCommonButton
-                onClick={handleRegisterCarInfo}
-                disabled={carInfoExist}
-            >
-                차량 정보 등록
-            </CustomCommonButton>
-
-            <CustomCommonButton
-                onClick={handleDeleteCarInfo}
-                disabled={!carInfoExist}
-            >
-                차량 정보 삭제 (개발 전)
-            </CustomCommonButton>
+                {!carInfoExist ?
+                    <CustomCommonButton
+                        onClick={handleRegisterCarInfo}
+                    // disabled={carInfoExist}
+                    >
+                        차량 정보 등록
+                    </CustomCommonButton>
+                    :
+                    <CustomCommonButton
+                        onClick={handleDeleteCarInfo}
+                        className="bg-red-600 hover:bg-red-600"
+                    // disabled={!carInfoExist}
+                    >
+                        차량 정보 삭제
+                    </CustomCommonButton>
+                }
+            </footer>
         </div>
     );
 }

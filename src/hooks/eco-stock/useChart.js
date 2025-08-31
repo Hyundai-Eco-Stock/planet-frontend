@@ -1,7 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { createChart } from 'lightweight-charts';
 import { chartConfig, LAYOUT, priceScaleConfig, THEME } from '@/config/chartConfig';
-
 
 export const useChart = (data, height = 400) => {
     const chartContainerRef = useRef();
@@ -11,13 +10,29 @@ export const useChart = (data, height = 400) => {
     const separatorSeriesRef = useRef();
     const resizeObserverRef = useRef();
     const isInitializedRef = useRef(false);
+    const lastDataTimeRef = useRef(null); // 마지막 데이터 시간 추적
 
     const createExtendedTimeRange = () => {
         const now = Math.floor(Date.now() / 1000);
         return [{ time: now - 86400, value: 1 }, { time: now + 86400, value: 1 }];
     };
 
-    // 차트 초기화
+    const getVolumeColor = useCallback((colorKey, theme) => {
+        switch (colorKey) {
+            case "BUY":
+                return theme.volume.buy;
+            case "SELL":
+                return theme.volume.sell;
+            case "EMPTY":
+                return theme.volume.empty;
+            case "SAME":
+                return theme.volume.same;
+            default:
+                return theme.text;
+        }
+    }, []);
+
+    // 차트 초기화 (data가 변경될 때만)
     useEffect(() => {
         if (!data || data.length === 0) return;
 
@@ -29,6 +44,7 @@ export const useChart = (data, height = 400) => {
             volumeSeriesRef.current = null;
             separatorSeriesRef.current = null;
             isInitializedRef.current = false;
+            lastDataTimeRef.current = null;
         }
 
         console.log('📊 차트 초기화 시작 -', data.length, '개 데이터');
@@ -39,7 +55,6 @@ export const useChart = (data, height = 400) => {
         );
 
         chartRef.current = chart;
-
 
         const ohlcData = data.ohlcData;
         const volumeData = data.volumeData.map(volume => ({
@@ -69,23 +84,23 @@ export const useChart = (data, height = 400) => {
             title: ''
         });
 
-        //초기 차트 데이터 삽입
+        // 초기 차트 데이터 삽입
         candleSeries.setData(ohlcData);
         volumeSeries.setData(volumeData);
         separatorSeries.setData(separatorData);
-        
-        if (ohlcData.length > 0) {
-            const lastTime = ohlcData[ohlcData.length - 1].time;
-            const realDataPoints = ohlcData.filter(item => !item.isEmpty);
 
-            // ✅ 최근 10개의 실제 데이터 보여주기
+        // 마지막 데이터 시간 저장
+        if (ohlcData.length > 0) {
+            lastDataTimeRef.current = ohlcData[ohlcData.length - 1].time;
+
+            const realDataPoints = ohlcData.filter(item => !item.isEmpty);
             const visibleRealDataCount = Math.min(10, realDataPoints.length);
             const startIndex = Math.max(0, realDataPoints.length - visibleRealDataCount);
             const firstRealTime = realDataPoints[startIndex].time;
 
             chart.timeScale().setVisibleRange({
                 from: firstRealTime - 300,
-                to: lastTime + 300
+                to: lastDataTimeRef.current + 300
             });
         }
 
@@ -100,15 +115,17 @@ export const useChart = (data, height = 400) => {
                 volumeSeriesRef.current = null;
                 separatorSeriesRef.current = null;
                 isInitializedRef.current = false;
+                lastDataTimeRef.current = null;
             }
         };
-    }, [data, height]);
+    }, [data, height, getVolumeColor]);
 
     // 리사이즈 처리
     useEffect(() => {
         const handleResize = (entries) => {
             const { width, height: containerHeight } = entries[0].contentRect;
             if (chartRef.current) {
+                // 현재 보이는 범위 저장
                 const timeScale = chartRef.current.timeScale();
                 const visibleRange = timeScale.getVisibleRange();
 
@@ -117,6 +134,7 @@ export const useChart = (data, height = 400) => {
                     height: containerHeight || height
                 });
 
+                // 리사이즈 후 기존 범위 복원
                 setTimeout(() => {
                     if (chartRef.current && visibleRange && visibleRange.from && visibleRange.to) {
                         timeScale.setVisibleRange(visibleRange);
@@ -137,59 +155,58 @@ export const useChart = (data, height = 400) => {
             }
         };
     }, [height]);
-
-    // 실시간 업데이트 함수 (간소화)
-    const updateChart = (currentData) => {
+    // 🔥 간단하고 자연스러운 실시간 업데이트 함수
+    const updateChart = useCallback((currentData) => {
         if (!currentData || !isInitializedRef.current || !candleSeriesRef.current) {
             return;
         }
 
-        const ohlc = currentData.ohlcData
+        const ohlc = currentData.ohlcData;
         const volume = currentData.volumeData ? {
             time: currentData.volumeData.time,
             value: currentData.volumeData.value,
             color: getVolumeColor(currentData.volumeData.color, THEME)
         } : null;
 
-        // 캔들스틱 업데이트
+        // ✅ 단순하게 데이터만 업데이트 - Lightweight Charts가 알아서 처리
         if (ohlc && candleSeriesRef.current) {
-            candleSeriesRef.current.update(ohlc);
-
-            // 새 데이터가 보이는 범위를 벗어났을 때만 자동 스크롤
-            const visibleRange = chartRef.current.timeScale().getVisibleRange();
-            if (visibleRange && ohlc.time > visibleRange.to) {
-                const timeRange = visibleRange.to - visibleRange.from;
-                chartRef.current.timeScale().setVisibleRange({
-                    from: ohlc.time - timeRange,
-                    to: ohlc.time
-                });
+            if (!lastDataTimeRef.current || ohlc.time > lastDataTimeRef.current) {
+                candleSeriesRef.current.update(ohlc);
+                lastDataTimeRef.current = ohlc.time;
+                console.log('새로운 캔들 데이터 추가:', ohlc.time);
+            } else if (ohlc.time === lastDataTimeRef.current) {
+                candleSeriesRef.current.update(ohlc);
+                console.log('기존 캔들 데이터 수정:', ohlc.time);
             }
         }
 
-        // 볼륨 업데이트
+        // 볼륨 데이터 업데이트
         if (volume && volumeSeriesRef.current) {
             volumeSeriesRef.current.update(volume);
         }
-    };
 
-    const getVolumeColor = (colorKey, theme) => {
-        switch (colorKey) {
-            case "BUY":
-                return theme.volume.buy;
-            case "SELL":
-                return theme.volume.sell;
-            case "EMPTY":
-                return theme.volume.empty; // EMPTY → 흐린 회색
-            case "SAME":
-                return theme.volume.same; // EMPTY → 흐린 회색
-            default:
-                return theme.text; // fallback
-        }
-    };
+        // 🚫 setVisibleRange 강제 호출 제거
+        // Lightweight Charts가 자연스럽게 처리하도록 놔둠
+
+    }, [getVolumeColor]);
+    // 수동으로 최신 데이터로 이동하는 함수 (필요시 사용)
+    const scrollToLatest = useCallback(() => {
+        if (!chartRef.current || !lastDataTimeRef.current) return;
+
+        const timeScale = chartRef.current.timeScale();
+        const currentRange = timeScale.getVisibleRange();
+        const rangeSize = currentRange.to - currentRange.from;
+
+        timeScale.setVisibleRange({
+            from: lastDataTimeRef.current - rangeSize + 300,
+            to: lastDataTimeRef.current + 300
+        });
+    }, []);
 
     return {
         chartContainerRef,
         isInitialized: isInitializedRef.current,
-        updateChart
+        updateChart,
+        scrollToLatest // 필요시 최신으로 스크롤하는 함수
     };
 };
