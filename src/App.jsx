@@ -74,6 +74,10 @@ const OrderRedirect = () => {
 // 에코딜
 import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
 import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
+
+//래플 
+import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
+import RaffleListPage from './pages/raffle/RaffleListPage'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -98,8 +102,8 @@ function App() {
 		"/orders/delivery",
 		"/orders/pickup",
 	];
-	const hideFooter = hideFooterPaths.includes(location.pathname);
-
+	const hideFooter = hideFooterPaths.includes(location.pathname) ||
+		location.pathname.startsWith('/raffle/detail/');
 	// 헤더를 완전히 숨길 경로들 (주문서 페이지는 자체 헤더 사용)
 	const hideHeaderPaths = [
 		"/orders/delivery",
@@ -111,7 +115,7 @@ function App() {
 
 	return (
 		<div className='min-h-screen flex flex-col'>
-
+			
 			{!hideHeader && (
 				showBackButtonHeader
 					? <HeaderWithBack />
@@ -181,6 +185,9 @@ function App() {
 					{/* 에코딜 */}
 					<Route path="/eco-deal/main" element={<EcoDealMain />} />
 					<Route path="/eco-deal/detail" element={<EcoDealDetail />} />
+					{/* 래플 페이지 */}
+					<Route path="/raffle" element={<RaffleListPage />} />
+					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
 				</Routes>
 			</main>
 
