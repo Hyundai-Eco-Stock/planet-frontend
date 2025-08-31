@@ -65,8 +65,13 @@ export const initializeForegroundMessaging = () => {
             body: payload.notification.body,
         });
 
-        // 포그라운드 상태에서는 시스템 알림을 생성하지 않습니다.
-        // 서비스 워커가 모든 시스템 알림을 처리하도록 역할을 일원화합니다.
+        // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
+        if (document.visibilityState === 'visible') {
+            new Notification(payload.notification.title, {
+                body: payload.notification.body,
+                icon: "/planet-logo-512.png",
+            });
+        }
     });
 };
 

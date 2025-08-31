@@ -5,37 +5,29 @@ import { StaleWhileRevalidate, NetworkFirst, CacheFirst } from 'workbox-strategi
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
 
-// Firebase Cloud Messaging
-import { initializeApp } from "firebase/app";
-import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
+// 서비스 워커의 표준 'push' 이벤트를 수신하여 모든 푸시 알림을 처리합니다.
+// 이를 통해 vite-plugin-pwa에 의해 주입된 로직이나 다른 핸들러와의 충돌을 방지하고
+// 알림 표시 로직을 일원화합니다.
+self.addEventListener('push', (event) => {
+    try {
+        const payload = event.data.json();
+        console.log('[src/sw.js] Push 이벤트 수신:', payload);
 
-// Firebase 구성 객체
-const firebaseConfig = {
-    apiKey: "AIzaSyDtSf2TcLa8wba4nWUu9Z71HVN0F6Lso6c",
-    authDomain: "planet-4023d.firebaseapp.com",
-    projectId: "planet-4023d",
-    storageBucket: "planet-4023d.firebasestorage.app",
-    messagingSenderId: "1034734598735",
-    appId: "1:1034734598735:web:ab7b799fa19f360c7f483a",
-    measurementId: "G-3NF9RCVRC7"
-};
+        const notificationTitle = payload.notification?.title || '새로운 알림';
+        const notificationOptions = {
+            body: payload.notification?.body || '',
+            icon: '/planet-logo-512.png',
+            // 알림 클릭 시 이동할 URL 등 추가 데이터를 여기에 포함합니다.
+            data: payload.data
+        };
 
-// Firebase 앱 초기화
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-
-// 백그라운드 메시지 수신 처리
-onBackgroundMessage(messaging, (payload) => {
-    console.log('[src/sw.js] 백그라운드 메시지 수신:', payload);
-
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/planet-logo-512.png',
-        data: payload.data
-    };
-
-    self.registration.showNotification(notificationTitle, notificationOptions);
+        // 알림을 표시합니다.
+        event.waitUntil(
+            self.registration.showNotification(notificationTitle, notificationOptions)
+        );
+    } catch (e) {
+        console.error('[src/sw.js] Push 이벤트 처리 중 오류:', e);
+    }
 });
 
 
