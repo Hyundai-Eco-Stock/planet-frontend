@@ -29,8 +29,8 @@ export const useNotifications = () => {
 	}, [messaging, setPushEnabled]);
 
 	useEffect(() => {
-		// 포그라운드 메시지 리스너
-		const unsubscribePromise = onMessageListener().then((payload) => {
+		// 포그라운드 메시지 리스너 설정
+		const unsubscribe = onMessageListener((payload) => {
 			console.log("포그라운드 메시지 수신:", payload);
 			setNotification({
 				title: payload.notification.title,
@@ -44,8 +44,9 @@ export const useNotifications = () => {
 			});
 		});
 
+		// 클린업 함수: 컴포넌트 언마운트 시 리스너 구독 해제
 		return () => {
-			unsubscribePromise.then((unsubscribe) => unsubscribe && unsubscribe());
+			unsubscribe();
 		};
 	}, [setNotification]);
 

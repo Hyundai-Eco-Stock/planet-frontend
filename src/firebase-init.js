@@ -54,12 +54,11 @@ export const requestForToken = async () => {
 };
 
 // 포그라운드 메시지 리스너 (앱이 활성화되어 있을 때 알림 수신)
-export const onMessageListener = () =>
-    new Promise((resolve) => {
-        onMessage(messaging, (payload) => {
-            console.log('포그라운드 메시지 수신:', payload);
-            resolve(payload);
-        });
+export const onMessageListener = (callback) => {
+    return onMessage(messaging, (payload) => {
+        console.log('포그라운드 메시지 수신:', payload);
+        callback(payload);
     });
+};
 
 export default app;
