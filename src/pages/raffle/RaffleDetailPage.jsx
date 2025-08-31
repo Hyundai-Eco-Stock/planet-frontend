@@ -225,19 +225,6 @@ const RaffleDetailPage = () => {
           </div>
         </div>
       )}
-      {/* 헤더 */}
-      <header className="bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="뒤로 가기"
-          >
-            ←
-          </button>
-        </div>
-      </header>
-
       {/* 상단 이미지 */}
       <div className="bg-white">
         <div className="relative">
