@@ -12,6 +12,7 @@ import LayoutLogoOnly from '@/components/_layout/LayoutLogoOnly' // 헤더만
 import LayoutLogoAndClose from '@/components/_layout/LayoutLogoAndClose' // 헤더만
 import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터만
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
+import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
 
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
@@ -107,7 +108,8 @@ function App() {
 				<Route path="/shopping/main" element={<ShoppingMain />} />
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
-				<Route path="/cart/main" element={<CartMain />} />
+				<Route path='/eco-deal/main' element={<EcoDealMain />} />
+				<Route path='/eco-deal/detail/' element={<EcoDealDetail />} />
 			</Route>
 
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
@@ -148,14 +150,20 @@ function App() {
 
 			{/* 아무것도 없는 Layout */}
 			<Route element={<LayoutNone />}>
-				<Route path="/orders/delivery" element={<DeliveryOrderPage />} />
-				<Route path="/orders/pickup" element={<PickupOrderPage />} />
 				<Route path="/payments/success" element={<PaymentSuccessPage />} />
 				<Route path="/payments/fail" element={<PaymentFailPage />} />
 				<Route path="/login/success" element={<LoginSuccess />} />
 				<Route path="/change/password" element={<ChangePassword />} />
 				<Route path="/admin/test" element={<Test />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
+			</Route>
+
+			{/* 장바구니·주문용 Layout */}
+			<Route element={<LayoutCartOrder />}>
+				<Route path="/cart/main" element={<CartMain />} />
+				<Route path="/orders" element={<OrderRedirect />} />
+				<Route path="/orders/delivery" element={<DeliveryOrderPage />} />
+				<Route path="/orders/pickup" element={<PickupOrderPage />} />
 			</Route>
 		</Routes>
 	)
