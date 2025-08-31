@@ -65,11 +65,13 @@ export const initializeForegroundMessaging = () => {
             body: payload.notification.body,
         });
 
-        // 브라우저 알림 표시
-        new Notification(payload.notification.title, {
-            body: payload.notification.body,
-            icon: "/planet-logo-512.png",
-        });
+        // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
+        if (document.visibilityState === 'visible') {
+            new Notification(payload.notification.title, {
+                body: payload.notification.body,
+                icon: "/planet-logo-512.png",
+            });
+        }
     });
 };
 

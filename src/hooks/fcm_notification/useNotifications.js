@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { requestForToken, onMessageListener, VAPID_KEY } from "@/firebase-init";
+import { useCallback } from "react";
+import { requestForToken, VAPID_KEY } from "@/firebase-init";
 import { getMessaging, deleteToken, getToken } from "firebase/messaging";
 import useNotificationStore from "@/store/notificationStore";
 
