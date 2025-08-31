@@ -38,6 +38,9 @@ import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 import Settings from '@/pages/mypage/Settings'
+import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
+import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
+import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 
 // 에코스톡 인증
 import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
@@ -74,9 +77,18 @@ const OrderRedirect = () => {
 	return <Navigate to="/orders/delivery" state={location.state} replace />
 }
 
+
+// 에코딜
+import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
+import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
+
+//래플 
+import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
+import RaffleListPage from './pages/raffle/RaffleListPage'
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
+
 	const { syncPushEnabledState } = useNotifications();
 
 	useEffect(() => {
