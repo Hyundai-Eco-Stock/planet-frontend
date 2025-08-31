@@ -1,18 +1,15 @@
 import { useEffect } from 'react';
 import { useChart } from '@/hooks/eco-stock/useChart';
-import { useMemo } from 'react';
 
-const StockChart = ({ currentData, data, loading, height = 400 }) => {
-    const chartData = useMemo(() => data || [], [data]);
-    // 차트 훅 사용
-    const { chartContainerRef, updateChart } = useChart(chartData, height);
+const StockChart = ({ currentData, initialData, loading, height = 400 }) => {
+    const { chartContainerRef, updateChart } = useChart(initialData, height);
 
-    // 실시간 데이터 업데이트
+    // 실시간 데이터만 update 함수로 처리
     useEffect(() => {
-        if (currentData && chartData.length > 0) {
+        if (currentData && initialData && initialData.ohlcData && initialData.ohlcData.length > 0) {
             updateChart(currentData);
         }
-    }, [currentData, chartData, updateChart]);
+    }, [currentData, updateChart,initialData]);
 
     // 로딩 상태
     if (loading) {
@@ -27,7 +24,7 @@ const StockChart = ({ currentData, data, loading, height = 400 }) => {
     }
 
     // 데이터 없음
-    if (!chartData || chartData.length === 0) {
+    if (!initialData || initialData.length === 0) {
         return (
             <div className="p-6 min-h-[400px] flex items-center justify-center bg-gray-50 rounded-lg">
                 <div className="text-center">
@@ -41,7 +38,7 @@ const StockChart = ({ currentData, data, loading, height = 400 }) => {
 
     // 정상 차트 렌더링
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full relative">
             <div
                 ref={chartContainerRef}
                 className="w-full rounded-xl overflow-hidden border border-gray-300 bg-white"
