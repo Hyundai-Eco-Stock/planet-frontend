@@ -102,7 +102,7 @@ const CartMain = () => {
   }
   
   return (
-    <div className="w-full min-h-screen flex flex-col bg-gray-50 -mx-2">
+    <div className="w-full min-h-screen flex flex-col bg-gray-50">
       
       {/* 상단 탭 헤더 */}
       <div className="flex border-b border-gray-200 bg-white sticky top-0 z-10">

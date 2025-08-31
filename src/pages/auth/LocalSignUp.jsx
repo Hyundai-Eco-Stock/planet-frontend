@@ -57,7 +57,6 @@ const LocalSignup = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="이메일을 입력해주세요."
-                        readOnly
                     />
                 </div>
 
@@ -69,7 +68,6 @@ const LocalSignup = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="이름을 입력해주세요."
-                        readOnly
                     />
                 </div>
 

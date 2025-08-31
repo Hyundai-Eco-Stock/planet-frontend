@@ -104,7 +104,7 @@ const CustomProfileImageInput = ({
                         onClick={handleClear}
                         aria-label="이미지 제거"
                         className="
-                            absolute -right-1 -top-1 w-6 h-6
+                            absolute -right-0 -top-0 w-6 h-6
                             rounded-full bg-white border border-gray-300
                             flex items-center justify-center shadow-sm
                             hover:bg-gray-50

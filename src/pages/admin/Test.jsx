@@ -2,9 +2,12 @@
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { searchRecommendProducts } from "@/api/product/product.api";
 import { searchTodayAllEcoDealProducts } from "@/api/product/ecoProduct.api";
+import { useNavigate } from "react-router-dom";
 
 
 const Test = () => {
+
+    const navigate = useNavigate();
 
     const handleEcoDealProducts = () => {
         const res = searchTodayAllEcoDealProducts();

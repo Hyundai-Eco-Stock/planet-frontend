@@ -1,4 +1,4 @@
-import { useNotifications } from '@/hooks/useNotifications';
+import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
 
 /**
  * FCM 알림 관련 UI를 담당하는 컴포넌트
