@@ -1,4 +1,4 @@
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/fcm_notification/useNotifications";
 import useNotificationStore from "@/store/notificationStore";
 
 const Settings = () => {
@@ -15,7 +15,7 @@ const Settings = () => {
 
     return (
         <div className="flex items-center gap-4 p-4">
-            <span className="text-gray-800 font-medium">푸시 알림</span>
+            <span className="text-sm font-semibold text-gray-900">푸시 알림</span>
 
             <button
                 onClick={handleToggle}
@@ -23,8 +23,11 @@ const Settings = () => {
                     }`}
             >
                 <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${pushEnabled ? "translate-x-6" : "translate-x-1"
-                        }`}
+                    className={`
+                        inline-block h-5 w-5 transform rounded-full 
+                        bg-white shadow-md transition-transform duration-300
+                        ${pushEnabled ? "translate-x-6" : "translate-x-1"}
+                    `}
                 />
             </button>
 

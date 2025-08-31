@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
 // 웹 푸시 인증을 위한 VAPID 키 (Firebase 콘솔에서 생성)
-const VAPID_KEY = 'BOsr26EM7TknHD9EI7P8eJKhQopJEoi6RyJqy7od9G0-tgWhfd6ys_Sb3AUkH2mAVregCevONFN_uVDDqHQyMbg';
+export const VAPID_KEY = 'BOsr26EM7TknHD9EI7P8eJKhQopJEoi6RyJqy7od9G0-tgWhfd6ys_Sb3AUkH2mAVregCevONFN_uVDDqHQyMbg';
 
 // 알림 권한 요청 및 토큰 가져오기
 export const requestForToken = async () => {

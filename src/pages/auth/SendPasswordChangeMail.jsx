@@ -40,7 +40,7 @@ const SendPasswordChangeMail = () => {
 
         postPasswordChangeMail({ email })
             .then(() => {
-                
+
             })
             .catch(() => {
                 Swal.fire({
@@ -50,17 +50,17 @@ const SendPasswordChangeMail = () => {
                     confirmButtonText: '확인',
                 });
             });
-            
+
         Swal.fire({
             icon: 'success',
-            title: '안내 메일 발송',
-            text: '해당 이메일로 안내 메일을 발송했습니다.',
+            title: '메일 발송 완료',
+            text: '비밀번호 변경 안내 메일을 발송했습니다.',
             confirmButtonText: '확인',
             customClass: {
                 confirmButton: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
             }
         });
-        
+
     }
 
     const handleEmail = (e) => {
@@ -68,16 +68,26 @@ const SendPasswordChangeMail = () => {
     }
 
     return (
-        <div>
-            이메일 입력
-            <CustomCommonInput
-                value={email}
-                onChange={handleEmail}
-            />
-            <CustomCommonButton
-                children="전송"
-                onClick={handleSubmit}
-            />
+        <div className="w-full pt-5">
+            <label className="w-full flex flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-900">이메일 입력</span>
+                <CustomCommonInput
+                    value={email}
+                    placeholder="회원가입시 사용했던 이메일을 입력해주세요"
+                    onChange={handleEmail}
+                />
+            </label>
+
+            {/* Fixed CTA */}
+            <footer className="fixed bottom-28 left-0 right-0 bg-white pt-1 pb-2 px-4">
+                <CustomCommonButton
+                    onClick={handleSubmit}
+                    // disabled={isSubmitDisabled}
+                    className="btn-primary w-full"
+                >
+                    비밀번호 변경 메일 발송
+                </CustomCommonButton>
+            </footer>
         </div>
     )
 }
