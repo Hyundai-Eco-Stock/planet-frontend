@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { requestForToken, onMessageListener, VAPID_KEY } from "@/firebase-init";
+import { useCallback } from "react";
+import { requestForToken, VAPID_KEY } from "@/firebase-init";
 import { getMessaging, deleteToken, getToken } from "firebase/messaging";
 import useNotificationStore from "@/store/notificationStore";
 
@@ -28,26 +28,7 @@ export const useNotifications = () => {
 		}
 	}, [messaging, setPushEnabled]);
 
-	useEffect(() => {
-		// 포그라운드 메시지 리스너
-		const unsubscribePromise = onMessageListener().then((payload) => {
-			console.log("포그라운드 메시지 수신:", payload);
-			setNotification({
-				title: payload.notification.title,
-				body: payload.notification.body,
-			});
-
-			// 브라우저 알림도 띄움
-			new Notification(payload.notification.title, {
-				body: payload.notification.body,
-				icon: "/planet-logo-512.png",
-			});
-		});
-
-		return () => {
-			unsubscribePromise.then((unsubscribe) => unsubscribe && unsubscribe());
-		};
-	}, [setNotification]);
+	
 
 	// 권한 요청 및 토큰 발급
 	const requestPermission = async () => {
