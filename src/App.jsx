@@ -113,6 +113,7 @@ function App() {
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndFooter />}>
 				<Route path="/my-page/main" element={<MyPageMain />} />
+				<Route path="/raffle" element={<RaffleListPage />} />
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
@@ -131,6 +132,7 @@ function App() {
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndClose title="" />}>
 				<Route path="/signup/local" element={<LocalSignUp />} />
+				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
 			</Route>
 
 			{/* 로고만 있는 Layout (헤더만) */}
