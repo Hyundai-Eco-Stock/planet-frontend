@@ -107,7 +107,7 @@ export default function ShoppingMain() {
       />
 
       {/* 검색 바: CategoryBar 아래 */}
-      <div className="px-4 mt-2">
+      <div className="mt-2">
         <form onSubmit={handleSearchSubmit} className="max-w-screen-md mx-auto flex gap-2">
           <input
             type="text"

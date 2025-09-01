@@ -11,7 +11,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
   }, [active]);
 
   return (
-    <section className="sticky top-0 z-20 bg-white pt-2 pb-1 px-3">
+    <section className="sticky top-0 z-20 bg-white pt-2 pb-1">
       <div className="relative">
         {/* 스크롤 영역 (스크롤바 숨김) */}
         <div
