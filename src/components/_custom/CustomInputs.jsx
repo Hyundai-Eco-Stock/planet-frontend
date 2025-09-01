@@ -19,7 +19,7 @@ const CustomCommonInput = forwardRef(
         {
             type = "text",
             placeholder = "",
-            value,
+            value = "",
             onChange,
             className = "",
             readOnly = false,
@@ -42,7 +42,7 @@ const CustomCommonInput = forwardRef(
                 }
             }
 
-            onChange({ target: { value: newValue } });
+            onChange?.({ target: { value: newValue } });
         };
 
         return (
@@ -52,7 +52,7 @@ const CustomCommonInput = forwardRef(
                     type={type === "number" ? "text" : type}
                     inputMode={type === "number" ? "numeric" : undefined}
                     placeholder={placeholder}
-                    value={value}
+                    value={value ?? ""}
                     onChange={handleChange}
                     readOnly={readOnly}
                     autoFocus={autoFocus}
@@ -102,7 +102,7 @@ const CardNumberInput = ({
         newParts[idx] = newValue;
 
         const joined = newParts.join("");
-        onChange(joined);
+        onChange?.(joined);
 
         if (newValue.length === 4 && idx < 3) {
             inputsRef.current[idx + 1]?.focus();
