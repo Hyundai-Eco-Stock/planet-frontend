@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { fetchEcoDealProductDetail } from "../../api/product/ecoProduct.api";
+import Toast from "@/components/common/Toast";
 
 export default function ShoppingDetail() {
   const [sp] = useSearchParams();
@@ -12,6 +13,8 @@ export default function ShoppingDetail() {
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (!productId) {
@@ -140,7 +143,7 @@ export default function ShoppingDetail() {
     // 저장
     try {
       localStorage.setItem('cart-storage', JSON.stringify(store));
-      alert('장바구니에 담았습니다.');
+      setShowToast(true);
     } catch (e) {
       console.error('cart-storage 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
@@ -282,6 +285,13 @@ export default function ShoppingDetail() {
           </div>
         </div>
       </div>
+
+      <Toast
+        message="나의 장바구니에 담았어요"
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={3000}
+      />
     </main>
   );
 }

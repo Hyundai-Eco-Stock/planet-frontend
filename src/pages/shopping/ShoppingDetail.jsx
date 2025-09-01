@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { fetchProductDetail, searchRecommendProducts } from "../../api/product/product.api";
+import Toast from "@/components/common/Toast";
 
 const MAX_INITIAL_INFO_IMAGES = 1; // 초기 노출할 상품정보 이미지 개수 (상품 더보기 버튼)
 
@@ -16,6 +17,8 @@ export default function ShoppingDetail() {
   const [activeTab, setActiveTab] = useState("info"); // 상품정보, 리뷰 탭
   const [showAllInfo, setShowAllInfo] = useState(false); // 상품정보 이미지 전체 보기 여부
   const [recommends, setRecommends] = useState([]); // 유사상품추천 목록
+
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (!productId) {
@@ -126,7 +129,7 @@ export default function ShoppingDetail() {
 
     try {
       localStorage.setItem('cart-storage', JSON.stringify(store));
-      alert('장바구니에 담았습니다.');
+      setShowToast(true);
     } catch (e) {
       console.error('cart-storage 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
@@ -334,6 +337,14 @@ export default function ShoppingDetail() {
           </div>
         </div>
       </div>
+
+      { /* Toast 알ㄹ미 */ }
+      <Toast
+        message="나의 장바구니에 담았어요"
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={2000}  
+      />
     </main>
   );
 }
