@@ -124,14 +124,6 @@ export default function ShoppingDetail() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate(-1)}
-          className="mr-2 text-gray-600 hover:text-black"
-          aria-label="뒤로가기"
-        >←</button>
-      </div>
-
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
         <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
