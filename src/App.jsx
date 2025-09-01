@@ -109,7 +109,7 @@ function App() {
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 				<Route path='/eco-deal/main' element={<EcoDealMain />} />
-				<Route path='/eco-deal/detail/' element={<EcoDealDetail />} />
+				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
 			</Route>
 
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
@@ -129,6 +129,9 @@ function App() {
 				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
+				<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
+				<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
+				<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
