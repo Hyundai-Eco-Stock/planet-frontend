@@ -104,7 +104,7 @@ const MyProfile = () => {
     }, []);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pb-24">
             {/* 프로필 이미지 */}
             <section className="flex flex-col">
                 <span className="text-sm font-semibold text-gray-900">프로필</span>
@@ -230,7 +230,7 @@ const MyProfile = () => {
                 </div>
             </section>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-24 px-4">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
