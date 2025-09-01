@@ -7,7 +7,7 @@ export default function CategorySheet({ categories, active, expanded, onClose, o
       {/* 배경 스크림 */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-black/25 transition-opacity duration-200 ${
+        className={`fixed inset-0 z-40 bg-black/25 transition-opacity duration-200 ${
           expanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -15,7 +15,7 @@ export default function CategorySheet({ categories, active, expanded, onClose, o
       <section
         role="dialog"
         aria-modal="true"
-        className={`fixed left-0 right-0 top-16 z-30 rounded-b-2xl bg-white shadow-lg transition-all duration-200 ${
+        className={`fixed left-0 right-0 top-16 z-50 rounded-b-2xl bg-white shadow-lg transition-all duration-200 ${
           expanded ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
         }`}
       >
