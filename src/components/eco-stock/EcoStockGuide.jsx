@@ -35,7 +35,7 @@ const EcoStockGuide = () => {
                                     <div class="w-4 h-4 bg-red-500 rounded mr-3"></div>
                                     <span class="text-sm text-gray-700">빨간 캔들: 가격 하락</span>
                                 </div>
-                                // 두 개의 거래량 항목으로 분리
+
                                 <div class="flex items-center">
                                     <div class="w-4 h-3 bg-green-500 rounded mr-3 opacity-70"></div>
                                     <span class="text-sm text-gray-700">매수 거래량</span>

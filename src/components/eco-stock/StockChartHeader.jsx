@@ -36,27 +36,29 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
     };
 
     return (
-        <div className="bg-white border-t border-gray-200 p-4">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center space-x-3">
+        <div className="bg-white border-t border-gray-200 p-4 relative z-10">
+            <div className="max-w-4xl mx-auto min-w-0">
+                <div className="flex items-center justify-between mb-6 sm:mb-10 gap-4">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-800">에코 스톡</h2>
-                            <p className="text-sm text-gray-500">친환경 기업 투자로 지구와 함께 성장하세요</p>
+                            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">에코 스톡</h2>
+                            <p className="text-xs sm:text-sm text-gray-500">친환경 기업 투자로 지구와 함께 성장하세요</p>
                         </div>
                     </div>
-                    <EcoStockGuide />
+                    <div className="flex-shrink-0">
+                        <EcoStockGuide />
+                    </div>
                 </div>
 
-                <div className="flex items-center justify-between w-full mb-4 pt-2">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl 
-                            flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                <div className="flex items-center justify-between w-full mb-4 pt-2 gap-2 sm:gap-4 min-w-0">
+                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl 
+                            flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0">
                             {getStockName(stockId).charAt(0)}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                             {stockList && stockList.length > 0 ? (
-                                <div className="w-64">
+                                <div className="w-full max-w-64 relative z-50">
                                     <ModernStockSelector
                                         stockList={stockList}
                                         selectedStockId={stockId}
@@ -64,28 +66,30 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
                                     />
                                 </div>
                             ) : (
-                                <h3 className="text-xl font-bold text-gray-900">
+                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                                     {getStockName(stockId)}
                                 </h3>
                             )}
                             <div className="flex items-center space-x-2 mt-1">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <p className="text-sm text-gray-500">실시간 차트</p>
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                                <p className="text-xs sm:text-sm text-gray-500">실시간 차트</p>
                             </div>
                         </div>
                     </div>
-
-                    {/* CHANGED: 항상 렌더링 (0%도 보이게) */}
-                    <div className="text-right">
+                    
+                    {/* 가격 정보 - 오버플로우 완전 방지 */}
+                    <div className="text-right flex-shrink-0 min-w-0 max-w-32 sm:max-w-none">
                         {/* 현재가 */}
-                        <div className={`text-xl font-bold mb-1 ${getPriceChangeStyle()}`}>
+                        <div className={`text-sm sm:text-xl font-bold mb-1 ${getPriceChangeStyle()} truncate`}>
                             ₩{getCurrentPrice().toLocaleString()}
                         </div>
-                        <div className="flex items-center justify-end gap-2">
-                            <div className="text-sm text-gray-600">현재가</div>
-                            <div className={`text-sm font-medium ${getPriceChangeStyle()}`}>
-                                <span className="mr-1">{getPriceChangeIcon()}</span>
-                                <span>
+
+                        {/* 변동 정보 */}
+                        <div className="flex items-center justify-end gap-1 min-w-0">
+                            <div className="text-xs text-gray-600 flex-shrink-0">현재가</div>
+                            <div className={`text-xs font-medium ${getPriceChangeStyle()} min-w-0 truncate`}>
+                                <span className="mr-0.5">{getPriceChangeIcon()}</span>
+                                <span className="truncate">
                                     {Math.abs(priceChange.amount).toLocaleString()} ({Math.abs(priceChange.percent).toFixed(2)}%)
                                 </span>
                             </div>
