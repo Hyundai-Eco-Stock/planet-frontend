@@ -124,14 +124,6 @@ export default function ShoppingDetail() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate(-1)}
-          className="mr-2 text-gray-600 hover:text-black"
-          aria-label="뒤로가기"
-        >←</button>
-      </div>
-
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
         <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -144,32 +136,33 @@ export default function ShoppingDetail() {
 
         {/* 기본 정보 */}
         <div className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="text-lg font-medium">{name}</div>
-            {price != null && (
-              <div className="flex items-baseline gap-2 ml-4">
-                {main?.salePercent ? (
-                  <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600 border border-red-200">
-                    {main.salePercent}%
-                  </span>
-                ) : null}
-                {main?.salePercent ? (
-                  <span className="text-red-600 font-extrabold text-lg">
-                    {(price * (1 - main.salePercent/100)).toLocaleString()}원
-                  </span>
-                ) : (
-                  <span className="text-gray-900 font-extrabold text-lg">
-                    {Number(price).toLocaleString()}원
-                  </span>
-                )}
-                {main?.salePercent ? (
-                  <span className="text-xs text-gray-400 line-through">
-                    {Number(price).toLocaleString()}원
-                  </span>
-                ) : null}
-              </div>
-            )}
-          </div>
+          {/* 상품명 */}
+          <div className="text-lg font-medium mb-1">{name}</div>
+
+          {/* 가격 (오른쪽 정렬) */}
+          {price != null && (
+            <div className="flex justify-end items-baseline gap-2">
+              {main?.salePercent ? (
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600 border border-red-200">
+                  {main.salePercent}%
+                </span>
+              ) : null}
+              {main?.salePercent ? (
+                <span className="text-red-600 font-extrabold text-lg">
+                  {(price * (1 - main.salePercent/100)).toLocaleString()}원
+                </span>
+              ) : (
+                <span className="text-gray-900 font-extrabold text-lg">
+                  {Number(price).toLocaleString()}원
+                </span>
+              )}
+              {main?.salePercent ? (
+                <span className="text-xs text-gray-400 line-through">
+                  {Number(price).toLocaleString()}원
+                </span>
+              ) : null}
+            </div>
+          )}
 
           {/* 지점 단일 선택 (라디오 스타일 버튼) */}
           {Array.isArray(rows) && rows.length > 0 && (

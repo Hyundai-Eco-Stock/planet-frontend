@@ -1,33 +1,42 @@
-import { useMemo } from "react";
-
-const DUMMY = [
-  {
-    memberStockInfoId: 1,
-    memberId: 12,
-    ecoStockId: 1,
-    currentTotalQuantity: 3690,
-    currentTotalAmount: 461250,
-    point: 1657520,
-    ecoStockName: "텀블러",
-  },
-  {
-    memberStockInfoId: 2,
-    memberId: 12,
-    ecoStockId: 2,
-    currentTotalQuantity: 3690,
-    currentTotalAmount: 461250,
-    point: 1657520,
-    ecoStockName: "친환경 제품",
-  },
-];
+import { useEffect, useMemo, useState } from "react";
+import { fetchMyEcostocks } from "@/api/member/member.api";
+ 
 
 const MyEcoStockInfo = () => {
-  const summary = useMemo(() => {
-    const totalQty = DUMMY.reduce((s, v) => s + (v.currentTotalQuantity || 0), 0);
-    const totalAmt = DUMMY.reduce((s, v) => s + (v.currentTotalAmount || 0), 0);
-    const totalPoint = DUMMY.reduce((s, v) => s + (v.point || 0), 0);
-    return { totalQty, totalAmt, totalPoint };
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError(null);
+    fetchMyEcostocks()
+      .then((data) => {
+        if (!mounted) return;
+        setItems(Array.isArray(data) ? data : []);
+      })
+      .catch((e) => {
+        if (!mounted) return;
+        console.error("내 에코스톡 조회 실패", e);
+        setError(e?.message || "내 에코스톡을 불러오지 못했어요.");
+        setItems([]);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  const summary = useMemo(() => {
+    const totalQty = items.reduce((s, v) => s + (v.currentTotalQuantity || 0), 0);
+    const totalAmt = items.reduce((s, v) => s + (v.currentTotalAmount || 0), 0);
+    const totalPoint = items.reduce((s, v) => s + (v.point || 0), 0);
+    return { totalQty, totalAmt, totalPoint };
+  }, [items]);
 
   return (
     <div style={{ padding: 24 }}>
@@ -54,9 +63,15 @@ const MyEcoStockInfo = () => {
           gap: 16,
         }}
       >
-        {DUMMY.map((it) => (
-          <EcoCard key={it.memberStockInfoId} data={it} />)
+        {loading && (
+          <div style={{ gridColumn: "1 / -1", color: "#6b7280" }}>불러오는 중…</div>
         )}
+        {!loading && error && (
+          <div style={{ gridColumn: "1 / -1", color: "#ef4444" }}>{error}</div>
+        )}
+        {!loading && !error && items.map((it) => (
+          <EcoCard key={it.memberStockInfoId} data={it} />
+        ))}
       </div>
     </div>
   );
