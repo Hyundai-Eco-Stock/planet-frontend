@@ -45,12 +45,46 @@ export default function ShoppingDetail() {
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
-    if (!productId) return;
+    if (!main) return;
     if (!selectedStoreId) {
       alert('지점을 선택해주세요.');
       return;
     }
-    navigate(`/cart/main?${productId}&qty=${qty}&departmentStoreId=${selectedStoreId}`);
+
+    // 선택된 매장 정보 찾기
+    const selectedStore = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
+
+    if (!selectedStore) {
+      alert('선택된 매장 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 상품 정보를 주문서 형식으로 변환
+    const orderProduct = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      quantity: Number(qty || 1),
+      imageUrl: main.imageUrl || '',
+      isEcoDeal: true,
+      ecoDealStatus: true,
+      salePercent: Number(main.salePercent ?? 0),
+      selectedStore: {
+        id: selectedStore.departmentStoreId,
+        name: selectedStore.departmentStoreName,
+        address: selectedStore.address || '',
+        latitude: selectedStore.lat ?? null,
+        longitude: selectedStore.lng ?? null,
+      }
+    };
+
+    navigate('/orders', { 
+      state: { 
+        products: [orderProduct], 
+        deliveryType: 'PICKUP',
+        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+      } 
+    });
   };
 
   // 장바구니 담기 (localstorage 사용)
