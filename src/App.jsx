@@ -86,6 +86,10 @@ import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
 //래플 
 import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
 import RaffleListPage from './pages/raffle/RaffleListPage'
+
+// PHTI
+import PhtiSurvey from './pages/phti/PhtiSurvey'
+
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -129,6 +133,7 @@ function App() {
 				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
+				<Route path="/phti/survey" element={<PhtiSurvey />} />
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
