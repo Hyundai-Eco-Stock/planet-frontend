@@ -58,8 +58,30 @@ export default function ShoppingDetail() {
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
-    if (!productId) return;
-    navigate(`/cart/main?productId=${productId}&qty=${qty}`);
+    if (!main) return;
+
+    // 상품 정보를 주문서 형식으로 변환
+    const orderProduct = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      quantity: Number(qty || 1),
+      imageUrl: main.imageUrl || main.productImageUrl,
+      isEcoDeal: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
+      ecoDealStatus: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
+      salePercent: Number(main.salePercent ?? 0),
+    }
+
+    // 에코딜 상품인지 확인하여 배송 타입 결정
+    const deliveryType = orderProduct.isEcoDeal ? 'PICKUP' : 'DELIVERY';
+
+    navigate('/orders', { 
+      state: { 
+        products: [orderProduct], 
+        deliveryType: deliveryType,
+        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+      } 
+    });
   };
 
   // 장바구니 담기 (localstorage 사용)
