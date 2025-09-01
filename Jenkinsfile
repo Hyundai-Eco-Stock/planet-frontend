@@ -74,7 +74,7 @@ pipeline {
             set -a; . "$ENV_FILE"; set +a
 
             echo "[INFO] Deploying to S3: s3://$BUCKET_NAME"
-            aws s3 sync dist/ "s3://$BUCKET_NAME" --delete --region "$AWS_REGION"
+            aws s3 sync dist/ "s3://$BUCKET_NAME/assets/" --delete --region "$AWS_REGION"
 
             echo "[INFO] CloudFront invalidation: $CLOUDFRONT_ID"
             aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
