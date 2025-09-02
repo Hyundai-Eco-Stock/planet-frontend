@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useCartStore from '@/store/cartStore'
 import CartSection from '@/components/cart/CartSection'
@@ -8,12 +8,14 @@ import { CustomCommonButton } from '@/components/_custom/CustomButtons'
 const CartMain = () => {
   const navigate = useNavigate()
   
+  // 하이드레이션 상태 추가
+  const [isHydrated, setIsHydrated] = useState(false)
+  
+  // localStorage에서 직접 데이터 읽기
+  const [localCartData, setLocalCartData] = useState({ deliveryCart: [], pickupCart: [] })
+  
   // 스토어에서 필요한 데이터와 함수들 가져오기
-  const { 
-    deliveryCart, 
-    pickupCart, 
-    getTotalProducts
-  } = useCartStore()
+  const { getTotalProducts } = useCartStore()
   
   // 현재 선택된 탭
   const [activeTab, setActiveTab] = useState('delivery')
@@ -21,14 +23,61 @@ const CartMain = () => {
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
   
+  // 컴포넌트 마운트 시 localStorage에서 직접 데이터 로드
+  useEffect(() => {
+    const loadCartData = () => {
+      try {
+        const cartData = localStorage.getItem('cart-storage')
+        if (cartData) {
+          const parsedData = JSON.parse(cartData)
+          const state = parsedData.state || parsedData
+          
+          setLocalCartData({
+            deliveryCart: state.deliveryCart || [],
+            pickupCart: state.pickupCart || []
+          })
+        } else {
+          setLocalCartData({ deliveryCart: [], pickupCart: [] })
+        }
+      } catch (error) {
+        console.error('Error loading cart data:', error)
+        setLocalCartData({ deliveryCart: [], pickupCart: [] })
+      } finally {
+        setIsHydrated(true)
+      }
+    }
+    
+    // 즉시 로드
+    loadCartData()
+    
+    // localStorage 변경 감지
+    const handleStorageChange = (e) => {
+      if (e.key === 'cart-storage') {
+        loadCartData()
+      }
+    }
+    
+    const handleCartUpdate = () => {
+      loadCartData()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('cartStorageUpdate', handleCartUpdate)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('cartStorageUpdate', handleCartUpdate)
+    }
+  }, [])
+  
   // 각 탭에 상품이 있는지 확인
-  const hasDeliveryProducts = deliveryCart.length > 0
-  const hasPickupProducts = pickupCart.length > 0
+  const hasDeliveryProducts = localCartData.deliveryCart.length > 0
+  const hasPickupProducts = localCartData.pickupCart.length > 0
   const hasAnyProducts = hasDeliveryProducts || hasPickupProducts
   
   // 현재 활성 탭의 장바구니 가져오기
   const getCurrentCart = () => {
-    return activeTab === 'delivery' ? deliveryCart : pickupCart
+    return activeTab === 'delivery' ? localCartData.deliveryCart : localCartData.pickupCart
   }
   
   // 선택된 상품들만 필터링
@@ -96,6 +145,18 @@ const CartMain = () => {
     })
   }
   
+  // 하이드레이션 중이면 로딩 화면
+  if (!isHydrated) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">장바구니를 불러오는 중...</p>
+        </div>
+      </div>
+    )
+  }
+  
   // 빈 장바구니 화면
   if (!hasAnyProducts) {
     return <EmptyCart />
@@ -114,7 +175,7 @@ const CartMain = () => {
           }`}
           onClick={() => setActiveTab('delivery')}
         >
-          일반 배송 ({getTotalProducts('delivery')})
+          일반 배송 ({localCartData.deliveryCart.length})
         </button>
         <button 
           className={`flex-1 py-4 text-center font-medium transition-colors ${
@@ -124,7 +185,7 @@ const CartMain = () => {
           }`}
           onClick={() => setActiveTab('pickup')}
         >
-          픽업 배송 ({getTotalProducts('pickup')})
+          픽업 배송 ({localCartData.pickupCart.length})
         </button>
       </div>
       

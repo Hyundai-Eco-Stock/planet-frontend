@@ -1,15 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
-const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
-  const [formData, setFormData] = useState(deliveryInfo)
-  const [isEditing, setIsEditing] = useState(!deliveryInfo.isDefaultAddress)
+const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) => {
+  const EMPTY = {
+    recipientName: '', phone: '', address: '',
+    detailAddress: '', zipCode: '', message: '',
+    isDefaultAddress: false,
+  }
+  const initial = deliveryInfo ?? defaultDeliveryInfo ?? EMPTY
+  const [formData, setFormData] = useState(initial)
+  const [isEditing, setIsEditing] = useState(!initial.isDefaultAddress)
+  const defaultSnapRef = useRef(null)
+
+  useEffect(() => {
+    if (!defaultSnapRef.current && defaultDeliveryInfo) {
+      defaultSnapRef.current = { ...defaultDeliveryInfo }
+    }
+  }, [defaultDeliveryInfo])
+
+  useEffect(() => {
+    if (deliveryInfo) {
+      setFormData(deliveryInfo)
+      setIsEditing(!(deliveryInfo.isDefaultAddress ?? false))
+    }
+  }, [deliveryInfo])
 
   const handleInputChange = (field, value) => {
     // 연락처 자동 포맷팅
     if (field === 'phone') {
       const numbers = value.replace(/[^0-9]/g, '')
       let formattedPhone = numbers
-      
+
       if (numbers.length <= 3) {
         formattedPhone = numbers
       } else if (numbers.length <= 7) {
@@ -21,7 +41,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
       }
       value = formattedPhone
     }
-    
+
     const updatedData = { ...formData, [field]: value }
     setFormData(updatedData)
     onUpdate(updatedData)
@@ -29,13 +49,14 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
 
   const handleUseNewAddress = () => {
     setIsEditing(true)
-    const newData = { 
-      ...formData, 
+    const newData = {
+      ...formData,
       isDefaultAddress: false,
       recipientName: '',
       phone: '',
       address: '',
       detailAddress: '',
+      zipCode: '',
       message: ''
     }
     setFormData(newData)
@@ -45,8 +66,9 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
   const handleUseDefaultAddress = () => {
     setIsEditing(false)
     // 기본 배송지 정보로 복원
+    const snap = defaultSnapRef.current || {}
     const defaultData = {
-      ...formData,
+      ...snap,
       isDefaultAddress: true
     }
     setFormData(defaultData)
@@ -61,7 +83,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
     }
 
     new window.daum.Postcode({
-      oncomplete: function(data) {
+      oncomplete: function (data) {
         // 팝업에서 검색 결과 항목을 클릭했을때 실행할 코드
         let addr = '' // 주소 변수
         let extraAddr = '' // 참고항목 변수
@@ -73,17 +95,17 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
         }
 
         // 도로명 주소일 때 참고항목 조합
-        if(data.userSelectedType === 'R'){
+        if (data.userSelectedType === 'R') {
           // 법정동명이 있을 때 추가
-          if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+          if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
             extraAddr += data.bname
           }
           // 건물명이 있고, 공동주택일 때 추가
-          if(data.buildingName !== '' && data.apartment === 'Y'){
+          if (data.buildingName !== '' && data.apartment === 'Y') {
             extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName)
           }
           // 표시할 참고항목이 있을 때만 괄호 추가
-          if(extraAddr !== ''){
+          if (extraAddr !== '') {
             extraAddr = ' (' + extraAddr + ')'
           }
         }
@@ -120,7 +142,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
         <h2 className="text-lg font-semibold">배송지 정보</h2>
         <div className="flex space-x-2">
           {!isEditing && (
-            <button 
+            <button
               onClick={handleUseNewAddress}
               className="text-green-600 hover:text-green-700 text-sm font-medium"
             >
@@ -128,7 +150,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
             </button>
           )}
           {isEditing && formData.isDefaultAddress === false && (
-            <button 
+            <button
               onClick={handleUseDefaultAddress}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
@@ -153,18 +175,17 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
               disabled={!isEditing && formData.isDefaultAddress}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              연락처 <span className="text-red-500">*</span>
+              연락처 (선택)
             </label>
             <input
               type="tel"
               value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
+              onChange={(e) => handlePhoneChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="연락처를 입력하세요"
-              disabled={!isEditing && formData.isDefaultAddress}
+              placeholder="연락처를 입력하세요 (선택사항)"
             />
           </div>
         </div>
@@ -250,7 +271,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
             </p>
           </div>
         )}
-        
+
         {isEditing && (
           <div className="bg-yellow-50 p-3 rounded-lg">
             <p className="text-sm text-yellow-700">

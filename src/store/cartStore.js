@@ -32,6 +32,11 @@ const useCartStore = create(
             [cartKey]: [...currentCart, { ...product, quantity }]
           })
         }
+        
+        // localStorage 변경 알림
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
+        }, 0);
       },
       
       // 수량 업데이트
@@ -52,6 +57,11 @@ const useCartStore = create(
             )
           })
         }
+        
+        // localStorage 변경 알림
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
+        }, 0);
       },
       
       // 상품 삭제
@@ -62,6 +72,11 @@ const useCartStore = create(
         set({
           [cartKey]: currentCart.filter(cartProduct => cartProduct.id !== productId)
         })
+        
+        // localStorage 변경 알림
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
+        }, 0);
       },
       
       // 결제 완료된 상품들만 선택적 삭제
@@ -111,6 +126,11 @@ const useCartStore = create(
           deliveryCart: newDeliveryCart,
           pickupCart: newPickupCart
         })
+        
+        // localStorage 변경 알림
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
+        }, 0);
       },
       
       // 전체 삭제
@@ -122,6 +142,11 @@ const useCartStore = create(
         } else if (cartType === 'delivery') {
           set({ deliveryCart: [] })
         }
+        
+        // localStorage 변경 알림
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
+        }, 0);
       },
       
       // 총 가격 계산
@@ -143,6 +168,12 @@ const useCartStore = create(
         const cartKey = cartType === 'pickup' ? 'pickupCart' : 'deliveryCart'
         const cart = get()[cartKey]
         return cart.length
+      },
+      
+      // 총 상품 개수 (전체)
+      getTotalCount: () => {
+        const { deliveryCart, pickupCart } = get()
+        return deliveryCart.length + pickupCart.length
       }
     }),
     {
