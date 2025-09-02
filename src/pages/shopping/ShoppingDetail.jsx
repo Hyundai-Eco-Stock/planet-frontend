@@ -35,8 +35,14 @@ export default function ShoppingDetail() {
       .finally(() => setLoading(false));
   }, [productId]);
 
-  // 상품정보 탭에 노출할 상세 이미지들
-  const infoImages = useMemo(() => rows.map(r => r?.productImageUrl).filter(Boolean), [rows]);
+  // 상품정보 탭에 노출할 상세 이미지들: sortOrder >= 1만 노출
+  const infoImages = useMemo(
+    () => rows
+      .filter((r) => Number(r?.sortOrder) >= 1)
+      .map((r) => r?.productImageUrl)
+      .filter(Boolean),
+    [rows]
+  );
   const visibleInfoImages = useMemo(
     () => (showAllInfo ? infoImages : infoImages.slice(0, MAX_INITIAL_INFO_IMAGES)),
     [infoImages, showAllInfo]
@@ -49,6 +55,13 @@ export default function ShoppingDetail() {
   const name = main?.productName ?? "상품명";
   const brand = main?.brandName ?? "브랜드명";
   const price = main?.price;
+
+  // 상품 썸네일: sortOrder === 0의 productImageUrl 우선, 없으면 imageUrl 사용
+  const thumbnail = useMemo(() => {
+    const zeroOrder = rows.find((r) => Number(r?.sortOrder) === 0);
+    if (zeroOrder?.productImageUrl) return zeroOrder.productImageUrl;
+    return main?.imageUrl || '';
+  }, [rows, main]);
 
   // 수량 상태 및 핸들러
   const [qty, setQty] = useState(1);
@@ -69,7 +82,7 @@ export default function ShoppingDetail() {
       id: main.productId,
       name: main.productName,
       price: Number(main.price ?? 0),
-      imageUrl: main.imageUrl || main.productImageUrl || '',
+      imageUrl: thumbnail || '',
       isEcoDeal: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
       quantity: Number(qty || 1),
       salePercent: Number(main.salePercent ?? 0),
@@ -145,8 +158,8 @@ export default function ShoppingDetail() {
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
         <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
-          {main?.imageUrl ? (
-            <img src={main.imageUrl} alt={name} className="w-full h-full object-cover" />
+          {thumbnail ? (
+            <img src={thumbnail} alt={name} className="w-full h-full object-cover" />
           ) : (
             <span className="text-gray-300">이미지 없음</span>
           )}
