@@ -14,38 +14,6 @@ const MyCarInfo = () => {
     const [carNumberRight, setCarNumberRight] = useState(null);
     const [carInfoExist, setCarInfoExist] = useState(null);
 
-    // 내 차 정보 가져오기
-    const handleFetchCarInfo = async () => {
-        try {
-            const data = await fetchMyCarInfo();
-            console.log(data);
-            if (data) {
-                // data.carNumber 예: "12가3456"
-                const regex = /^(\d{2,3})([가-힣]{1})(\d{4})$/;
-                const match = data.carNumber.match(regex);
-
-                if (match) {
-                    setCarNumberLeft(match[1]);
-                    setCarNumberMiddle(match[2]);
-                    setCarNumberRight(match[3]);
-                }
-                setCarInfoExist(true);
-            } else {
-                setCarNumberLeft("");
-                setCarNumberMiddle("");
-                setCarNumberRight("");
-                setCarInfoExist(false);
-            }
-        } catch (err) {
-            console.error(err);
-            Swal.fire({
-                icon: "error",
-                title: "차량 정보 조회 실패",
-                text: "잠시 후 다시 시도해주세요.",
-            });
-        }
-    };
-
     // 내 차 정보 등록
     const handleRegisterCarInfo = async () => {
         if (!carNumberLeft || !carNumberMiddle || !carNumberRight) {
@@ -80,7 +48,7 @@ const MyCarInfo = () => {
 
     const handleDeleteCarInfo = async () => {
 
-        const deleteCarInfo = async() => {
+        const deleteCarInfo = async () => {
             try {
                 const response = await unregisterCarInfo();
                 Swal.fire({
@@ -116,11 +84,41 @@ const MyCarInfo = () => {
                 deleteCarInfo();
             }
         });
-
-
     }
 
     useState(() => {
+        // 내 차 정보 가져오기
+        const handleFetchCarInfo = async () => {
+            try {
+                const data = await fetchMyCarInfo();
+                console.log(data);
+                if (data) {
+                    // data.carNumber 예: "12가3456"
+                    const regex = /^(\d{2,3})([가-힣]{1})(\d{4})$/;
+                    const match = data.carNumber.match(regex);
+
+                    if (match) {
+                        setCarNumberLeft(match[1]);
+                        setCarNumberMiddle(match[2]);
+                        setCarNumberRight(match[3]);
+                    }
+                    setCarInfoExist(true);
+                } else {
+                    setCarNumberLeft("");
+                    setCarNumberMiddle("");
+                    setCarNumberRight("");
+                    setCarInfoExist(false);
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: "error",
+                    title: "차량 정보 조회 실패",
+                    text: "잠시 후 다시 시도해주세요.",
+                });
+            }
+        };
+
         handleFetchCarInfo();
     }, [])
 
