@@ -157,15 +157,20 @@ export default function MyBuyHistory() {
   return (
     <main className="p-4 max-w-screen-md mx-auto space-y-4">
       {groups.map((order) => {
-        const isPaymentDone = order.paymentStatus === "DONE";
-        const isPaid = order.orderStatus === "PAID";
-        const isAllCancelled = order.orderStatus === "ALL_CANCELLED";
-        const isPartialCancelled = order.orderStatus === "PARTIAL_CANCELLED";
-        // Special label logic: (3) ALL_CANCELLED overrides others; otherwise, when payment is DONE show "구매확정"
-        const showAllCancelledLabel = isAllCancelled;
-        const showConfirmLabel = !isAllCancelled && isPaymentDone;
-        // Action buttons logic per spec
-        const showActionButtons = isPaymentDone && !isPaid && !isAllCancelled;
+        const isPaymentDone = String(order.paymentStatus).toUpperCase() === "DONE";
+        const isOrderDone = String(order.orderStatus).toUpperCase() === "DONE";
+        const isAllCancelled = String(order.orderStatus).toUpperCase() === "ALL_CANCELLED";
+        const isPartialCancelled = String(order.orderStatus).toUpperCase() === "PARTIAL_CANCELLED";
+        const isConfirmed = isOrderDone && isPaymentDone; // 둘 다 DONE일 때만 구매확정
+        // Actions: 결제 DONE이면서 주문이 아직 DONE이 아닐 때만 표시 (전체취소 제외)
+        const showActionButtons = isPaymentDone && !isOrderDone && !isAllCancelled;
+        // Header status chip 표시용 상태 계산
+        const headerStatus = (() => {
+          if (isAllCancelled) return "ALL_CANCELLED";
+          if (isPartialCancelled) return "PARTIAL_CANCELLED";
+          if (isConfirmed) return "PAID"; // StatusChip에서 "구매확정" 라벨로 표시됨
+          return "PENDING";
+        })();
 
         return (
           <section
@@ -183,7 +188,7 @@ export default function MyBuyHistory() {
                   <div className="text-[11px] text-gray-500">{formatDate(order.createdAt)}</div>
                 </div>
                 <div className="hidden sm:flex items-center gap-1 ml-2">
-                  <StatusChip status={order.orderStatus} />
+                  <StatusChip status={headerStatus} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -196,7 +201,7 @@ export default function MyBuyHistory() {
 
             {/* chips (mobile) */}
             <div className="px-4 pb-3 sm:hidden flex items-center gap-1">
-              <StatusChip status={order.orderStatus} />
+              <StatusChip status={headerStatus} />
             </div>
 
             {/* items */}
@@ -214,7 +219,7 @@ export default function MyBuyHistory() {
                           : `/shopping/detail?productId=${it.productId}`
                       )
                     }
-                    className={`relative cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3 ${isAllCancelled ? "opacity-60" : ""} ${isPartialCancelled && it.cancelStatus === "Y" ? "opacity-60" : ""} ${isPaid ? "ring-2 ring-emerald-300 shadow-lg bg-gradient-to-r from-emerald-50/70 to-white" : ""}`}
+                    className={`relative cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3 ${isAllCancelled ? "opacity-60" : ""} ${isPartialCancelled && it.cancelStatus === "Y" ? "opacity-60" : ""} ${isConfirmed ? "ring-2 ring-emerald-300 shadow-lg bg-gradient-to-r from-emerald-50/70 to-white" : ""}`}
                   >
                     {showActionButtons && !(isPartialCancelled && it.cancelStatus === "Y") && (
                       <input
@@ -241,7 +246,7 @@ export default function MyBuyHistory() {
                         </div>
                       )}
                     </div>
-                    {isPaid && (
+                    {isConfirmed && (
                       <div className="absolute right-2 top-2">
                         <Chip className="bg-emerald-600 text-white border-emerald-600">구매확정</Chip>
                       </div>
