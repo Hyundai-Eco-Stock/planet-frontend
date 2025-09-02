@@ -91,6 +91,7 @@ import RaffleListPage from './pages/raffle/RaffleListPage'
 
 // PHTI
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
+import OrderProductDashboard from './pages/admin/OrderProductDashboard'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -171,6 +172,7 @@ function App() {
 				<Route path="/admin/test" element={<Test />} />
 				{/* <Route path="/admin/dashboard/main" element={<MainDashboard />} /> */}
 				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
+				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 			</Route>
 
