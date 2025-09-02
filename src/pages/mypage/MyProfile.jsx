@@ -8,8 +8,14 @@ import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInpu
 
 import useAuthStore from "@/store/authStore";
 import DaumPostcode from "@/components/address/DaumPostcode";
+import { useNavigate } from "react-router-dom";
 
 const MyProfile = () => {
+    const navigate = useNavigate();
+
+    const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기
+    const [profileImageFile, setProfileImageFile] = useState(null); // 서버 전송용 파일
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sex, setSex] = useState(""); // 'M' or 'F'
@@ -21,8 +27,9 @@ const MyProfile = () => {
 
     const [address, setAddress] = useState("");
     const [detailAddress, setDetailAddress] = useState("");
-    const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기
-    const [profileImageFile, setProfileImageFile] = useState(null); // 서버 전송용 파일
+
+    // const [newPassword, setNewPassword] = useState("");
+    // const [newPasswordAgain, setNewPasswordAgain] = useState("");
 
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // ✅ 버튼 활성화 상태
 
@@ -56,30 +63,57 @@ const MyProfile = () => {
         }
     };
 
-    // 제출 핸들러
-    const handleSubmit = async () => {
-        const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
+    const handleSubmitWithPassword = async () => {
 
-        try {
-            await updateProfile({
-                email,
-                name,
-                profileImageFile,
-                sex,
-                birth,
-                address,
-                detailAddress,
-            });
-            Swal.fire({ icon: "success", title: "프로필이 수정되었습니다.", timer: 1500 });
-            useAuthStore.getState().setProfile(profileImageUrl);
-        } catch (err) {
-            console.log(err);
-            Swal.fire({
-                icon: "error",
-                title: "수정 실패",
-                text: err.response?.data.message || "알 수 없는 오류",
-                confirmButtonText: "확인",
-            });
+        const _handleSubmit = async (oldPassword) => {
+            const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
+
+            try {
+                await updateProfile({
+                    email,
+                    name,
+                    profileImageFile,
+                    sex,
+                    birth,
+                    address,
+                    detailAddress,
+                    oldPassword,
+                });
+                Swal.fire({
+                    icon: "success",
+                    title: "프로필이 수정되었습니다.",
+                    timer: 1500
+                }).then(() => {
+                    navigate("/my-page/main");
+                    useAuthStore.getState().setProfile(profileImageUrl);
+                })
+            } catch (err) {
+                console.log(err);
+                Swal.fire({
+                    icon: "error",
+                    title: "수정 실패",
+                    text: err.response?.data.message || "알 수 없는 오류",
+                    confirmButtonText: "확인",
+                });
+            }
+        };
+
+        const { value: oldPassword } = await Swal.fire({
+            title: "비밀번호 확인",
+            input: "password",
+            inputPlaceholder: "현재 비밀번호를 입력하세요",
+            inputAttributes: {
+                autocapitalize: "off",
+                autocorrect: "off",
+            },
+            showCancelButton: true,
+            confirmButtonText: "확인",
+            cancelButtonText: "취소",
+            confirmButtonColor: "#10B981",
+        });
+
+        if (oldPassword) {
+            await _handleSubmit(oldPassword);
         }
     };
 
@@ -87,6 +121,7 @@ const MyProfile = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchMemberProfile();
+            console.log(data);
             setName(data.name);
             setEmail(data.email);
             setSex(data.sex);
@@ -104,9 +139,9 @@ const MyProfile = () => {
     }, []);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pb-24">
             {/* 프로필 이미지 */}
-            <section className="flex flex-col">
+            <section className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-gray-900">프로필</span>
                 <CustomProfileImageInput
                     value={profileImageFile}
@@ -115,39 +150,39 @@ const MyProfile = () => {
                 />
             </section>
 
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이름</span>
                 <CustomCommonInput
                     value={name}
-                    placeholder="이름을 입력하세요."
+                    placeholder="이름을 입력해주세요."
                     onChange={(e) => setName(e.target.value)}
                     readOnly={true}
                 />
             </label>
 
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이메일</span>
                 <CustomCommonInput
                     value={email}
-                    placeholder="이메일을 입력하세요."
+                    placeholder="이메일을 입력해주세요."
                     readOnly={true}
                 />
             </label>
 
             {/* 성별 */}
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">성별</span>
                 <div className="flex gap-3">
                     <button
                         type="button"
-                        className={`px-4 py-4 flex-1 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                        className={`px-4 py-4 flex-1 rounded-xl border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
                         onClick={() => setSex("M")}
                     >
                         남자
                     </button>
                     <button
                         type="button"
-                        className={`px-4 py-4 flex-1 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                        className={`px-4 py-4 flex-1 rounded-xl border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
                         onClick={() => setSex("F")}
                     >
                         여자
@@ -156,7 +191,7 @@ const MyProfile = () => {
             </label>
 
             {/* 생년월일 */}
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">생년월일</span>
                 <div className="flex gap-2">
                     <CustomCommonInput
@@ -194,7 +229,7 @@ const MyProfile = () => {
             </label>
 
             {/* 주소 */}
-            <section className="flex flex-col">
+            <section className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
 
                 <div className="flex flex-col gap-2">
@@ -224,15 +259,31 @@ const MyProfile = () => {
                     <CustomCommonInput
                         type="text"
                         value={detailAddress}
-                        placeholder="상세 주소 입력"
+                        placeholder="상세 주소를 입력해주세요."
                         onChange={(e) => setDetailAddress(e.target.value)}
                     />
                 </div>
             </section>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
+            {/* <label className="flex flex-col gap-2">
+                <span className="text-sm font-semibold">[선택] 새로운 비밀번호</span>
+                <CustomCommonInput
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => { setNewPassword(e.target.value) }}
+                    placeholder="새로운 비밀번호를 입력해주세요."
+                />
+                <CustomCommonInput
+                    type="password"
+                    value={newPasswordAgain}
+                    onChange={(e) => { setNewPasswordAgain(e.target.value) }}
+                    placeholder="비밀번호를 다시 한번 입력해주세요."
+                />
+            </label> */}
+
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-24 px-4">
                 <CustomCommonButton
-                    onClick={handleSubmit}
+                    onClick={handleSubmitWithPassword}
                     disabled={isSubmitDisabled}
                     className="btn-primary w-full"
                 >

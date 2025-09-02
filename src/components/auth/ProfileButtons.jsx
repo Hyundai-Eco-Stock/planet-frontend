@@ -23,7 +23,7 @@ const ProfileButton = () => {
                     src={profile}
                     alt={name ?? email ?? "profile"}
                     referrerPolicy="no-referrer"
-                    style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+                    className="w-[80px] h-[80px] rounded-full object-cover"
                 />
             ) : (
                 <FontAwesomeIcon

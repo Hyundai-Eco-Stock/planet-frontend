@@ -167,7 +167,7 @@ export default function ShoppingDetail() {
   if (!main) return <div className="p-4">데이터가 없습니다.</div>;
 
   return (
-    <main className="p-4 max-w-screen-md mx-auto">
+    <main className="max-w-screen-md mx-auto">
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -318,11 +318,9 @@ export default function ShoppingDetail() {
 
       {/* 하단 고정 버튼 바 */}
       <div
-        className="fixed left-0 right-0 z-50"
-        style={{ bottom: 'calc(var(--app-footer-height, 80px) + env(safe-area-inset-bottom))' }}
+        className="fixed bottom-0 left-0 right-0 z-50 pb-[5.3rem] pt-2 bg-white"
+        // style={{ bottom: 'calc(var(--app-footer-height, 80px) + env(safe-area-inset-bottom))' }}
       >
-        <div className="mx-auto max-w-screen-md px-4 pb-4">
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="grid grid-cols-2 gap-2 p-3">
               <button
                 type="button"
@@ -339,8 +337,10 @@ export default function ShoppingDetail() {
                 구매하기
               </button>
             </div>
+        {/* <div className="mx-auto max-w-screen-md px-4 pb-4">
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           </div>
-        </div>
+        </div> */}
       </div>
 
       { /* Toast 알ㄹ미 */ }
