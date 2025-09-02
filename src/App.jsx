@@ -93,6 +93,7 @@ import RaffleListPage from './pages/raffle/RaffleListPage'
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
 import OrderProductDashboard from './pages/admin/OrderProductDashboard'
 import PhtiDashboard from './pages/admin/PhtiDashboard'
+import DonationDashboard from './pages/admin/DonationDashboard'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -175,6 +176,7 @@ function App() {
 				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
 				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
 				<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
+				<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 			</Route>
 
