@@ -41,8 +41,8 @@ const Home = () => {
     })();
   }, []);
 
-  // 래플 리스트
-  const [raffles, setRaffles] = useState([]);
+  const [raffles, setRaffles] = useState([]); // 래플 리스트
+  const [fabOpen, setFabOpen] = useState(false); // 오른쪽 하단 플로팅 버튼
   useEffect(() => {
     (async () => {
       try {
@@ -163,6 +163,49 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Scrim for FAB open */}
+      <div
+        onClick={() => setFabOpen(false)}
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${
+          fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* Floating Actions: 푸드딜 / 래플 */}
+      <div className="fixed right-4 bottom-28 z-50">
+        <div className="flex flex-col items-end gap-2">
+          <div
+            className={`flex flex-col items-end gap-2 transition-all duration-200 ${
+              fabOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+            }`}
+          >
+            <div className="rounded-2xl bg-white border border-gray-200 shadow-xl overflow-hidden">
+              <Link
+                to="/eco-deal/main"
+                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+              >
+                푸드딜
+              </Link>
+              <Link
+                to="/raffle"
+                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+              >
+                래플
+              </Link>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label={fabOpen ? "메뉴 닫기" : "메뉴 열기"}
+            aria-expanded={fabOpen}
+            onClick={() => setFabOpen((v) => !v)}
+            className="w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
+          >
+            {fabOpen ? "×" : "+"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
