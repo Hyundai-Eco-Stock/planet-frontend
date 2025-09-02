@@ -146,34 +146,6 @@ const PaymentSuccessPage = () => {
     return () => { active = false; };
   }, [paymentKey, orderId, amount, navigate, orderDraft, removeOrderedProducts, clearOrderDraft, resetPayment]);
 
-  const downloadQRCode = async (rawUrl) => {
-    try {
-      const url = rawUrl?.startsWith('http') ? rawUrl : `https://${rawUrl}`;
-
-      const res = await fetch(url, { cache: 'no-cache', credentials: 'omit' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      const obj = URL.createObjectURL(blob);
-
-      const orderNumber = orderResult?.data?.orderNumber || 'ORDER';
-      const date = new Date().toISOString().slice(0, 10);
-      a.href = obj;
-      a.download = `${orderNumber}_pickup_qr_${date}.png`;
-
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(obj);
-    } catch (e) {
-      console.warn('fetch 실패, 새 탭으로 열기 폴백:', e);
-      const url = rawUrl?.startsWith('http') ? rawUrl : `https://${rawUrl}`;
-      window.open(url, '_blank'); // 폴백: 새 탭에서 저장하도록
-    }
-  };
-
-
   if (isProcessing) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -232,7 +204,9 @@ const PaymentSuccessPage = () => {
           {/* 픽업 주문 QR 코드 */}
           {orderResult?.qrCodeData && (
             <div className="bg-blue-50 rounded-lg p-6 mb-8">
-              <h3 className="font-semibold text-blue-900 mb-4 text-center">📱 픽업용 QR코드</h3>
+              <h3 className="font-semibold text-blue-900 mb-4 text-center">픽업 안내</h3>
+              
+              {/* QR 코드 */}
               <div className="flex flex-col items-center">
                 <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
                   <img
@@ -251,18 +225,12 @@ const PaymentSuccessPage = () => {
                 </div>
                 <div className="text-center space-y-2">
                   <p className="text-sm text-blue-700 font-medium">
-                    🏪 매장 방문 시 이 QR코드를 제시해 주세요
+                    매장 방문 시 이 QR코드를 제시해 주세요
                   </p>
                   <p className="text-xs text-blue-600">
-                    화면 캡처하거나 아래 버튼으로 저장하세요
+                    화면을 캡처하여 저장하세요
                   </p>
                 </div>
-                <button
-                  onClick={() => downloadQRCode(orderResult.qrCodeData)}
-                  className="mt-4 px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  📥 QR코드 이미지 저장
-                </button>
               </div>
             </div>
           )}
