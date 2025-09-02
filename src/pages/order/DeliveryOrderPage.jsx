@@ -98,10 +98,13 @@ const DeliveryOrderPage = () => {
       }
 
       await createOrderDraft(cartData, 'DELIVERY')
+
+      updatePointUsage(0)
+      updateDonationAmount(0)
     }
 
     initializeOrder()
-  }, [location.state, deliveryCart, navigate, createOrderDraft])
+  }, [location.state, deliveryCart, navigate, createOrderDraft, updatePointUsage, updateDonationAmount])
 
   // 결제위젯 렌더링
   useEffect(() => {
