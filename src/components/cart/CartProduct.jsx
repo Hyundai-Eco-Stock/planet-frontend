@@ -98,6 +98,33 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
           </button>
         </div>
         
+        {/* 픽업 매장 정보 표시 */}
+        {cartType === 'pickup' && product.selectedStore && (
+          <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center gap-1 mb-1">
+              <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <span className="text-xs font-medium text-blue-700">픽업: 현대백화점 {product.selectedStore.name}</span>
+            </div>
+          </div>
+        )}
+
+        {/* 픽업 상품인데 매장 정보가 없는 경우 경고 표시 */}
+        {cartType === 'pickup' && !product.selectedStore && (
+          <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center gap-1">
+              <svg className="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span className="text-xs font-medium text-red-700">매장 선택 필요</span>
+            </div>
+            <div className="text-xs text-red-600 mt-0.5">
+              상품 상세에서 픽업 매장을 선택해주세요.
+            </div>
+          </div>
+        )}
+        
         {/* 에코딜 배지 및 가격 정보 */}
         <div className="mb-3">
           {product.isEcoDeal ? (
