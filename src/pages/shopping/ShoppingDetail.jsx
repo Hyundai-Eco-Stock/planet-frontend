@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { fetchProductDetail, searchRecommendProducts } from "../../api/product/product.api";
+import Toast from "@/components/common/Toast";
 
 const MAX_INITIAL_INFO_IMAGES = 1; // 초기 노출할 상품정보 이미지 개수 (상품 더보기 버튼)
 
@@ -16,6 +17,8 @@ export default function ShoppingDetail() {
   const [activeTab, setActiveTab] = useState("info"); // 상품정보, 리뷰 탭
   const [showAllInfo, setShowAllInfo] = useState(false); // 상품정보 이미지 전체 보기 여부
   const [recommends, setRecommends] = useState([]); // 유사상품추천 목록
+
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (!productId) {
@@ -71,8 +74,30 @@ export default function ShoppingDetail() {
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
-    if (!productId) return;
-    navigate(`/cart/main?productId=${productId}&qty=${qty}`);
+    if (!main) return;
+
+    // 상품 정보를 주문서 형식으로 변환
+    const orderProduct = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      quantity: Number(qty || 1),
+      imageUrl: main.imageUrl || main.productImageUrl,
+      isEcoDeal: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
+      ecoDealStatus: Boolean(main.isEcoDeal === true || main.ecoDealStatus === 'Y'),
+      salePercent: Number(main.salePercent ?? 0),
+    }
+
+    // 에코딜 상품인지 확인하여 배송 타입 결정
+    const deliveryType = orderProduct.isEcoDeal ? 'PICKUP' : 'DELIVERY';
+
+    navigate('/orders', { 
+      state: { 
+        products: [orderProduct], 
+        deliveryType: deliveryType,
+        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+      } 
+    });
   };
 
   // 장바구니 담기 (localstorage 사용)
@@ -117,7 +142,7 @@ export default function ShoppingDetail() {
 
     try {
       localStorage.setItem('cart-storage', JSON.stringify(store));
-      alert('장바구니에 담았습니다.');
+      setShowToast(true);
     } catch (e) {
       console.error('cart-storage 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
@@ -147,14 +172,6 @@ export default function ShoppingDetail() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="flex items-center mb-3">
-        <button
-          onClick={() => navigate(-1)}
-          className="mr-2 text-gray-600 hover:text-black"
-          aria-label="뒤로가기"
-        >←</button>
-      </div>
-
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
         <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -325,6 +342,14 @@ export default function ShoppingDetail() {
           </div>
         </div>
       </div>
+
+      { /* Toast 알ㄹ미 */ }
+      <Toast
+        message="나의 장바구니에 담았어요"
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={2000}  
+      />
     </main>
   );
 }

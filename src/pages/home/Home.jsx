@@ -13,6 +13,7 @@ const DUMMY_BANNERS = [
 
 const currency = (n) => (n == null ? "" : Number(n).toLocaleString());
 
+
 const Home = () => {
   // 캐러셀
   const [slide, setSlide] = useState(0);
@@ -66,6 +67,9 @@ const Home = () => {
 
   return (
     <div className="pb-20">
+    
+      <Link to="/phti/survey">PHTI 설문</Link>
+    
       {/* 상단 배너 캐러셀 */}
       <section className="px-3 pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
@@ -171,6 +175,7 @@ const Home = () => {
           fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       />
+
 
       {/* Floating Actions: 푸드딜 / 래플 */}
       <div className="fixed right-4 bottom-28 z-50">

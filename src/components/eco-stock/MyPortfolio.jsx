@@ -1,13 +1,35 @@
 import React from 'react';
 import { usePersonalStockInfo, useStockCalculations, useStockSell, formatCurrency, formatPercent } from '@/hooks/eco-stock/usePortfolio';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
+    const navigate = useNavigate();
     // 커스텀 훅들
     const { memberStockInfo, isLoading: dataLoading, refetch } = usePersonalStockInfo(stockInfo?.id);
     const stock = useStockCalculations(currentData, memberStockInfo, dataLoading);
     const { isSelling, handleSell } = useStockSell(stockInfo, stock, onSell, refetch);
 
     const isProfit = stock.profitLoss >= 0;
+
+    // ESG 활동 인증 팝업 및 라우팅
+    const handleEsgCertificate = () => {
+        Swal.fire({
+            title: 'ESG 활동 인증',
+            text: 'ESG 활동 인증하러 가시겠습니까?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '네, 인증하러 가요!',
+            cancelButtonText: '취소',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/eco-stock/certificate');
+            }
+        });
+    };
 
     // 로딩 상태
     if (!currentData || dataLoading) {
@@ -29,14 +51,18 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
                         <div className="text-6xl mb-4">📊</div>
                         <h3 className="text-xl font-semibold text-gray-700 mb-2">보유 중인 에코스톡이 없습니다</h3>
                         <p className="text-gray-500 mb-6">ESG 실천을 통해 에코 스톡을 받아보세요!</p>
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                            주식 구매하러 가기
+                        <button
+                            onClick={handleEsgCertificate}
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                        >
+                            ESG 활동 인증하러 가기
                         </button>
                     </div>
                 </div>
             </div>
         );
     }
+
 
     return (
         <div className="bg-white border-t border-gray-200 p-4 mb-10">

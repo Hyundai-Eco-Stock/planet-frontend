@@ -60,3 +60,10 @@ export const fetchMyRaffles = async () => {
 	console.log("내 래플 응모내역 조회:", response.data);
 	return response.data;
 };
+
+// 마이페이지 - 내 에코스톡
+export const fetchMyEcostocks = async () => {
+	const response = await apiClient.get("portfolio/summaries");
+	console.log("내 에코스톡 조회:", response.data);
+	return response.data;
+};

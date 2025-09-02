@@ -13,6 +13,7 @@ import LayoutLogoAndClose from '@/components/_layout/LayoutLogoAndClose' // 헤�
 import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터만
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
 import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
+import LayoutShoppingWithBack from '@/components/_layout/LayoutShoppingWithBack'
 
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
@@ -86,6 +87,10 @@ import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
 //래플 
 import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
 import RaffleListPage from './pages/raffle/RaffleListPage'
+
+// PHTI
+import PhtiSurvey from './pages/phti/PhtiSurvey'
+
 // -------------------------- 라우팅 끝 --------------------------
 
 function App() {
@@ -106,10 +111,8 @@ function App() {
 			<Route element={<LayoutShopping />}>
 				<Route path="/home/main" element={<HomeMain />} />
 				<Route path="/shopping/main" element={<ShoppingMain />} />
-				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 				<Route path='/eco-deal/main' element={<EcoDealMain />} />
-				<Route path='/eco-deal/detail/' element={<EcoDealDetail />} />
 			</Route>
 
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
@@ -129,6 +132,16 @@ function App() {
 				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
+				<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
+				<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
+				<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
+			</Route>
+
+			{/* 뒤로 가기 + 장바구니 레이아웃 */}
+			<Route element={<LayoutShoppingWithBack/>}>
+				<Route path="/shopping/detail" element={<ShoppingDetail />} />
+				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
+				<Route path="/phti/survey" element={<PhtiSurvey />} />
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
