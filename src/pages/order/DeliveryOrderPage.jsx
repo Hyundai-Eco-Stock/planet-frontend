@@ -337,6 +337,7 @@ const DeliveryOrderPage = () => {
 
         {/* 배송지 정보 */}
         <DeliveryAddressForm
+          key={orderDraft.orderId}
           deliveryInfo={orderDraft.deliveryInfo}
           defaultDeliveryInfo={orderDraft.deliveryInfo}
           onUpdate={updateDeliveryInfo}

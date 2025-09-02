@@ -1,15 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react'
 
 const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) => {
-  const [formData, setFormData] = useState(deliveryInfo)
-  const [isEditing, setIsEditing] = useState(!deliveryInfo.isDefaultAddress)
-
+  const EMPTY = {
+    recipientName: '', phone: '', address: '',
+    detailAddress: '', zipCode: '', message: '',
+    isDefaultAddress: false,
+  }
+  const initial = deliveryInfo ?? defaultDeliveryInfo ?? EMPTY
+  const [formData, setFormData] = useState(initial)
+  const [isEditing, setIsEditing] = useState(!initial.isDefaultAddress)
   const defaultSnapRef = useRef(null)
+
   useEffect(() => {
     if (!defaultSnapRef.current && defaultDeliveryInfo) {
       defaultSnapRef.current = { ...defaultDeliveryInfo }
     }
   }, [defaultDeliveryInfo]) 
+
+  useEffect(() => {
+    if (deliveryInfo) {
+      setFormData(deliveryInfo)
+      setIsEditing(!(deliveryInfo.isDefaultAddress ?? false))
+    }
+  }, [deliveryInfo])
 
   const handleInputChange = (field, value) => {
     // 연락처 자동 포맷팅
