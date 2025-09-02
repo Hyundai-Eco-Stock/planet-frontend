@@ -29,13 +29,12 @@ const Login = () => {
             navigate("/");
         } catch (error) {
             console.error("Login failed:", error);
-            // You can add user-facing error handling here, like a toast or a message.
         }
     };
 
     return (
-        <div className="max-w-[640px] px-8 flex justify-center">
-            <main className="w-full h-fit-content">
+        <div className="max-w-[640px] flex justify-center">
+            <main className="w-full">
                 {/* 제목 */}
                 <div className="flex flex-col gap-3 justify-center items-center text-center pt-20 pb-10">
                     <img src={Planet} className="w-24"/>
