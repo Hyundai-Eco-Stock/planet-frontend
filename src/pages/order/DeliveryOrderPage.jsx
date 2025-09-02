@@ -62,20 +62,20 @@ const DeliveryOrderPage = () => {
       const convertedProducts = selectedProducts.map(product => ({
         ...product,
         ecoDealStatus: product.isEcoDeal || false,
-        salePercent: product.salePercent || 0 
+        salePercent: product.salePercent || 0
       }))
 
       // 원가 총액
       const originalTotal = convertedProducts.reduce((total, product) => {
         return total + (product.price * product.quantity)
       }, 0)
-      
+
       // 할인 적용 총액 
       const productTotal = convertedProducts.reduce((total, product) => {
         const discountedPrice = product.price * (1 - product.salePercent / 100)
         return total + (discountedPrice * product.quantity)
       }, 0)
-      
+
       // 총 할인 금액
       const discountAmount = originalTotal - productTotal
 
@@ -156,14 +156,22 @@ const DeliveryOrderPage = () => {
     }
   }
 
+  const handleUserInfoUpdate = (updatedUserInfo) => {
+    const updatedOrderDraft = {
+      ...orderDraft,
+      orderUser: updatedUserInfo
+    }
+    updatedOrderDraft(updatedOrderDraft)
+  }
+
   // 기부금 계산
   const calculateRecommendedDonation = () => {
     if (!orderDraft) return 0
-    
+
     // 기부금 제외한 실제 결제 금액
     const baseAmount = orderDraft.payment.productTotal - orderDraft.payment.pointUsage
     const remainder = baseAmount % 1000
-    
+
     return remainder === 0 ? 0 : (1000 - remainder)
   }
 
@@ -258,7 +266,7 @@ const DeliveryOrderPage = () => {
       } else {
         try {
           methodsRef.current.updateAmount(amount, 'KRW')
-        } catch {}
+        } catch { }
       }
 
       const digitsOnlyPhone = String(orderDraft?.orderUser?.phone || '')
@@ -287,9 +295,6 @@ const DeliveryOrderPage = () => {
   const validateOrder = () => {
     if (!orderDraft.deliveryInfo.recipientName.trim()) {
       return { isValid: false, message: '받는 분 이름을 입력해주세요.' }
-    }
-    if (!orderDraft.deliveryInfo.phone.trim()) {
-      return { isValid: false, message: '받는 분 연락처를 입력해주세요.' }
     }
     if (!orderDraft.deliveryInfo.address.trim()) {
       return { isValid: false, message: '배송 주소를 입력해주세요.' }
@@ -336,7 +341,10 @@ const DeliveryOrderPage = () => {
         <OrderProductList products={orderDraft.products} />
 
         {/* 주문자 정보 */}
-        <OrderUserInfo userInfo={orderDraft.orderUser} />
+        <OrderUserInfo
+          userInfo={orderDraft.orderUser}
+          onUpdate={handleUserInfoUpdate}
+        />
 
         {/* 배송지 정보 */}
         <DeliveryAddressForm
