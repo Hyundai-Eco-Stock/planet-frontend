@@ -11,12 +11,12 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
   }, [active]);
 
   return (
-    <section className="sticky top-0 z-20 bg-white pt-2 pb-1 px-3">
+    <section className="sticky top-0 z-20 bg-white pt-2 pb-1">
       <div className="relative">
         {/* 스크롤 영역 (스크롤바 숨김) */}
         <div
           ref={scrollerRef}
-          className="overflow-x-auto pr-32 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="overflow-x-auto pr-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div className="inline-flex gap-3 pb-2">
             {categories.map((c) => (
@@ -53,20 +53,8 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
           </div>
         </div>
 
-        {/* 오른쪽 그라데이션(좁게) */}
-        <div className="pointer-events-none absolute top-0 right-16 bottom-0 w-6 bg-gradient-to-l from-white to-transparent" />
-
-        {/* 우측 고정 더보기 */}
-        <button
-          onClick={onToggle}
-          aria-expanded={expanded}
-          aria-label={expanded ? "접기" : "더보기"}
-          className="absolute right-0 inset-y-0 z-30 w-16 flex items-center justify-center bg-white"
-        >
-          <span className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-base">
-            {expanded ? "⌃" : "⌄"}
-          </span>
-        </button>
+        {/* 오른쪽 그라데이션 */}
+        <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent" />
       </div>
     </section>
   );

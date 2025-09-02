@@ -11,15 +11,16 @@ const RaffleDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const personalStockInfoList = location.state?.personalStockInfoList || [];
-
+  const [personalStockInfoList, setPersonalStockInfoList] = useState(
+    location.state?.personalStockInfoList || []
+  );
   const [raffle, setRaffle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [participateLoading, setParticipateLoading] = useState(false);
-  // showModal 상태 제거 (SweetAlert2 사용으로 불필요)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  
   // 에코스톡 보유량 확인 함수
   const getUserStock = (ecoStockName) => {
     return personalStockInfoList.find(stock => stock.ecoStockName === ecoStockName);
@@ -29,6 +30,17 @@ const RaffleDetailPage = () => {
   const userStock = raffle ? getUserStock(raffle.ecoStockName) : null;
   const hasEnoughStock = userStock && userStock.currentTotalQuantity >= raffle?.ecoStockAmount;
   const currentQuantity = userStock ? userStock.currentTotalQuantity : 0;
+
+  // 에코스톡 수량 업데이트 함수
+  const updatePersonalStockInfo = (ecoStockId, remainingQuantity) => {
+    setPersonalStockInfoList(prevList =>
+      prevList.map(stock =>
+        stock.ecoStockId === ecoStockId
+          ? { ...stock, currentTotalQuantity: remainingQuantity }
+          : stock
+      )
+    );
+  };
 
   // SweetAlert2 팝업들
   const showRaffleEntryPopup = async () => {
@@ -169,7 +181,14 @@ const RaffleDetailPage = () => {
       const result = await raffleParticipate(raffleId);
       console.log('raffleParticipate 성공, 결과:', result);
 
-      await showSuccessPopup();
+      // 성공 시 에코스톡 수량 업데이트
+      if (result && result.result === 1 && result.remainingQuantity !== undefined && result.ecoStockId) {
+        updatePersonalStockInfo(result.ecoStockId, result.remainingQuantity);
+        await showSuccessPopup(result.remainingQuantity);
+      } else {
+        await showSuccessPopup(currentQuantity - raffle.ecoStockAmount); // fallback
+      }
+      
       console.log('성공 팝업 완료');
 
     } catch (error) {
@@ -214,7 +233,7 @@ const RaffleDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-gray-50 mt-6 relative">
       {participateLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
           <div className="bg-white rounded-lg p-6 shadow-lg">

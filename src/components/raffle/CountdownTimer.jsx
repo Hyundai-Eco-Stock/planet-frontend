@@ -2,7 +2,15 @@ import React from 'react';
 import useCountdown from '@/hooks/raffle/useCountdown';
 
 const CountdownTimer = ({ endDate, large = false }) => {
-  const timeLeft = useCountdown(endDate);
+  // endDate를 해당 날짜의 23:59:59로 설정
+  const getEndOfDay = (dateString) => {
+    const date = new Date(dateString);
+    date.setHours(23, 59, 59, 999); // 23:59:59.999로 설정
+    return date;
+  };
+
+  const adjustedEndDate = getEndOfDay(endDate);
+  const timeLeft = useCountdown(adjustedEndDate);
 
   if (Object.keys(timeLeft).length === 0) {
     return (

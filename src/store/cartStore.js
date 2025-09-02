@@ -142,7 +142,7 @@ const useCartStore = create(
       getTotalProducts: (cartType = 'delivery') => {
         const cartKey = cartType === 'pickup' ? 'pickupCart' : 'deliveryCart'
         const cart = get()[cartKey]
-        return cart.reduce((total, product) => total + product.quantity, 0)
+        return cart.length
       }
     }),
     {

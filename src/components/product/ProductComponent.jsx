@@ -15,7 +15,7 @@ export function ProductComponent({ items = [], loading = false, error = null }) 
   const navigate = useNavigate();
   return (
     // 중앙 컨텐츠
-    <main className="p-4 flex justify-center">
+    <main className="pt-4 flex justify-center">
       <div className="w-full max-w-screen-md">
         {/* 상태 표시 */}
         {loading && (
