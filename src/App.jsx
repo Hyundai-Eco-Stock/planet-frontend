@@ -14,6 +14,7 @@ import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터�
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
 import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
 import LayoutShoppingWithBack from '@/components/_layout/LayoutShoppingWithBack'
+import AdminLayout from '@/components/_layout/AdminLayout' // 관리자
 
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
@@ -66,10 +67,6 @@ import PickupOrderPage from '@/pages/order/PickupOrderPage'
 import PaymentSuccessPage from '@/pages/payment/PaymentSuccessPage'
 import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 
-// 관리자
-import Test from '@/pages/admin/Test'
-import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
-
 const OrderRedirect = () => {
 	const location = useLocation()
 	const deliveryType = location.state?.deliveryType || 'DELIVERY'
@@ -91,9 +88,13 @@ import RaffleListPage from './pages/raffle/RaffleListPage'
 
 // PHTI
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
-import OrderProductDashboard from './pages/admin/OrderProductDashboard'
-import PhtiDashboard from './pages/admin/PhtiDashboard'
-import DonationDashboard from './pages/admin/DonationDashboard'
+
+// 관리자
+import Test from '@/pages/admin/Test'
+import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
+import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
+import PhtiDashboard from '@/pages/admin/PhtiDashboard'
+import DonationDashboard from '@/pages/admin/DonationDashboard'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -110,6 +111,7 @@ function App() {
 			{/* 리다이렉트 path */}
 			<Route path="/home" element={<Navigate to="/home/main" />} />
 			<Route path="/" element={<Navigate to="/home" />} />
+			<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />}  />
 
 			{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutShopping />}>
@@ -171,13 +173,6 @@ function App() {
 				<Route path="/payments/fail" element={<PaymentFailPage />} />
 				<Route path="/login/success" element={<LoginSuccess />} />
 				<Route path="/change/password" element={<ChangePassword />} />
-				<Route path="/admin/test" element={<Test />} />
-				{/* <Route path="/admin/dashboard/main" element={<MainDashboard />} /> */}
-				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
-				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
-				<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
-				<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
-				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 			</Route>
 
 			{/* 장바구니·주문용 Layout */}
@@ -186,6 +181,17 @@ function App() {
 				<Route path="/orders" element={<OrderRedirect />} />
 				<Route path="/orders/delivery" element={<DeliveryOrderPage />} />
 				<Route path="/orders/pickup" element={<PickupOrderPage />} />
+			</Route>
+
+
+			<Route element={<AdminLayout />}>
+				<Route path="/admin/test" element={<Test />} />
+				<Route path="/admin/dashboard/main" element={<EcoStockDashboard />} />
+				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
+				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
+				<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
+				<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
+				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 			</Route>
 		</Routes>
 	)
