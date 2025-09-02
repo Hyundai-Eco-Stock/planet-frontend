@@ -18,8 +18,9 @@ export const updateProfile = async ({
 	birth,
 	address,
 	detailAddress,
+	oldPassword,
 }) => {
-	const updateProfileData = { email, name, sex, birth, address, detailAddress, };
+	const updateProfileData = { email, name, sex, birth, address, detailAddress, oldPassword};
 
 	const multipartForm = new FormData();
 	multipartForm.append(

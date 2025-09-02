@@ -158,7 +158,7 @@ const OAuthSignUp = () => {
                 Swal.fire({
                     icon: "error",
                     title: "회원가입 실패",
-                    text: err.response?.data || "알 수 없는 오류",
+                    text: err.response?.data.message || "알 수 없는 오류",
                     confirmButtonText: "확인",
                 });
             });
