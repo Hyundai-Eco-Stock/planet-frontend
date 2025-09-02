@@ -8,8 +8,11 @@ import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInpu
 
 import useAuthStore from "@/store/authStore";
 import DaumPostcode from "@/components/address/DaumPostcode";
+import { useNavigate } from "react-router-dom";
 
 const MyProfile = () => {
+    const navigate = useNavigate();
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sex, setSex] = useState(""); // 'M' or 'F'
@@ -70,8 +73,15 @@ const MyProfile = () => {
                 address,
                 detailAddress,
             });
-            Swal.fire({ icon: "success", title: "프로필이 수정되었습니다.", timer: 1500 });
-            useAuthStore.getState().setProfile(profileImageUrl);
+            Swal.fire({ 
+                icon: "success", 
+                title: "프로필이 수정되었습니다.", 
+                timer: 1500 
+            }).then(() => {
+                navigate("/my-page/main");
+                useAuthStore.getState().setProfile(profileImageUrl);
+            });
+            
         } catch (err) {
             console.log(err);
             Swal.fire({
@@ -87,6 +97,7 @@ const MyProfile = () => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchMemberProfile();
+            console.log(data);
             setName(data.name);
             setEmail(data.email);
             setSex(data.sex);
