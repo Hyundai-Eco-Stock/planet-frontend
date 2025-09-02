@@ -27,6 +27,7 @@ const Test = () => {
             <CustomCommonButton onClick={handleEcoDealProducts} children="에코딜 상품 가져오기" />
             <CustomCommonButton onClick={() => { navigate("/offline-pay/create") }} children="오프라인 결제 포스기" />
             <CustomCommonButton onClick={() => { navigate("/car-access-history/create") }} children="차량 입출차 시스템" />
+            <CustomCommonButton onClick={() => { navigate("/admin/dashboard/eco-stock") }} children="에코스톡 대시보드 페이지" />
         </div>
     )
 }

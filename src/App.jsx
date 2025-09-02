@@ -68,6 +68,7 @@ import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 
 // 관리자
 import Test from '@/pages/admin/Test'
+import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 
 const OrderRedirect = () => {
 	const location = useLocation()
@@ -89,7 +90,7 @@ import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
 import RaffleListPage from './pages/raffle/RaffleListPage'
 
 // PHTI
-import PhtiSurvey from './pages/phti/PhtiSurvey'
+import PhtiSurvey from '@/pages/phti/PhtiSurvey'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -138,7 +139,7 @@ function App() {
 			</Route>
 
 			{/* 뒤로 가기 + 장바구니 레이아웃 */}
-			<Route element={<LayoutShoppingWithBack/>}>
+			<Route element={<LayoutShoppingWithBack />}>
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
 				<Route path="/phti/survey" element={<PhtiSurvey />} />
@@ -168,6 +169,8 @@ function App() {
 				<Route path="/login/success" element={<LoginSuccess />} />
 				<Route path="/change/password" element={<ChangePassword />} />
 				<Route path="/admin/test" element={<Test />} />
+				{/* <Route path="/admin/dashboard/main" element={<MainDashboard />} /> */}
+				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 			</Route>
 
