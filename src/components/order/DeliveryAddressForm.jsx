@@ -1,8 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
-const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
+const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) => {
   const [formData, setFormData] = useState(deliveryInfo)
   const [isEditing, setIsEditing] = useState(!deliveryInfo.isDefaultAddress)
+
+  const defaultSnapRef = useRef(null)
+  useEffect(() => {
+    if (!defaultSnapRef.current && defaultDeliveryInfo) {
+      defaultSnapRef.current = { ...defaultDeliveryInfo }
+    }
+  }, [defaultDeliveryInfo]) 
 
   const handleInputChange = (field, value) => {
     // 연락처 자동 포맷팅
@@ -36,6 +43,7 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
       phone: '',
       address: '',
       detailAddress: '',
+      zipCode: '',
       message: ''
     }
     setFormData(newData)
@@ -45,8 +53,9 @@ const DeliveryAddressForm = ({ deliveryInfo, onUpdate }) => {
   const handleUseDefaultAddress = () => {
     setIsEditing(false)
     // 기본 배송지 정보로 복원
+    const snap = defaultSnapRef.current || {}
     const defaultData = {
-      ...formData,
+      ...snap,
       isDefaultAddress: true
     }
     setFormData(defaultData)
