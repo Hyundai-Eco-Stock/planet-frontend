@@ -67,9 +67,6 @@ const Home = () => {
 
   return (
     <div className="pb-20">
-    
-      <Link to="/phti/survey">PHTI 설문</Link>
-    
       {/* 상단 배너 캐러셀 */}
       <section className="px-3 pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
@@ -197,6 +194,12 @@ const Home = () => {
                 className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
               >
                 래플
+              </Link>
+              <Link
+                to="/phti/survey"
+                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+              >
+                PHTI설문
               </Link>
             </div>
           </div>
