@@ -33,8 +33,8 @@ const Login = () => {
     };
 
     return (
-        <div className="max-w-[640px] flex justify-center">
-            <main className="w-full">
+        <div className="w-full flex justify-center">
+            <main className="w-full max-w-[640px]">
                 {/* 제목 */}
                 <div className="flex flex-col gap-3 justify-center items-center text-center pt-20 pb-10">
                     <img src={Planet} className="w-24"/>
