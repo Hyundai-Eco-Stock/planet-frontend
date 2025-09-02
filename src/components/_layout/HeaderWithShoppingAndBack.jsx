@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faBagShopping } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faBagShopping, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
 const HeaderWithShopping = () => {
@@ -70,17 +70,23 @@ const HeaderWithShopping = () => {
         navigate("/cart/main");
     };
 
+    const onBackClick = () => {
+        navigate(-1); // 직전 페이지로 이동
+    };
+
     return (
         <header className="px-4 sticky top-0 z-50 bg-white text-[#0b1020]">
             <div className="flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 로고 텍스트 */}
-                <Link
-                    to="/home"
-                    className="inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
-                    aria-label="planet 홈으로 이동"
+                <button
+                    type="button"
+                    onClick={onBackClick}
+                    aria-label="뒤로가기"
+                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                 >
-                    planet
-                </Link>
+                    <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
+                    <span className="sr-only">뒤로가기</span>
+                </button>
 
                 {/* 오른쪽: 검색/장바구니 아이콘 */}
                 <div className="flex items-center gap-6">

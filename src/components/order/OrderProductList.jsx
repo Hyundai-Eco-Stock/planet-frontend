@@ -1,9 +1,21 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const OrderProductList = ({ products }) => {
+  const navigate = useNavigate()
+
   // 총 상품 개수 계산
   const getTotalQuantity = () => {
     return products.reduce((total, product) => total + product.quantity, 0)
+  }
+
+  const handleProductClick = (product) => {
+    // 에코딜 상품인지 확인
+    if (product.ecoDealStatus) {
+      navigate(`/eco-deal/detail?productId=${product.id}`)
+    } else {
+      navigate(`/shopping/detail?productId=${product.id}`)
+    }
   }
 
   return (
@@ -15,8 +27,11 @@ const OrderProductList = ({ products }) => {
       
       <div className="space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="flex items-center space-x-4 py-4 border-b last:border-b-0">
-            {/* 상품 이미지 */}
+          <button 
+            key={product.id} 
+            onClick={() => handleProductClick(product)}
+            className="w-full flex items-center space-x-4 py-4 border-b last:border-b-0 text-left hover:bg-gray-50 transition-colors rounded-lg"
+          >
             <div className="flex-shrink-0">
               <img 
                 src={product.imageUrl} 
@@ -39,13 +54,6 @@ const OrderProductList = ({ products }) => {
                   </span>
                 )}
               </div>
-              
-              {/* 픽업 매장 정보 (에코딜 상품인 경우) */}
-              {product.storeId && (
-                <div className="mt-1 text-sm text-blue-600">
-                  매장: {product.storeName}
-                </div>
-              )}
             </div>
             
             {/* 가격 정보 */}
@@ -71,7 +79,7 @@ const OrderProductList = ({ products }) => {
                 </div>
               )}
             </div>
-          </div>
+          </button>
         ))}
       </div>
       

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import CategoryBar from "./CategoryBar";
-import CategorySheet from "./CategorySheet";
+// import CategorySheet from "./CategorySheet";
 import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
 import {ProductComponent} from "../../components/product/ProductComponent";
 import { useSearchParams } from "react-router-dom";
@@ -107,7 +107,7 @@ export default function ShoppingMain() {
       />
 
       {/* 검색 바: CategoryBar 아래 */}
-      <div className="px-4 mt-2">
+      <div className="mt-2">
         <form onSubmit={handleSearchSubmit} className="max-w-screen-md mx-auto flex gap-2">
           <input
             type="text"
@@ -126,13 +126,16 @@ export default function ShoppingMain() {
         </form>
       </div>
 
-      <CategorySheet
-        categories={barCategories}
-        active={activeCategoryId}
-        expanded={expanded}
-        onClose={() => setExpanded(false)}
-        onSelect={handleSelect}
-      />
+      {/**
+       * CategorySheet 비활성화 (요청에 따라 주석 처리)
+       * <CategorySheet
+       *   categories={barCategories}
+       *   active={activeCategoryId}
+       *   expanded={expanded}
+       *   onClose={() => setExpanded(false)}
+       *   onSelect={handleSelect}
+       * />
+       */}
 
       <ProductComponent 
         items={items} 

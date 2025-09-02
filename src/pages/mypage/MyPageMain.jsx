@@ -91,7 +91,7 @@ const MyPageMain = () => {
                             return <hr key={idx} className="border-gray-200" />;
                         }
                         if (nav.path == 'TITLE') {
-                            return  <span className="font-bold pt-6 pb-2">{nav.title}</span>
+                            return  <span key={idx} className="font-bold pt-6 pb-2">{nav.title}</span>
                         }
                         return (
                             <Link to={nav.path} key={idx}>
