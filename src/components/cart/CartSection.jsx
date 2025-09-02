@@ -68,7 +68,7 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
       return
     }
     
-    if (window.confirm(`선택한 ${selectedProducts.length}개 상품을 삭제하시겠습니까?`)) {
+    if (window.confirm(`선택한 상품을 삭제하시겠습니까?`)) {
       // 선택된 상품들을 하나씩 삭제
       selectedProducts.forEach(productId => {
         const product = products.find(p => p.id === productId)

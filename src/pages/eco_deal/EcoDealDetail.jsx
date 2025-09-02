@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { fetchEcoDealProductDetail } from "../../api/product/ecoProduct.api";
+import Toast from "@/components/common/Toast";
 
 export default function ShoppingDetail() {
   const [sp] = useSearchParams();
@@ -12,6 +13,8 @@ export default function ShoppingDetail() {
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (!productId) {
@@ -45,12 +48,46 @@ export default function ShoppingDetail() {
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
-    if (!productId) return;
+    if (!main) return;
     if (!selectedStoreId) {
       alert('지점을 선택해주세요.');
       return;
     }
-    navigate(`/cart/main?${productId}&qty=${qty}&departmentStoreId=${selectedStoreId}`);
+
+    // 선택된 매장 정보 찾기
+    const selectedStore = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
+
+    if (!selectedStore) {
+      alert('선택된 매장 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 상품 정보를 주문서 형식으로 변환
+    const orderProduct = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      quantity: Number(qty || 1),
+      imageUrl: main.imageUrl || '',
+      isEcoDeal: true,
+      ecoDealStatus: true,
+      salePercent: Number(main.salePercent ?? 0),
+      selectedStore: {
+        id: selectedStore.departmentStoreId,
+        name: selectedStore.departmentStoreName,
+        address: selectedStore.address || '',
+        latitude: selectedStore.lat ?? null,
+        longitude: selectedStore.lng ?? null,
+      }
+    };
+
+    navigate('/orders', { 
+      state: { 
+        products: [orderProduct], 
+        deliveryType: 'PICKUP',
+        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+      } 
+    });
   };
 
   // 장바구니 담기 (localstorage 사용)
@@ -106,7 +143,7 @@ export default function ShoppingDetail() {
     // 저장
     try {
       localStorage.setItem('cart-storage', JSON.stringify(store));
-      alert('장바구니에 담았습니다.');
+      setShowToast(true);
     } catch (e) {
       console.error('cart-storage 저장 실패', e);
       alert('장바구니 저장에 실패했습니다.');
@@ -241,6 +278,13 @@ export default function ShoppingDetail() {
           </div>
         </div>
       </div>
+
+      <Toast
+        message="나의 장바구니에 담았어요"
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={3000}
+      />
     </main>
   );
 }

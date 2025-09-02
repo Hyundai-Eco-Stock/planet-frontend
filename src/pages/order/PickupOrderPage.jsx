@@ -143,10 +143,13 @@ const PickupOrderPage = () => {
       }
 
       await createOrderDraft(cartData, 'PICKUP')
+
+      updatePointUsage(0)
+      updateDonationAmount(0)
     }
 
     initializeOrder()
-  }, [location.state, pickupCart, navigate, createOrderDraft])
+  }, [location.state, pickupCart, navigate, createOrderDraft, updatePointUsage, updateDonationAmount])
 
   // 결제위젯 렌더링
   useEffect(() => {
@@ -410,7 +413,7 @@ const PickupOrderPage = () => {
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
-          maxUsage={orderDraft.payment.finalAmount}
+          maxUsage={orderDraft.payment.productTotal}
           onUpdate={updatePointUsage}
         />
 

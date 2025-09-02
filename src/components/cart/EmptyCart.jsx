@@ -33,7 +33,7 @@ const EmptyCart = () => {
         </CustomCommonButton>
         
         <button
-          onClick={() => navigate('/shopping/main?filter=ecodeal')}
+          onClick={() => navigate('/eco-deal/main')}
           className="w-full py-4 border border-emerald-500 text-emerald-600 rounded-xl hover:bg-emerald-50 font-semibold transition"
         >
           에코딜 상품 보기

@@ -124,7 +124,7 @@ const PaymentSuccessPage = () => {
           return;
         }
 
-        setOrderResult(result);
+        setOrderResult(result?.data);
 
         if (orderData.products && orderData.products.length > 0) {
           removeOrderedProducts(orderData.products);
@@ -202,7 +202,7 @@ const PaymentSuccessPage = () => {
             빠른 시일 내에 배송/픽업 준비를 완료하겠습니다.
           </p>
 
-          {orderResult && (
+          {!!orderResult && (
             <div className="bg-gray-50 rounded-lg p-6 mb-8">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="text-left">
@@ -218,7 +218,7 @@ const PaymentSuccessPage = () => {
                 <div className="text-left">
                   <span className="text-gray-600">배송방식:</span>
                   <p className="font-medium">
-                    {orderResult.orderType === 'PICKUP' ? '픽업' : '일반 배송'}
+                    {orderResult?.qrCodeData ? '픽업' : '일반 배송'}
                   </p>
                 </div>
                 <div className="text-left">
@@ -230,13 +230,13 @@ const PaymentSuccessPage = () => {
           )}
 
           {/* 픽업 주문 QR 코드 */}
-          {orderResult?.data?.qrCodeData && (
+          {orderResult?.qrCodeData && (
             <div className="bg-blue-50 rounded-lg p-6 mb-8">
               <h3 className="font-semibold text-blue-900 mb-4 text-center">📱 픽업용 QR코드</h3>
               <div className="flex flex-col items-center">
                 <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
                   <img
-                    src={orderResult.data.qrCodeData}
+                    src={orderResult.qrCodeData}
                     alt="픽업용 QR코드"
                     className="w-48 h-48 mx-auto"
                     onError={(e) => {
@@ -258,7 +258,7 @@ const PaymentSuccessPage = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => downloadQRCode(orderResult.data.qrCodeData)}
+                  onClick={() => downloadQRCode(orderResult.qrCodeData)}
                   className="mt-4 px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   📥 QR코드 이미지 저장

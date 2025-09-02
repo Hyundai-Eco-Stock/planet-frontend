@@ -1,7 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import useCartStore from '@/store/cartStore'
 
 const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
+  const navigate = useNavigate()
   const { updateQuantity, removeFromCart } = useCartStore()
   
   // 할인된 가격 계산
@@ -11,7 +13,16 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
     
   // 총 가격 (할인된 가격 × 수량)
   const totalPrice = discountedPrice * product.quantity
-  
+
+  const handleProductClick = () => {
+    // 에코딜 상품인지 확인
+    if (product.isEcoDeal) {
+      navigate(`/eco-deal/detail?productId=${product.id}`)
+    } else {
+      navigate(`/shopping/detail?productId=${product.id}`)
+    }
+  }
+
   // 수량 변경 처리
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity < 1) return // 최소 1개
@@ -40,7 +51,11 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
       />
       
       {/* 상품 이미지 */}
-      <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+      <button
+        onClick={handleProductClick}
+        className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
+        aria-label={`${product.name} 상품 상세 보기`}
+      >
         {product.imageUrl ? (
           <img 
             src={product.imageUrl} 
@@ -56,16 +71,22 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
           이미지
         </div>
-      </div>
+      </button>
       
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
         
         {/* 상품명과 삭제 버튼 */}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-gray-900 text-sm leading-5 line-clamp-2 pr-2">
-            {product.name}
-          </h3>
+          <button
+            onClick={handleProductClick}
+            className="text-left flex-1 pr-2"
+            aria-label={`${product.name} 상품 상세 보기`}
+          >
+            <h3 className="font-medium text-gray-900 text-sm leading-5 line-clamp-2 pr-2">
+              {product.name}
+            </h3>
+          </button>
           <button
             onClick={handleRemove}
             className="text-gray-400 hover:text-red-500 transition-colors p-1 flex-shrink-0"
