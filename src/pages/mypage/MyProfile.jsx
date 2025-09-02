@@ -126,7 +126,7 @@ const MyProfile = () => {
                 />
             </section>
 
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이름</span>
                 <CustomCommonInput
                     value={name}
@@ -136,7 +136,7 @@ const MyProfile = () => {
                 />
             </label>
 
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이메일</span>
                 <CustomCommonInput
                     value={email}
@@ -146,7 +146,7 @@ const MyProfile = () => {
             </label>
 
             {/* 성별 */}
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">성별</span>
                 <div className="flex gap-3">
                     <button
@@ -167,7 +167,7 @@ const MyProfile = () => {
             </label>
 
             {/* 생년월일 */}
-            <label className="block">
+            <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">생년월일</span>
                 <div className="flex gap-2">
                     <CustomCommonInput
@@ -205,7 +205,7 @@ const MyProfile = () => {
             </label>
 
             {/* 주소 */}
-            <section className="flex flex-col">
+            <section className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
 
                 <div className="flex flex-col gap-2">
