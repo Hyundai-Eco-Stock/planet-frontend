@@ -1,12 +1,50 @@
 import React, { useState, useEffect } from 'react'
 
 const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) => {
-  const [usePoints, setUsePoints] = useState(true) 
-  const [pointAmount, setPointAmount] = useState(currentUsage)
-  const [inputValue, setInputValue] = useState(currentUsage.toString())
+  const initial = Number.isFinite(currentUsage) ? currentUsage : 0
+  const [usePoints, setUsePoints] = useState(initial > 0)
+  const [pointAmount, setPointAmount] = useState(initial)
+  const [inputValue, setInputValue] = useState(String(initial))
 
   // 최대 사용 가능 포인트
-  const maxUsablePoint = Math.min(availablePoint, maxUsage || availablePoint)
+  const maxUsablePoint = Math.max(
+    0,
+    Math.min(
+      Number.isFinite(availablePoint) ? availablePoint : 0,
+      Number.isFinite(maxUsage) ? maxUsage : availablePoint ?? 0 // maxUsage 미지정 시 보유포인트까지만
+    )
+  )
+
+  // 공통 클램프 함수
+  const clamp = (n) => {
+    const v = Number.isFinite(n) ? n : 0
+    return Math.max(0, Math.min(v, maxUsablePoint))
+  }
+
+  // 포맷 제어용: blur 시 콤마, focus 시 생 숫자
+  const formatThousand = (n) => n.toLocaleString()
+  const toNumber = (str) => {
+    const num = parseInt(String(str).replace(/[^0-9]/g, ''), 10)
+    return Number.isNaN(num) ? 0 : num
+  }
+
+  useEffect(() => {
+    const next = Number.isFinite(currentUsage) ? currentUsage : 0
+    setPointAmount(next)
+    setInputValue(String(next))
+    setUsePoints(next > 0)
+  }, [currentUsage])
+
+  // 부모가 availablePoint/maxUsage를 바꿔 상한이 줄면 즉시 내리고 부모에게 반영
+  useEffect(() => {
+    const fixed = clamp(pointAmount)
+    if (fixed !== pointAmount) {
+      setPointAmount(fixed)
+      setInputValue(fixed.toString())
+      if (usePoints) onUpdate(fixed)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availablePoint, maxUsage])
 
   useEffect(() => {
     setInputValue(pointAmount.toString())
@@ -15,8 +53,9 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
   const handleUsePointsToggle = (checked) => {
     setUsePoints(checked)
     if (checked) {
-      // 체크박스 활성화 시, 현재 입력값 사용
-      onUpdate(pointAmount)
+      const fixed = clamp(pointAmount)
+      setPointAmount(fixed)
+      onUpdate(fixed)
     } else {
       // 체크박스 비활성화 시, 0으로 처리
       onUpdate(0)
@@ -25,16 +64,15 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
   const handleInputChange = (value) => {
     setInputValue(value)
-    
-    // 숫자만 추출
-    const numericValue = parseInt(value.replace(/[^0-9]/g, '')) || 0
-    const validAmount = Math.max(0, Math.min(numericValue, maxUsablePoint))
-    
-    setPointAmount(validAmount)
-    
+
+    const numeric = toNumber(value)
+    const fixed = clamp(numeric)
+
+    setPointAmount(fixed)
+
     // 체크박스가 활성화된 경우에만 실제 업데이트
     if (usePoints) {
-      onUpdate(validAmount)
+      onUpdate(fixed)
     }
   }
 
@@ -45,19 +83,26 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
   const handleInputFocus = () => {
     // 입력 시작 시 천단위 구분자 제거
-    setInputValue(pointAmount.toString())
+    setInputValue(formatThousand(pointAmount))
   }
 
   const useAllPoints = () => {
-    setPointAmount(maxUsablePoint)
-    setInputValue(maxUsablePoint.toString())
+    const fixed = clamp(maxUsablePoint)
+
+    if (pointAmount == fixed) return
+
+    setPointAmount(fixed)
+    setInputValue(fixed.toString())
     if (usePoints) {
-      onUpdate(maxUsablePoint)
+      onUpdate(fixed)
     }
   }
 
   // 실제 사용되는 포인트 (체크박스 상태에 따라)
   const actualUsage = usePoints ? pointAmount : 0
+
+  // 전액 사용 버튼 비활성화 조건
+  const isAllPointsUsed = pointAmount >= maxUsablePoint
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -67,7 +112,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
           보유: <span className="font-semibold text-green-600">{availablePoint.toLocaleString()}P</span>
         </div>
       </div>
-      
+
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <input
@@ -77,15 +122,11 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
             onChange={(e) => handleUsePointsToggle(e.target.checked)}
             className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
           />
-          <label htmlFor="usePoints" className="ml-2 text-gray-700">
-            포인트 사용하기
-          </label>
+           <label htmlFor="usePoints" className="ml-2 text-gray-700">포인트 사용하기</label>
         </div>
-        
-        {maxUsage && maxUsage < availablePoint && (
-          <div className="text-xs text-orange-600">
-            최대 {maxUsage.toLocaleString()}P까지 사용 가능
-          </div>
+
+        {Number.isFinite(maxUsage) && maxUsage < availablePoint && (
+          <div className="text-xs text-orange-600">최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능</div>
         )}
       </div>
 
@@ -101,26 +142,25 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
               disabled={!usePoints}
-              className={`w-full px-3 py-2 pr-8 border rounded-lg text-right ${
-                usePoints 
-                  ? 'border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white' 
+              className={`w-full px-3 py-2 pr-8 border rounded-lg text-right ${usePoints
+                  ? 'border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white'
                   : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-              }`}
+                }`}
               placeholder="0"
             />
             <span className={`absolute right-3 top-2 text-sm ${usePoints ? 'text-gray-500' : 'text-gray-400'}`}>P</span>
           </div>
-          
+
           <button
             onClick={useAllPoints}
-            disabled={!usePoints || maxUsablePoint === 0}
+            disabled={!usePoints || maxUsablePoint === 0 || isAllPointsUsed}
             className={`px-4 py-2 border rounded-lg text-sm ${
-              usePoints 
-                ? 'text-green-600 border-green-600 hover:bg-green-50' 
+              usePoints && !isAllPointsUsed
+                ? 'text-green-600 border-green-600 hover:bg-green-50'
                 : 'text-gray-400 border-gray-300 cursor-not-allowed'
             }`}
           >
-            전액 사용
+            {isAllPointsUsed ? '최대 사용중' : '전액 사용'}
           </button>
         </div>
 
@@ -151,6 +191,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
         <div className="text-xs text-gray-500 space-y-1">
           <p>• 포인트는 1P = 1원으로 사용됩니다.</p>
           <p>• 결제 완료 후 사용된 포인트는 차감됩니다.</p>
+          <p>• 최대 주문 금액까지만 사용 가능합니다.</p>
         </div>
       </div>
     </div>

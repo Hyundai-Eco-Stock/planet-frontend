@@ -345,7 +345,7 @@ const DeliveryOrderPage = () => {
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
-          maxUsage={orderDraft.payment.finalAmount}
+          maxUsage={orderDraft.payment.productTotal}
           onUpdate={updatePointUsage}
         />
 
