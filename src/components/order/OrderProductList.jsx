@@ -54,13 +54,6 @@ const OrderProductList = ({ products }) => {
                   </span>
                 )}
               </div>
-              
-              {/* 픽업 매장 정보 (에코딜 상품인 경우) */}
-              {product.storeId && (
-                <div className="mt-1 text-sm text-blue-600">
-                  매장: {product.storeName}
-                </div>
-              )}
             </div>
             
             {/* 가격 정보 */}
