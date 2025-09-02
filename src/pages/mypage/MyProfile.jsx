@@ -117,7 +117,7 @@ const MyProfile = () => {
     return (
         <div className="flex flex-col gap-3 pb-24">
             {/* 프로필 이미지 */}
-            <section className="flex flex-col">
+            <section className="flex flex-col gap-2">
                 <span className="text-sm font-semibold text-gray-900">프로필</span>
                 <CustomProfileImageInput
                     value={profileImageFile}
