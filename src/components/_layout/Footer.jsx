@@ -13,7 +13,7 @@ const Footer = () => {
         { name: "쇼핑", icon: Hamburger, path: "/shopping/main" },
         { name: "에코스톡", icon: Planet, path: "/eco-stock/main" },
         { name: "홈", icon: House, path: "/home/main" },
-        { name: "에코딜", icon: Planet, path: "/eco-deal/main" },
+        // { name: "에코딜", icon: Planet, path: "/eco-deal/main" },
         { name: "마이", icon: My, path: "/my-page/main" },
     ]
 
