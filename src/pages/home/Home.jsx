@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { fetchCategories } from "../../api/product/product.api";
 import { getRaffleList } from "../../api/raffleList/raffleList.api";
 
@@ -98,18 +99,26 @@ const Home = () => {
       {/* 카테고리 그리드 */}
       <section className="px-3 mt-4">
         <div className="grid grid-cols-4 gap-y-4">
-          {categories.map((c, idx) => (
-            <div key={`${c.categoryId ?? "all"}-${idx}`} className="flex flex-col items-center">
-              <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                {c?.imageUrl ? (
-                  <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xs text-gray-400">전체</span>
-                )}
-              </div>
-              <div className="mt-1 text-xs text-gray-800">{c.name}</div>
-            </div>
-          ))}
+          {categories.map((c, idx) => {
+            const to = c?.categoryId != null ? `/shopping/main?category=${encodeURIComponent(c.categoryId)}` : "/shopping/main";
+            return (
+              <Link
+                key={`${c.categoryId ?? "all"}-${idx}`}
+                to={to}
+                className="flex flex-col items-center"
+                aria-label={`${c.name}로 이동`}
+              >
+                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 hover:ring-2 hover:ring-gray-200 transition">
+                  {c?.imageUrl ? (
+                    <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-gray-400">전체</span>
+                  )}
+                </div>
+                <div className="mt-1 text-xs text-gray-800">{c.name}</div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -123,29 +132,33 @@ const Home = () => {
 
           <div className="space-y-3">
             {raffles.map((r) => (
-              <article
+              <Link
                 key={r.raffleId}
-                className="flex gap-3 rounded-lg bg-white border border-gray-200 p-3"
+                to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
+                className="block"
+                aria-label={`${r.productName} 상세 보기`}
               >
-                <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-                  {r.imageUrl ? (
-                    <img src={r.imageUrl} alt={r.productName} className="w-full h-full object-cover" />
-                  ) : null}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{r.productName}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {r.brandName} · {currency(r.price)}원
+                <article className="flex gap-3 rounded-lg bg-white border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
+                  <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                    {r.imageUrl ? (
+                      <img src={r.imageUrl} alt={r.productName} className="w-full h-full object-cover" />
+                    ) : null}
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    {r.startDate} ~ {r.endDate}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">{r.productName}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {r.brandName} · {currency(r.price)}원
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {r.startDate} ~ {r.endDate}
+                    </div>
+                    <div className="text-[11px] text-emerald-700 mt-1">
+                      {r.ecoStockName} {r.ecoStockAmount ? `+${currency(r.ecoStockAmount)} 적립` : ""}
+                      {typeof r.participateCount === "number" ? ` · ${currency(r.participateCount)}명 참여` : ""}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-emerald-700 mt-1">
-                    {r.ecoStockName} {r.ecoStockAmount ? `+${currency(r.ecoStockAmount)} 적립` : ""}
-                    {typeof r.participateCount === "number" ? ` · ${currency(r.participateCount)}명 참여` : ""}
-                  </div>
-                </div>
-              </article>
+                </article>
+              </Link>
             ))}
           </div>
         </div>
