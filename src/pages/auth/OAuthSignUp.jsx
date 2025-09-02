@@ -138,9 +138,18 @@ const OAuthSignUp = () => {
                 
                 Swal.fire({
                     icon: "success",
-                    title: "회원가입 성공",
-                    text: "Planet 회원가입을 완료했습니다!",
-                    confirmButtonText: "서비스 시작!",
+                    title: "회원가입 완료!",
+                    html: `
+                        <p style="font-size:16px; color:#374151;">
+                            Planet의 여정에 함께해 주셔서 감사합니다. <br/>
+                            지금부터 <b>친환경 혜택</b>을 즐겨보세요! 🌱
+                        </p>
+                    `,
+                    confirmButtonText: "지금 시작하기 🚀",
+                    confirmButtonColor: "#10B981",
+                    customClass: {
+                        popup: "rounded-2xl shadow-xl"
+                    }
                 }).then(() => {
                     navigate("/home");
                 });
