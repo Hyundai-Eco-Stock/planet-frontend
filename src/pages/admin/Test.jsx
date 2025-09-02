@@ -28,6 +28,9 @@ const Test = () => {
             <CustomCommonButton onClick={() => { navigate("/offline-pay/create") }} children="오프라인 결제 포스기" />
             <CustomCommonButton onClick={() => { navigate("/car-access-history/create") }} children="차량 입출차 시스템" />
             <CustomCommonButton onClick={() => { navigate("/admin/dashboard/eco-stock") }} children="에코스톡 대시보드 페이지" />
+            <CustomCommonButton onClick={() => { navigate("/admin/dashboard/order-product") }} children="주문 상품 대시보드 페이지" />
+            <CustomCommonButton onClick={() => { navigate("/admin/dashboard/phti") }} children="PHTI 대시보드 페이지" />
+            <CustomCommonButton onClick={() => { navigate("/admin/dashboard/donation") }} children="기부 현황 대시보드 페이지" />
         </div>
     )
 }
