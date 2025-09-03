@@ -6,9 +6,9 @@ import Toast from "@/components/common/Toast";
 
 const MAX_INITIAL_INFO_IMAGES = 1; // 초기 노출할 상품정보 이미지 개수 (상품 더보기 버튼)
 
-export default function ShoppingDetail() {
+export default function ShoppingDetail({ productId: productIdProp, onRequestNavigate } = {}) {
   const [sp] = useSearchParams();
-  const productId = sp.get("productId");
+  const productId = productIdProp ?? sp.get("productId");
   const navigate = useNavigate();
 
   const [rows, setRows] = useState([]); // 상품 상세 데이터
@@ -296,7 +296,10 @@ export default function ShoppingDetail() {
                 <button
                   key={`${rid}-${rimg}`}
                   className="shrink-0 w-36 text-left"
-                  onClick={() => navigate(`/shopping/detail?productId=${rid}`)}
+                  onClick={() => {
+                    if (typeof onRequestNavigate === 'function') onRequestNavigate(rid);
+                    else navigate(`/shopping/detail?productId=${rid}`);
+                  }}
                 >
                   <div className="w-36 h-36 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
                     {rimg ? (
