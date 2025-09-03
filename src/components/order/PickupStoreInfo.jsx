@@ -7,6 +7,20 @@ const PickupStoreInfo = ({ storeGroups }) => {
       
       {storeGroups && storeGroups.length > 0 ? (
         <div className="space-y-4">
+          {/* 다중 매장 안내 */}
+          {storeGroups.length > 1 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm text-blue-700 font-medium">
+                  총 {storeGroups.length}개 매장에서 픽업 예정입니다.
+                </span>
+              </div>
+            </div>
+          )}
+
           {storeGroups.map((storeGroup, index) => {
             const { store, products } = storeGroup
             
@@ -16,21 +30,30 @@ const PickupStoreInfo = ({ storeGroups }) => {
                 <div className="flex items-start space-x-4 mb-4">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
+                      {/* 다중 매장일 때 순서 번호 표시 */}
+                      {storeGroups.length > 1 ? (
+                        <span className="text-lg font-bold text-green-600">
+                          {index + 1}
+                        </span>
+                      ) : (
+                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      )}
                     </div>
                   </div>
                   
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">현대백화점 {store.name}</h3>
                     <div className="mt-1 space-y-1 text-sm text-gray-600">
-                      {store.phone && (
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      {/* 주소 정보 */}
+                      {store.address && (
+                        <div className="flex items-start">
+                          <svg className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
-                          <span>{store.phone}</span>
+                          <span>{store.address}</span>
                         </div>
                       )}
                       
@@ -38,12 +61,12 @@ const PickupStoreInfo = ({ storeGroups }) => {
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>10:30 ~ 20:00</span>
+                        <span>{store.operatingHours || '10:30 ~ 20:00'}</span>
                       </div>
                     </div>
                   </div>
                   
-                  {/* 매장 변경 불가 안내 */}
+                  {/* 매장 선택 완료 표시 */}
                   <div className="flex-shrink-0">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                       선택 완료
@@ -96,6 +119,9 @@ const PickupStoreInfo = ({ storeGroups }) => {
           <p>• 결제 완료 후 QR코드가 발송됩니다.</p>
           <p>• 매장 방문 시 QR코드를 제시해주세요.</p>
           <p>• 픽업 가능 시간: 매장 운영시간 내</p>
+          {storeGroups && storeGroups.length > 1 && (
+            <p>• <strong>여러 매장 픽업 시 각 매장을 모두 방문하셔야 합니다.</strong></p>
+          )}
         </div>
       </div>
       

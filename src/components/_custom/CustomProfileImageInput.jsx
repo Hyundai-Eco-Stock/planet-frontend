@@ -88,7 +88,7 @@ const CustomProfileImageInput = ({
                         <img
                             src={localUrl}
                             alt="preview"
-                            className="w-full h-full object-contain rounded-full"
+                            className="w-full h-full object-cover rounded-full"
                         />
                     ) : (
                         <FontAwesomeIcon

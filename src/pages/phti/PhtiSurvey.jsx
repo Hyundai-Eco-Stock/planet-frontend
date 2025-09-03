@@ -139,17 +139,30 @@ const PhtiSurvey = () => {
                             {questions[currentIndex].questionText}
                         </h2>
                         <div className="space-y-3">
-                            {questions[currentIndex].choices.map((choice) => (
-                                <button
-                                    key={choice.choiceId}
-                                    className="w-full text-left px-4 py-3 rounded-xl border border-gray-300 hover:bg-emerald-50 transition"
-                                    onClick={() =>
-                                        handleChoiceSelect(questions[currentIndex].questionId, choice.choiceId)
-                                    }
-                                >
-                                    {choice.choiceText}
-                                </button>
-                            ))}
+                            {
+                                questions[currentIndex].choices.map((choice) => {
+                                    const isSelected = answers[questions[currentIndex].questionId] === choice.choiceId;
+
+                                    return (
+                                        <button
+                                            key={choice.choiceId}
+                                            className={`w-full text-left px-4 py-3 rounded-xl border transition 
+                                                    ${isSelected
+                                                        ? "bg-emerald-500 text-white"
+                                                        : "bg-white border-gray-300 hover:bg-emerald-50"
+                                                }`}
+                                            onClick={() =>
+                                                handleChoiceSelect(
+                                                    questions[currentIndex].questionId,
+                                                    choice.choiceId
+                                                )
+                                            }
+                                        >
+                                            {choice.choiceText}
+                                        </button>
+                                    )
+                                })
+                            }
                         </div>
                     </motion.div>
                 </AnimatePresence>

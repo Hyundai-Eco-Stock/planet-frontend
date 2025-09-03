@@ -68,7 +68,7 @@ const Home = () => {
   return (
     <div className="pb-20">
       {/* 상단 배너 캐러셀 */}
-      <section className="px-3 pt-3">
+      <section className="pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
           <div className="flex" style={sliderStyle}>
             {DUMMY_BANNERS.map((src, idx) => (
@@ -98,7 +98,7 @@ const Home = () => {
       </section>
 
       {/* 카테고리 그리드 */}
-      <section className="px-3 mt-4">
+      <section className="mt-4">
         <div className="grid grid-cols-4 gap-y-4">
           {categories.map((c, idx) => {
             const to = c?.categoryId != null ? `/shopping/main?category=${encodeURIComponent(c.categoryId)}` : "/shopping/main";
@@ -124,9 +124,9 @@ const Home = () => {
       </section>
 
       {/* 래플 섹션 */}
-      <section className="px-3 mt-6 mb-6">
+      <section className="mt-6 mb-6">
         <div className="rounded-xl bg-gray-50 border border-gray-200 p-3">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold">래플 응모하기</h3>
             <span className="text-xs text-gray-500">{raffles.length}개 진행중</span>
           </div>
