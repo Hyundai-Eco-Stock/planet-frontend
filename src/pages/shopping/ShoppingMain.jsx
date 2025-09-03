@@ -4,6 +4,7 @@ import CategoryBar from "./CategoryBar";
 import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
 import {ProductComponent} from "../../components/product/ProductComponent";
 import ShoppingDetail from "./ShoppingDetail";
+import HeaderWithShoppingAndBack from "@/components/_layout/HeaderWithShoppingAndBack";
 import { useSearchParams } from "react-router-dom";
 
 export default function ShoppingMain() {
@@ -161,29 +162,15 @@ export default function ShoppingMain() {
       />
 
       {detailProductId != null && (
-        <div className="fixed inset-0 z-[60] bg-white">
-          {/* 상단 바: 닫기 */}
-          <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-end px-3">
-            <button
-              type="button"
-              aria-label="닫기"
-              onClick={() => setDetailProductId(null)}
-              className="w-9 h-9 rounded-full bg-black/80 text-white text-xl flex items-center justify-center active:scale-95"
-            >
-              ×
-            </button>
-          </div>
-          {/* 내용: 쇼핑 상세 (전체 높이) */}
-          <div className="h-full overflow-y-auto">
-            {/* 패딩 보정: 상단 닫기 버튼 영역 확보 */}
-            <div className="pt-12">
-              <ShoppingDetail
-                productId={detailProductId}
-                onRequestNavigate={(pid) => setDetailProductId(pid)}
-                isFullScreen
-              />
-            </div>
-          </div>
+        <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+          <HeaderWithShoppingAndBack onBackClick={() => setDetailProductId(null)} />
+          <main className="px-4 pb-24 overflow-y-auto scrollbar-hide flex-1">
+            <ShoppingDetail
+              productId={detailProductId}
+              onRequestNavigate={(pid) => setDetailProductId(pid)}
+              isFullScreen
+            />
+          </main>
         </div>
       )}
     </div>
