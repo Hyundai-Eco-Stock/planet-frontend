@@ -67,6 +67,12 @@ import PickupOrderPage from '@/pages/order/PickupOrderPage'
 import PaymentSuccessPage from '@/pages/payment/PaymentSuccessPage'
 import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 
+// 관리자
+import Test from '@/pages/admin/Test'
+
+// QR
+import QrResolvePage from '@/pages/pickup/QrResolvePage'
+
 const OrderRedirect = () => {
 	const location = useLocation()
 	const deliveryType = location.state?.deliveryType || 'DELIVERY'
@@ -173,6 +179,9 @@ function App() {
 				<Route path="/payments/fail" element={<PaymentFailPage />} />
 				<Route path="/login/success" element={<LoginSuccess />} />
 				<Route path="/change/password" element={<ChangePassword />} />
+				<Route path="/admin/test" element={<Test />} />
+				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
+				<Route path="/qr" element={<QrResolvePage />} />
 			</Route>
 
 			{/* 장바구니·주문용 Layout */}
