@@ -33,3 +33,15 @@ export const fetchIssueAndOrderPatternsByPhti = async () => {
 	const response = await apiClient.get("/admin/issue-and-order-patterns-by-phti");
 	return response.data;
 };
+
+// 날짜별 기부 금액 추이
+export const fetchDonationAmountsByDay = async () => {
+	const response = await apiClient.get("/admin/donation-amounts-by-day");
+	return response.data;
+};
+
+// 사용자별 기부 참여율
+export const fetchDonatorPercentage = async () => {
+	const response = await apiClient.get("/admin/donator-percentage");
+	return response.data;
+};

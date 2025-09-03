@@ -1,32 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend
 } from "recharts";
 import { DollarSign, Users, PieChart as PieChartIcon } from "lucide-react";
+import { fetchDonationAmountsByDay, fetchDonatorPercentage } from "@/api/admin/admin.api";
+
 
 const DonationDashboard = () => {
     // 총 기부 금액 추이 (누적)
-    const [donationTrend] = useState([
-        { date: "2025-08-25", donation: 120000 },
-        { date: "2025-08-26", donation: 180000 },
-        { date: "2025-08-27", donation: 250000 },
-        { date: "2025-08-28", donation: 330000 },
-        { date: "2025-08-29", donation: 400000 },
+    const [donationTrend, setDonationTrend] = useState([
+        // { date: "2025-08-25", donation: 120000 },
+        // { date: "2025-08-26", donation: 180000 },
+        // { date: "2025-08-27", donation: 250000 },
+        // { date: "2025-08-28", donation: 330000 },
+        // { date: "2025-08-29", donation: 400000 },
     ]);
 
     // 사용자별 기부 참여율
-    const [participationData] = useState([
-        { name: "참여", users: 320, color: "#10B981" },
-        { name: "미참여", users: 180, color: "#EF4444" },
+    const [participationData, setParticipationData] = useState([
+        // { name: "참여", users: 320, color: "#10B981" },
+        // { name: "미참여", users: 180, color: "#EF4444" },
     ]);
 
     // 요약 통계
-    const totalDonation = donationTrend[donationTrend.length - 1].donation;
-    const totalUsers = participationData.reduce((sum, d) => sum + d.users, 0);
-    const participationRate = Math.round(
-        (participationData.find((d) => d.name === "참여").users / totalUsers) * 100
-    );
+    const [summary, setSummary] = useState({
+        totalDonation: 0,
+        totalUsers: 0,
+        participationRate: 0,
+    });
+
+    useEffect(() => {
+        fetchDonationAmountsByDay().then((res) => {
+            setDonationTrend(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                totalDonation: res.totalDonation,
+            }));
+        });
+
+        fetchDonatorPercentage().then((res) => {
+            setParticipationData(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                totalUsers: res.totalUsers,
+                participationRate: res.participationRate,
+            }));
+        });
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -39,9 +60,9 @@ const DonationDashboard = () => {
 
                 {/* 요약 카드 */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <SummaryCard title="총 기부 금액" value={`${totalDonation.toLocaleString()}원`} icon={<DollarSign className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
-                    <SummaryCard title="참여 사용자 수" value={`${participationData[0].users}명`} icon={<Users className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
-                    <SummaryCard title="참여율" value={`${participationRate}%`} icon={<PieChartIcon className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
+                    <SummaryCard title="총 기부 금액" value={`${summary.totalDonation.toLocaleString()}원`} icon={<DollarSign className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
+                    <SummaryCard title="참여 사용자 수" value={`${summary.totalUsers}명`} icon={<Users className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
+                    <SummaryCard title="참여율" value={`${summary.participationRate}%`} icon={<PieChartIcon className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
                 </div>
 
                 {/* 그래프 섹션 */}
@@ -92,7 +113,6 @@ const DonationDashboard = () => {
     );
 };
 
-// 재사용 요약 카드
 const SummaryCard = ({ title, value, icon, bg }) => (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
