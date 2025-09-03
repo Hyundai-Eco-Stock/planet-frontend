@@ -9,21 +9,21 @@ import { fetchProductOrderDataGroupByDay, fetchProductOrderDataGroupByCategory }
 const OrderProductDashboard = () => {
     // 일별 주문/매출 데이터
     const [dailyData, setDailyData] = useState([
-        { date: "2025-08-25", orders: 32, revenue: 450000 },
-        { date: "2025-08-26", orders: 28, revenue: 390000 },
-        { date: "2025-08-27", orders: 40, revenue: 560000 },
-        { date: "2025-08-28", orders: 50, revenue: 720000 },
-        { date: "2025-08-29", orders: 38, revenue: 480000 },
+        // { date: "2025-08-25", orders: 32, revenue: 450000 },
+        // { date: "2025-08-26", orders: 28, revenue: 390000 },
+        // { date: "2025-08-27", orders: 40, revenue: 560000 },
+        // { date: "2025-08-28", orders: 50, revenue: 720000 },
+        // { date: "2025-08-29", orders: 38, revenue: 480000 },
     ]);
 
     // 카테고리별 판매 데이터
     const [categoryData, setCategoryData] = useState([
-        { category: "옷", value: 1200000, color: "#3B82F6" },
-        { category: "뷰티", value: 800000, color: "#10B981" },
-        { category: "비누", value: 350000, color: "#F59E0B" },
-        { category: "향수", value: 250000, color: "#EF4444" },
-        { category: "헤어", value: 150000, color: "#8B5CF6" },
-        { category: "식기류", value: 100000, color: "#06B6D4" },
+        // { category: "옷", value: 1200000, color: "#3B82F6" },
+        // { category: "뷰티", value: 800000, color: "#10B981" },
+        // { category: "비누", value: 350000, color: "#F59E0B" },
+        // { category: "향수", value: 250000, color: "#EF4444" },
+        // { category: "헤어", value: 150000, color: "#8B5CF6" },
+        // { category: "식기류", value: 100000, color: "#06B6D4" },
     ]);
 
     const [summary, setSummary] = useState({
