@@ -26,6 +26,7 @@ const OrderProductDashboard = () => {
         // { category: "식기류", value: 100000, color: "#06B6D4" },
     ]);
 
+    // 요약 통계
     const [summary, setSummary] = useState({
         totalOrders: 0,
         totalRevenue: 0,
@@ -53,12 +54,6 @@ const OrderProductDashboard = () => {
         });
     }, []);
 
-    // 요약 통계
-    const totalOrders = dailyData.reduce((sum, d) => sum + d.orders, 0);
-    const totalRevenue = dailyData.reduce((sum, d) => sum + d.revenue, 0);
-    const avgOrderValue = Math.round(totalRevenue / totalOrders);
-    const topCategory = categoryData.reduce((a, b) => (a.value > b.value ? a : b)).category;
-
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -70,10 +65,10 @@ const OrderProductDashboard = () => {
 
                 {/* 요약 카드 */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <SummaryCard title="총 주문 건수" value={`${totalOrders}건`} icon={<ShoppingBag className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
-                    <SummaryCard title="총 매출액" value={`${totalRevenue.toLocaleString()}원`} icon={<DollarSign className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
-                    <SummaryCard title="평균 주문 금액" value={`${avgOrderValue.toLocaleString()}원`} icon={<TrendingUp className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
-                    <SummaryCard title="TOP 카테고리" value={topCategory} icon={<BarChart3 className="w-6 h-6 text-orange-600" />} bg="bg-orange-100" />
+                    <SummaryCard title="총 주문 건수" value={`${summary.totalOrders}건`} icon={<ShoppingBag className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
+                    <SummaryCard title="총 매출액" value={`${summary.totalRevenue.toLocaleString()}원`} icon={<DollarSign className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
+                    <SummaryCard title="평균 주문 금액" value={`${summary.avgOrderValue.toLocaleString()}원`} icon={<TrendingUp className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
+                    <SummaryCard title="TOP 카테고리" value={summary.topCategory} icon={<BarChart3 className="w-6 h-6 text-orange-600" />} bg="bg-orange-100" />
                 </div>
 
                 {/* 그래프 섹션 */}
