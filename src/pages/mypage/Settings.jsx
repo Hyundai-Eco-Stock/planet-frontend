@@ -1,7 +1,15 @@
 import { useNotifications } from "@/hooks/fcm_notification/useNotifications";
 import useNotificationStore from "@/store/notificationStore";
+import { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 
 const Settings = () => {
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("앱 설정");
+    }, [setTitle]);
+
     const { requestPermission, revokePushToken } = useNotifications();
     const { pushEnabled } = useNotificationStore();
 

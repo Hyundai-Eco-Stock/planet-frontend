@@ -7,9 +7,16 @@ import { CardNumberInput } from "@/components/_custom/CustomInputs";
 import { searchAllCardCompanies } from "@/api_department_core_backend/card/cardCompany.api";
 import { deleteMyCardInfo, fetchMyCardInfo, registerMyCardInfo } from "@/api/member_card/memberCard.api";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import { useOutletContext } from "react-router-dom";
 
 
 const MyCardInfo = () => {
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("내 카드 관리");
+    }, [setTitle]);
+
     const [cardCompanies, setCardCompanies] = useState([]);
     const [myCards, setMyCards] = useState([]);
 
@@ -69,8 +76,6 @@ const MyCardInfo = () => {
 
     return (
         <div className="max-w-md space-y-6">
-            <h1 className="text-2xl font-bold text-center">내 카드 관리</h1>
-
             {/* 등록된 카드 리스트 */}
             <div className="space-y-4">
                 {myCards.map((card) => (

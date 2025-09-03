@@ -6,9 +6,16 @@ import { fetchMyCarInfo, registerCarInfo, unregisterCarInfo } from "@/api/car/ca
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 // import { SimpleSelect } from "@/components/_custom/CustomSelect";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
+import { useOutletContext } from "react-router-dom";
 
 
 const MyCarInfo = () => {
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("내 차량 관리");
+    }, [setTitle]);
+
     const [carNumberLeft, setCarNumberLeft] = useState(null);
     const [carNumberMiddle, setCarNumberMiddle] = useState(null);
     const [carNumberRight, setCarNumberRight] = useState(null);
