@@ -24,6 +24,13 @@ const EcoStockDashboard = () => {
         // { range: '1000개 이상', userCount: 12, percentage: 0.4 }
     ]);
 
+    // 통계 요약
+    const [summary, setSummary] = useState({
+        totalIssued: 0,
+        totalUsers: 0,
+        avgHolding: 0
+    });
+
     useEffect(() => {
         // 발급 비율 데이터 호출
         fetchEcoStockIssuePercentageData()
@@ -34,22 +41,15 @@ const EcoStockDashboard = () => {
 
         // 보유 현황 데이터 호출
         fetchEcoStockHoldingAmountDataGroupByMember()
-        .then((res) => {
-            setUserDistributionData(res.data.items); // [{range, userCount, percentage}, ...]
-            setSummary({
-                totalIssued: res.data.totalIssued,
-                totalUsers: res.data.totalUsers,
-                avgHolding: res.data.avgHolding,
-            });
-        })
+            .then((res) => {
+                setUserDistributionData(res.data.items); // [{range, userCount, percentage}, ...]
+                setSummary({
+                    totalIssued: res.data.totalIssued,
+                    totalUsers: res.data.totalUsers,
+                    avgHolding: res.data.avgHolding,
+                });
+            })
     }, []);
-
-
-    const [summary, setSummary] = useState({ totalIssued: 0, totalUsers: 0, avgHolding: 0 });
-
-    // 총계 계산
-    const totalIssued = stockIssueData.reduce((sum, item) => sum + item.count, 0);
-    const totalUsers = userDistributionData.reduce((sum, item) => sum + item.userCount, 0);
 
     // 커스텀 툴팁 컴포넌트
     const CustomPieTooltip = ({ active, payload }) => {
@@ -95,7 +95,7 @@ const EcoStockDashboard = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-500 mb-1">총 발급량</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalIssued.toLocaleString()}</p>
+                                <p className="text-2xl font-bold text-gray-900">{summary.totalIssued.toLocaleString()}</p>
                             </div>
                             <div className="bg-blue-100 p-3 rounded-full">
                                 <TrendingUp className="w-6 h-6 text-blue-600" />
@@ -107,7 +107,7 @@ const EcoStockDashboard = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-500 mb-1">총 사용자</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalUsers.toLocaleString()}</p>
+                                <p className="text-2xl font-bold text-gray-900">{summary.totalUsers.toLocaleString()}</p>
                             </div>
                             <div className="bg-green-100 p-3 rounded-full">
                                 <Users className="w-6 h-6 text-green-600" />
@@ -132,7 +132,7 @@ const EcoStockDashboard = () => {
                             <div>
                                 <p className="text-sm font-medium text-gray-500 mb-1">평균 보유량</p>
                                 <p className="text-2xl font-bold text-gray-900">
-                                    {Math.round(totalIssued / totalUsers).toLocaleString()}
+                                    {Math.round(summary.totalIssued / summary.totalUsers).toLocaleString()}
                                 </p>
                             </div>
                             <div className="bg-orange-100 p-3 rounded-full">
@@ -240,21 +240,27 @@ const EcoStockDashboard = () => {
                             <div className="bg-blue-50 p-4 rounded-lg">
                                 <h4 className="text-sm font-semibold text-blue-800 mb-2">분포 특성</h4>
                                 <p className="text-xs text-blue-600">
-                                    대부분 사용자({((userDistributionData[0].percentage + userDistributionData[1].percentage)).toFixed(1)}%)가
-                                    50개 이하 보유
+                                    대부분 사용자(
+                                    {(
+                                        ((userDistributionData[0]?.percentage || 0) +
+                                            (userDistributionData[1]?.percentage || 0)).toFixed(1)
+                                    )}%
+                                    )가 50개 이하 보유
                                 </p>
                             </div>
                             <div className="bg-green-50 p-4 rounded-lg">
                                 <h4 className="text-sm font-semibold text-green-800 mb-2">활성 사용자</h4>
                                 <p className="text-xs text-green-600">
-                                    10개 이상 보유 사용자: {(totalUsers - userDistributionData[0].userCount).toLocaleString()}명
+                                    10개 이상 보유 사용자: {(
+                                        summary.totalUsers - (userDistributionData[0]?.userCount || 0)
+                                    ).toLocaleString()}명
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                
+
 
                 {/* 날짜별 필터 및 새로고침 */}
                 <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
