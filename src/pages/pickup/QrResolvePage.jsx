@@ -130,12 +130,6 @@ export default function QrResolvePage() {
         <button onClick={() => navigate("/")} className="px-4 py-2 rounded-xl border">
           돌아가기
         </button>
-        <button
-          onClick={() => navigate(`/pickup/confirm?oid=${order.orderId}`)}
-          className="ml-auto px-4 py-2 rounded-xl bg-emerald-600 text-white"
-        >
-          픽업 확인 진행
-        </button>
       </div>
     </div>
   );
