@@ -1,5 +1,6 @@
 // src/components/CategoryBar.jsx
 import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 export default function CategoryBar({ categories, active, onSelect, expanded, onToggle }) {
   const scrollerRef = useRef(null);
@@ -7,7 +8,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
 
   useEffect(() => {
     const el = itemRefs.current[active];
-    if (el) el.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [active]);
 
   return (
@@ -46,7 +47,11 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                 </div>
                 <div className="mt-1 text-xs whitespace-nowrap">{c.name}</div>
                 {active === c.key && (
-                  <div className="absolute left-2 right-2 -bottom-0.5 h-[3px] rounded bg-gray-900" />
+                  <motion.div
+                    layoutId="category-underline"
+                    className="absolute left-2 right-2 -bottom-0.5 h-[3px] rounded bg-gray-900"
+                    transition={{ type: "spring", stiffness: 500, damping: 40, mass: 0.5 }}
+                  />
                 )}
               </button>
             ))}

@@ -11,7 +11,7 @@ const EcoBadge = React.memo(() => (
 import { useNavigate } from "react-router-dom";
 
 // Named export (so `import { ProductComponent } from ...` works)
-export function ProductComponent({ items = [], loading = false, error = null }) {
+export function ProductComponent({ items = [], loading = false, error = null, onOpenDetail }) {
   const navigate = useNavigate();
   return (
     // 중앙 컨텐츠
@@ -45,7 +45,21 @@ export function ProductComponent({ items = [], loading = false, error = null }) 
               const img = p.imageUrl;
               
               return (
-                <li key={p.productId} className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer" onClick={() => navigate(`/shopping/detail?productId=${p.productId}`)}>
+                <li
+                  key={p.productId}
+                  className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer"
+                  onClick={() => {
+                    if (typeof onOpenDetail === 'function') {
+                      onOpenDetail(p.productId);
+                      return;
+                    }
+                    try {
+                      const y = window.scrollY || document.documentElement.scrollTop || 0;
+                      sessionStorage.setItem('shopping-main-scroll', String(y));
+                    } catch (_) {}
+                    navigate(`/shopping/detail?productId=${p.productId}`);
+                  }}
+                >
                   <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative">
                     <EcoBadge />
                     {img ? (
