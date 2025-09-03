@@ -84,7 +84,7 @@ const useOrderStore = create((set, get) => ({
         orderId: `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         orderType,
 
-        // 상품 정보
+        // 상품 정보 - 각 상품별 매장 정보 보존
         products: selectedProducts.map(product => ({
           id: product.id,
           name: product.name,
@@ -104,11 +104,12 @@ const useOrderStore = create((set, get) => ({
             ? product.price * (1 - (product.salePercent || 0) / 100)
             : product.price) * product.quantity,
 
-          // 픽업 상품인 경우 매장 정보
+          // 픽업 상품인 경우 각 상품별 매장 정보 포함
           ...(orderType === 'PICKUP' && product.selectedStore && {
             storeId: product.selectedStore.id,
             storeName: product.selectedStore.name,
-            storeAddress: product.selectedStore.address
+            storeAddress: product.selectedStore.address,
+            selectedStore: product.selectedStore // 전체 매장 정보 보존
           })
         })),
 
@@ -132,10 +133,8 @@ const useOrderStore = create((set, get) => ({
           isDefaultAddress: !!(userInfo.address)
         } : null,
 
-        // 픽업 정보
-        pickupInfo: orderType === 'PICKUP' ? (pickupInfo || {
-          storeGroups: groupProductsByStore(selectedProducts)
-        }) : null,
+        // 픽업 정보 - 다중 매장 지원
+        pickupInfo: orderType === 'PICKUP' ? pickupInfo : null,
 
         // 결제 정보
         payment: {
@@ -240,7 +239,7 @@ const useOrderStore = create((set, get) => ({
   setError: (error) => set({ error })
 }))
 
-// 매장별로 상품 그룹핑
+// 매장별로 상품 그룹핑 함수 개선
 function groupProductsByStore(products) {
   const storeGroups = {}
 
@@ -249,11 +248,26 @@ function groupProductsByStore(products) {
       const storeId = product.selectedStore.id
       if (!storeGroups[storeId]) {
         storeGroups[storeId] = {
-          store: product.selectedStore,
+          store: {
+            id: product.selectedStore.id,
+            name: product.selectedStore.name,
+            address: product.selectedStore.address,
+            latitude: product.selectedStore.latitude,
+            longitude: product.selectedStore.longitude,
+            phone: product.selectedStore.phone || '매장 연락처',
+            operatingHours: product.selectedStore.operatingHours || '10:30 ~ 20:00'
+          },
           products: []
         }
       }
-      storeGroups[storeId].products.push(product)
+      storeGroups[storeId].products.push({
+        id: product.id,
+        name: product.name,
+        quantity: product.quantity,
+        ecoDealStatus: product.ecoDealStatus || product.isEcoDeal,
+        price: product.price,
+        salePercent: product.salePercent || 0
+      })
     }
   })
 

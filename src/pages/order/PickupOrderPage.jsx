@@ -56,7 +56,7 @@ const PickupOrderPage = () => {
         navigate('/cart/main')
         return
       }
-    
+
       // 장바구니 → 주문서 데이터 변환
       const convertedProducts = selectedProducts.map(product => ({
         ...product,
@@ -79,8 +79,38 @@ const PickupOrderPage = () => {
         return
       }
 
-      // 첫 번째 상품의 매장 정보 사용
-      const selectedStore = productsWithStore[0].selectedStore
+      // 매장별로 상품 그룹핑
+      const groupProductsByStore = (products) => {
+        const storeGroups = {}
+        const storeOrder = [] // 매장이 처음 나타난 순서를 기록
+
+        products.forEach((product, index) => {
+          if (product.selectedStore) {
+            const storeId = product.selectedStore.id
+            if (!storeGroups[storeId]) {
+              storeGroups[storeId] = {
+                store: product.selectedStore,
+                products: [],
+                firstAppearanceIndex: index // 해당 매장 상품이 처음 나타난 순서
+              }
+              storeOrder.push(storeId) // 매장 등장 순서 기록
+            }
+            storeGroups[storeId].products.push({
+              ...product,
+              originalIndex: index // 원래 순서 보존
+            })
+          }
+        })
+
+        // 매장이 처음 나타난 순서대로 정렬
+        return storeOrder.map(storeId => ({
+          store: storeGroups[storeId].store,
+          products: storeGroups[storeId].products.sort((a, b) => a.originalIndex - b.originalIndex),
+          firstAppearanceIndex: storeGroups[storeId].firstAppearanceIndex
+        })).sort((a, b) => a.firstAppearanceIndex - b.firstAppearanceIndex)
+      }
+
+      const storeGroups = groupProductsByStore(convertedProducts)
 
       const originalTotal = convertedProducts.reduce((total, product) => {
         return total + (product.price * product.quantity)
@@ -102,28 +132,43 @@ const PickupOrderPage = () => {
         }).format(new Date())
       }
 
-      // 픽업 정보 생성
+      // 다중 매장 픽업 정보 생성
       const pickupInfo = {
-        departmentStoreId: selectedStore.id,
-        departmentStoreName: selectedStore.name,
+        // 백엔드 호환성을 위한 대표 매장 정보
+        // 현재 DB 구조상 하나의 매장 ID만 저장 가능하므로 첫 번째 매장을 대표로 사용
+        // 추후 DB 구조 변경 시 이 부분을 수정하면 됨
+        departmentStoreId: storeGroups[0].store.id,
+        departmentStoreName: storeGroups[0].store.name,
         pickupDate: getTodayKST(),
-        pickupMemo: '',
-        // PickupStoreInfo 컴포넌트용 storeGroups
-        storeGroups: [{
+        pickupMemo: storeGroups.length > 1
+          ? `다중 매장 픽업: ${storeGroups.map(g => g.store.name).join(', ')}`
+          : '',
+
+        // UI 표시용 모든 매장 그룹 정보
+        storeGroups: storeGroups.map(group => ({
           store: {
-            id: selectedStore.id,
-            name: selectedStore.name,
-            address: selectedStore.address,
-            phone: selectedStore.phone,
-            operatingHours: selectedStore.operatingHours
+            id: group.store.id,
+            name: group.store.name,
+            address: group.store.address,
+            phone: group.store.phone || '매장 연락처',
+            operatingHours: group.store.operatingHours || '10:30 ~ 20:00'
           },
-          products: convertedProducts.map(product => ({
+          products: group.products.map(product => ({
             id: product.id,
             name: product.name,
             quantity: product.quantity,
             ecoDealStatus: product.ecoDealStatus
           }))
-        }]
+        })),
+
+        // 결제 시 필요한 매장별 상세 정보
+        storeDetails: storeGroups.map(group => ({
+          storeId: group.store.id,
+          storeName: group.store.name,
+          storeAddress: group.store.address,
+          productCount: group.products.length,
+          totalQuantity: group.products.reduce((sum, p) => sum + p.quantity, 0)
+        }))
       }
 
       // 주문서 생성 데이터
@@ -215,9 +260,9 @@ const PickupOrderPage = () => {
   const handlePayment = async () => {
     if (!orderDraft) return
 
-    // 유효성 검사 (픽업은 매장 정보만 확인)
-    if (!orderDraft.pickupInfo?.storeGroups[0].store.id || !orderDraft.pickupInfo?.departmentStoreName) {
-      alert('픽업 매장을 먼저 선택해 주세요.')
+    // 유효성 검사 (다중 매장 지원)
+    if (!orderDraft.pickupInfo?.storeGroups || orderDraft.pickupInfo.storeGroups.length === 0) {
+      alert('픽업 매장 정보를 확인해주세요.')
       return
     }
 
@@ -262,6 +307,7 @@ const PickupOrderPage = () => {
           ? `${finalOrderDraft.products[0].name} 외 ${finalOrderDraft.products.length - 1}건`
           : finalOrderDraft.products?.[0]?.name || '주문 상품';
 
+      // 다중 매장 픽업 정보 포함한 결제 데이터
       const orderDataForPayment = {
         orderType: 'PICKUP',
         orderId: finalOrderId,
@@ -272,14 +318,23 @@ const PickupOrderPage = () => {
           quantity: product.quantity,
           price: product.originalPrice || product.paidPrice || product.price,
           salePercent: product.salePercent || 0,
-          ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false
+          ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false,
+          // 각 상품의 매장 정보 포함
+          storeId: product.selectedStore?.id,
+          storeName: product.selectedStore?.name
         })),
         deliveryInfo: null,
         pickupInfo: {
+          // 기본 정보 (백엔드 호환성)
           departmentStoreId: finalOrderDraft.pickupInfo.departmentStoreId,
           departmentStoreName: finalOrderDraft.pickupInfo.departmentStoreName,
           pickupDate,
           pickupMemo: finalOrderDraft.pickupInfo.pickupMemo ?? '',
+          // 다중 매장 상세 정보
+          isMultiStore: finalOrderDraft.pickupInfo.storeGroups.length > 1,
+          storeCount: finalOrderDraft.pickupInfo.storeGroups.length,
+          storeDetails: finalOrderDraft.pickupInfo.storeDetails || [],
+          storeGroups: finalOrderDraft.pickupInfo.storeGroups
         },
         pointsUsed: finalOrderDraft.payment.pointUsage || 0,
         donationAmount: finalOrderDraft.payment.donationAmount || 0,
@@ -311,20 +366,21 @@ const PickupOrderPage = () => {
       } else {
         try {
           methodsRef.current.updateAmount(amount, 'KRW')
-        } catch {}
+        } catch { }
       }
 
       const digitsOnlyPhone = String(orderDraft?.orderUser?.phone || '')
         .replace(/^\+?82/, '0')
         .replace(/\D/g, '')
 
-      // 결제위젯으로 바로 결제창 오픈
+      // 결제위젯으로 바로 결제창 오픈 - 다중 매장 정보가 포함된 주문명
+      const finalOrderName = finalOrderDraft.pickupInfo.storeGroups.length > 1
+        ? `${orderName} (${finalOrderDraft.pickupInfo.storeGroups.length}개 매장 픽업)`
+        : orderName;
+
       await widget.requestPayment({
-        orderId: orderDraft.orderId || `PICKUP-${Date.now()}`, // 픽업 주문 구분
-        orderName:
-          orderDraft.products.length > 1
-            ? `${orderDraft.products[0].name} 외 ${orderDraft.products.length - 1}건`
-            : (orderDraft.products[0]?.name || '주문 상품'),
+        orderId: finalOrderId,
+        orderName: finalOrderName,
         successUrl: `${window.location.origin}/payments/success`,
         failUrl: `${window.location.origin}/payments/fail`,
         customerEmail: orderDraft?.orderUser?.email || '',
@@ -403,6 +459,9 @@ const PickupOrderPage = () => {
             <p>• 결제 완료 후, QR 코드가 생성됩니다.</p>
             <p>• 선택한 매장에서 QR 코드를 제시하시면 상품을 받으실 수 있습니다.</p>
             <p>• 픽업 가능 시간: 매장 운영시간 내</p>
+            {orderDraft.pickupInfo?.storeGroups?.length > 1 && (
+              <p>• <strong>여러 매장 픽업 시 각 매장을 모두 방문하셔야 합니다.</strong></p>
+            )}
           </div>
         </div>
 
