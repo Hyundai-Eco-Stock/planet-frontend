@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 import { TrendingUp, ShoppingBag, DollarSign, BarChart3 } from "lucide-react";
+import { fetchProductOrderDataGroupByDay, fetchProductOrderDataGroupByCategory } from "@/api/admin/admin.api";
 
 const OrderProductDashboard = () => {
     // 일별 주문/매출 데이터
-    const [dailyData] = useState([
+    const [dailyData, setDailyData] = useState([
         { date: "2025-08-25", orders: 32, revenue: 450000 },
         { date: "2025-08-26", orders: 28, revenue: 390000 },
         { date: "2025-08-27", orders: 40, revenue: 560000 },
@@ -16,7 +17,7 @@ const OrderProductDashboard = () => {
     ]);
 
     // 카테고리별 판매 데이터
-    const [categoryData] = useState([
+    const [categoryData, setCategoryData] = useState([
         { category: "옷", value: 1200000, color: "#3B82F6" },
         { category: "뷰티", value: 800000, color: "#10B981" },
         { category: "비누", value: 350000, color: "#F59E0B" },
@@ -24,6 +25,33 @@ const OrderProductDashboard = () => {
         { category: "헤어", value: 150000, color: "#8B5CF6" },
         { category: "식기류", value: 100000, color: "#06B6D4" },
     ]);
+
+    const [summary, setSummary] = useState({
+        totalOrders: 0,
+        totalRevenue: 0,
+        avgOrderValue: 0,
+        topCategory: ""
+    });
+
+    useEffect(() => {
+        fetchProductOrderDataGroupByDay().then((res) => {
+            setDailyData(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                totalOrders: res.totalOrders,
+                totalRevenue: res.totalRevenue,
+                avgOrderValue: res.avgOrderValue
+            }));
+        });
+
+        fetchProductOrderDataGroupByCategory().then((res) => {
+            setCategoryData(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                topCategory: res.topCategory
+            }));
+        });
+    }, []);
 
     // 요약 통계
     const totalOrders = dailyData.reduce((sum, d) => sum + d.orders, 0);
