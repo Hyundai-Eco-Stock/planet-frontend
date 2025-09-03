@@ -12,7 +12,7 @@ const AdminHeader = () => {
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
                 <h1 className="
-                    text-xl font-bold text-gray-900
+                    text-xl text-gray-900
                     inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline
                 ">
                     planet 관리자 대시보드
