@@ -180,6 +180,7 @@ export default function ShoppingMain() {
               <ShoppingDetail
                 productId={detailProductId}
                 onRequestNavigate={(pid) => setDetailProductId(pid)}
+                isFullScreen
               />
             </div>
           </div>

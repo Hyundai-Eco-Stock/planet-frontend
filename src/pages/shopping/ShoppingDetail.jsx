@@ -6,7 +6,7 @@ import Toast from "@/components/common/Toast";
 
 const MAX_INITIAL_INFO_IMAGES = 1; // 초기 노출할 상품정보 이미지 개수 (상품 더보기 버튼)
 
-export default function ShoppingDetail({ productId: productIdProp, onRequestNavigate } = {}) {
+export default function ShoppingDetail({ productId: productIdProp, onRequestNavigate, isFullScreen = false } = {}) {
   const [sp] = useSearchParams();
   const productId = productIdProp ?? sp.get("productId");
   const navigate = useNavigate();
@@ -319,11 +319,10 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       {/* 하단 여백: 고정 바와 겹침 방지 */}
       <div className="h-24" />
 
-      {/* 하단 고정 버튼 바 */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 pb-[5.3rem] pt-2 bg-white"
-        // style={{ bottom: 'calc(var(--app-footer-height, 80px) + env(safe-area-inset-bottom))' }}
-      >
+      {/* 하단 고정 버튼 바: 화면 최하단 고정 */}
+      <div className="fixed left-0 right-0 bottom-0 z-50 bg-white" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="mx-auto max-w-screen-md px-4 pb-4">
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="grid grid-cols-2 gap-2 p-3">
               <button
                 type="button"
@@ -340,10 +339,8 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
                 구매하기
               </button>
             </div>
-        {/* <div className="mx-auto max-w-screen-md px-4 pb-4">
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           </div>
-        </div> */}
+        </div>
       </div>
 
       { /* Toast 알ㄹ미 */ }
