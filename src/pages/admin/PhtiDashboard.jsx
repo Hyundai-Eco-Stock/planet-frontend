@@ -1,43 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend
 } from "recharts";
 import { Users, PieChart as PieChartIcon, BarChart3 } from "lucide-react";
+import { fetchIssueAndOrderPatternsByPhti, fetchMemberPercentageByPhti } from "@/api/admin/admin.api";
 
 // 색상 팔레트
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#A855F7", "#14B8A6"];
 
 const PhtiDashboard = () => {
     // PHTI 사용자 분포
-    const [phtiDistribution] = useState([
-        { type: "EGDS", users: 120 },
-        { type: "EGDI", users: 95 },
-        { type: "EGAS", users: 80 },
-        { type: "EGAI", users: 60 },
-        { type: "EPDS", users: 70 },
-        { type: "EPDI", users: 90 },
-        { type: "CPAS", users: 50 },
-        { type: "CPDI", users: 40 },
+    const [phtiDistribution, setPhtiDistribution] = useState([
+        // { type: "EGDS", users: 120 },
+        // { type: "EGDI", users: 95 },
+        // { type: "EGAS", users: 80 },
+        // { type: "EGAI", users: 60 },
+        // { type: "EPDS", users: 70 },
+        // { type: "EPDI", users: 90 },
+        // { type: "CPAS", users: 50 },
+        // { type: "CPDI", users: 40 },
     ]);
 
     // 주문/교환 패턴
-    const [phtiPattern] = useState([
-        { type: "EGDS", orders: 320, exchanges: 150 },
-        { type: "EGDI", orders: 280, exchanges: 180 },
-        { type: "EGAS", orders: 200, exchanges: 120 },
-        { type: "EGAI", orders: 150, exchanges: 90 },
-        { type: "EPDS", orders: 220, exchanges: 140 },
-        { type: "EPDI", orders: 260, exchanges: 160 },
-        { type: "CPAS", orders: 130, exchanges: 70 },
-        { type: "CPDI", orders: 110, exchanges: 65 },
+    const [phtiPattern, setPhtiPattern] = useState([
+        // { type: "EGDS", orders: 320, exchanges: 150 },
+        // { type: "EGDI", orders: 280, exchanges: 180 },
+        // { type: "EGAS", orders: 200, exchanges: 120 },
+        // { type: "EGAI", orders: 150, exchanges: 90 },
+        // { type: "EPDS", orders: 220, exchanges: 140 },
+        // { type: "EPDI", orders: 260, exchanges: 160 },
+        // { type: "CPAS", orders: 130, exchanges: 70 },
+        // { type: "CPDI", orders: 110, exchanges: 65 },
     ]);
 
+    const [summary, setSummary] = useState({
+        totalUsers: 0,
+        topPhti: "",
+        avgOrders: 0,
+    });
+
     // 요약 통계
-    const totalUsers = phtiDistribution.reduce((sum, d) => sum + d.users, 0);
-    const topPhti = phtiDistribution.reduce((a, b) => (a.users > b.users ? a : b)).type;
-    const avgOrders = Math.round(
-        phtiPattern.reduce((sum, d) => sum + d.orders, 0) / phtiPattern.length
-    );
+    useEffect(() => {
+        fetchMemberPercentageByPhti().then((res) => {
+            setPhtiDistribution(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                totalUsers: res.totalUsers,
+                topPhti: res.topPhti,
+            }));
+        });
+
+        fetchIssueAndOrderPatternsByPhti().then((res) => {
+            setPhtiPattern(res.items);
+            setSummary((prev) => ({
+                ...prev,
+                avgOrders: res.avgOrders,
+            }));
+        });
+    }, []);
+
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -50,9 +71,9 @@ const PhtiDashboard = () => {
 
                 {/* 요약 카드 */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <SummaryCard title="총 사용자" value={`${totalUsers}명`} icon={<Users className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
-                    <SummaryCard title="최다 사용자 PHTI" value={topPhti} icon={<PieChartIcon className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
-                    <SummaryCard title="평균 주문 건수" value={`${avgOrders}건`} icon={<BarChart3 className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
+                    <SummaryCard title="총 사용자" value={`${summary.totalUsers}명`} icon={<Users className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
+                    <SummaryCard title="최다 사용자 PHTI" value={summary.topPhti} icon={<PieChartIcon className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
+                    <SummaryCard title="평균 주문 건수" value={`${summary.avgOrders}건`} icon={<BarChart3 className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
                 </div>
 
                 {/* 그래프 섹션 */}

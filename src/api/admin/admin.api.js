@@ -21,3 +21,15 @@ export const fetchProductOrderDataGroupByCategory = async () => {
 	const response = await apiClient.get("/admin/product-orders-group-by-category");
 	return response.data;
 };
+
+// PHTI 유형별 사용자 분포
+export const fetchMemberPercentageByPhti = async () => {
+	const response = await apiClient.get("/admin/member-percentage-by-phti");
+	return response.data;
+};
+
+// PHTI 유형별 주문/교환 패턴
+export const fetchIssueAndOrderPatternsByPhti = async () => {
+	const response = await apiClient.get("/admin/issue-and-order-patterns-by-phti");
+	return response.data;
+};
