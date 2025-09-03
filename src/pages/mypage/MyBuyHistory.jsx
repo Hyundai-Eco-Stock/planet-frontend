@@ -50,6 +50,8 @@ function groupOrders(rows) {
       productName: r.productName || r.name || `상품 #${r.productId}`,
       imageUrl: r.productImageUrl || r.imageUrl || r.product_image_url || "",
       price: r.price,
+      salePercent: r.salePercent ?? r.sale_percent,
+      finalProductPrice: r.finalProductPrice ?? r.final_product_price,
       quantity: r.quantity,
       discountPrice: r.discountPrice,
       ecoDealStatus: r.ecoDealStatus ?? r.eco_deal_status ?? (r.isEcoDeal ? "Y" : "N"),
@@ -207,7 +209,12 @@ export default function MyBuyHistory() {
             {/* items */}
             <ul className="px-2 pb-2 space-y-2">
               {order.items.map((it) => {
-                const lineTotal = (Number(it.price || 0) - Number(it.discountPrice || 0)) * Number(it.quantity || 1);
+                const unitPrice = Number(
+                  it.finalProductPrice != null
+                    ? it.finalProductPrice
+                    : (Number(it.price || 0) - Number(it.discountPrice || 0))
+                );
+                const lineTotal = unitPrice * Number(it.quantity || 1);
                 const eco = it.ecoDealStatus === "Y";
                 return (
                   <li
@@ -264,7 +271,16 @@ export default function MyBuyHistory() {
                           )}
                         </div>
                       )}
-                      <div className="mt-0.5 text-[11px] text-gray-500">수량 {it.quantity} · 단가 {currency(it.price)}</div>
+                      <div className="mt-0.5 text-[11px] text-gray-500">
+                        수량 {it.quantity} · 단가 {currency(it.finalProductPrice ?? it.price)}
+                        {Number(it.salePercent || 0) > 0 && (
+                          <span className="ml-1 align-middle">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                              -{Number(it.salePercent)}%
+                            </span>
+                          </span>
+                        )}
+                      </div>
                       <div className="mt-1"><EcoChip eco={eco} /></div>
                     </div>
                     <div className="text-sm font-semibold whitespace-nowrap">{currency(lineTotal)}</div>

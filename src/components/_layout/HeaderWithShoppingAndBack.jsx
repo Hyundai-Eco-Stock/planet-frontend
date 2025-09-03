@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faBagShopping, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
-const HeaderWithShopping = () => {
+const HeaderWithShopping = ({ onBackClick }) => {
     const navigate = useNavigate();
     const [totalCartCount, setTotalCartCount] = useState(0);
 
@@ -70,7 +70,8 @@ const HeaderWithShopping = () => {
         navigate("/cart/main");
     };
 
-    const onBackClick = () => {
+    const handleBack = () => {
+        if (typeof onBackClick === 'function') return onBackClick();
         navigate(-1); // 직전 페이지로 이동
     };
 
@@ -80,7 +81,7 @@ const HeaderWithShopping = () => {
                 {/* 왼쪽: 로고 텍스트 */}
                 <button
                     type="button"
-                    onClick={onBackClick}
+                    onClick={handleBack}
                     aria-label="뒤로가기"
                     className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                 >
