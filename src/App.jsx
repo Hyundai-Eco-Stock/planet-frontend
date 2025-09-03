@@ -67,9 +67,6 @@ import PickupOrderPage from '@/pages/order/PickupOrderPage'
 import PaymentSuccessPage from '@/pages/payment/PaymentSuccessPage'
 import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 
-// 관리자
-import Test from '@/pages/admin/Test'
-
 // QR
 import QrResolvePage from '@/pages/pickup/QrResolvePage'
 
