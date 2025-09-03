@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BarChart3, PieChart as PieChartIcon, TrendingUp, Users } from 'lucide-react';
+import { fetchEcoStockHoldingAmountDataGroupByMember, fetchEcoStockIssuePercentageData } from '@/api/admin/admin.api';
 
 const EcoStockDashboard = () => {
     // 에코스톡 발급 비율 데이터 (mock data)
@@ -22,6 +23,29 @@ const EcoStockDashboard = () => {
         { range: '501-1000개', userCount: 35, percentage: 1.3 },
         { range: '1000개 이상', userCount: 12, percentage: 0.4 }
     ]);
+
+    useEffect(() => {
+        // 발급 비율 데이터 호출
+        fetchEcoStockIssuePercentageData()
+            .then((res) => {
+                setStockIssueData(res.data.items); // [{name, value, count, color}, ...]
+                setSummary((prev) => ({ ...prev, totalIssued: res.data.totalIssued }));
+            })
+
+        // 보유 현황 데이터 호출
+        fetchEcoStockHoldingAmountDataGroupByMember()
+        .then((res) => {
+            setUserDistributionData(res.data.items); // [{range, userCount, percentage}, ...]
+            setSummary({
+                totalIssued: res.data.totalIssued,
+                totalUsers: res.data.totalUsers,
+                avgHolding: res.data.avgHolding,
+            });
+        })
+    }, []);
+
+
+    const [summary, setSummary] = useState({ totalIssued: 0, totalUsers: 0, avgHolding: 0 });
 
     // 총계 계산
     const totalIssued = stockIssueData.reduce((sum, item) => sum + item.count, 0);
@@ -230,56 +254,7 @@ const EcoStockDashboard = () => {
                     </div>
                 </div>
 
-                {/* 추가 통계 테이블 */}
-                <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">에코스톡별 상세 통계</h3>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        에코스톡명
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        발급량
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        비율
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        상태
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {stockIssueData.map((stock, index) => (
-                                    <tr key={index} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div
-                                                    className="w-3 h-3 rounded-full mr-3"
-                                                    style={{ backgroundColor: stock.color }}
-                                                ></div>
-                                                <span className="text-sm font-medium text-gray-900">{stock.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {stock.count.toLocaleString()}개
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {stock.value}%
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                활성
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                
 
                 {/* 날짜별 필터 및 새로고침 */}
                 <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
