@@ -499,7 +499,7 @@ const PickupOrderPage = () => {
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
-          maxUsage={orderDraft.payment.productTotal}
+          maxUsage={(orderDraft.payment.productTotal || 0) + (orderDraft.payment.donationAmount || 0)}
           onUpdate={updatePointUsage}
         />
 

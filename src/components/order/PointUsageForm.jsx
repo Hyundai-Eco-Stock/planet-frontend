@@ -83,7 +83,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
   const handleInputFocus = () => {
     // 입력 시작 시 천단위 구분자 제거
-    setInputValue(formatThousand(pointAmount))
+    setInputValue(pointAmount.toString())
   }
 
   const useAllPoints = () => {
@@ -125,9 +125,9 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
            <label htmlFor="usePoints" className="ml-2 text-gray-700">포인트 사용하기</label>
         </div>
 
-        {Number.isFinite(maxUsage) && maxUsage < availablePoint && (
-          <div className="text-xs text-orange-600">최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능</div>
-        )}
+        <div className="text-xs text-orange-600">
+          최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능
+        </div>
       </div>
 
       {/* 포인트 입력 영역 */}
