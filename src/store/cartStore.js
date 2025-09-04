@@ -39,7 +39,7 @@ const useCartStore = create(
         
         const existingProduct = currentCart.find(cartProduct => cartProduct.id === product.id)
         
-        // 에코딜 상품이고 매장 정보가 있는 경우 충돌 검사
+        // 에코딜 상품이고 매장 정보가 있는 경우에만 충돌 검사
         if (product.isEcoDeal && product.selectedStore && existingProduct && !force) {
           // 다른 매장인지 확인
           if (existingProduct.selectedStore && existingProduct.selectedStore.id !== product.selectedStore.id) {
@@ -49,9 +49,8 @@ const useCartStore = create(
         }
         
         if (existingProduct) {
-          // 매장 충돌 해결 액션에 따른 처리
           if (action === 'replace') {
-            // 새 매장으로 교체
+            // 새 매장으로 교체 (매장 충돌 해결용)
             set({
               [cartKey]: currentCart.map(cartProduct =>
                 cartProduct.id === product.id 
@@ -60,11 +59,18 @@ const useCartStore = create(
               )
             })
           } else {
-            // 기본: 수량만 증가 (기존 매장 정보 유지)
+            // 기본 동작: 수량만 증가 (기존 상품 정보 유지)
             set({
               [cartKey]: currentCart.map(cartProduct =>
                 cartProduct.id === product.id 
-                  ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
+                  ? { 
+                      ...cartProduct, 
+                      quantity: cartProduct.quantity + quantity,
+                      // 매장 정보가 없었는데 새로 추가되는 경우 매장 정보 업데이트
+                      ...(product.selectedStore && !cartProduct.selectedStore && {
+                        selectedStore: product.selectedStore
+                      })
+                    }
                   : cartProduct
               )
             })
@@ -76,12 +82,10 @@ const useCartStore = create(
           })
         }
         
-        // 강제 새로고침 이벤트
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
-          // 한 번 더 강제로 발생
-          window.dispatchEvent(new Event('cart-storage'));
-        }, 10);
+        // 상태 변경 즉시 이벤트 발생
+        window.dispatchEvent(new CustomEvent('cartStorageUpdate', {
+          detail: { cartKey, productId: product.id, quantity }
+        }));
 
         return { success: true }
       },
