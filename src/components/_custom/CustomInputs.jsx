@@ -117,28 +117,75 @@ const CardNumberInput = ({
 
     return (
         <div className="flex items-center w-full">
-            {parts.map((part, idx) => (
+            {/* {parts.map((part, idx) => (
                 <div key={idx} className="flex items-center">
-                    {/* input은 균등 분배 */}
-                    <div className="relative flex-1 border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors">
-                        <input
-                            ref={(el) => (inputsRef.current[idx] = el)}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={4}
-                            className="w-full py-4 rounded-xl outline-none text-center placeholder:text-black/40"
-                            value={part}
-                            onChange={(e) => handleChange(idx, e)}
-                            onKeyDown={(e) => handleKeyDown(idx, e)}
-                        />
-                    </div>
+                    <CardNumberInputField
+                        idx={idx}
+                        value={part}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        inputRef={(el) => (inputsRef.current[idx] = el)}
+                    />
                     {idx < parts.length - 1 && (
                         <span className="mx-2 text-gray-500 text-lg">-</span>
                     )}
                 </div>
-            ))}
+            ))} */}
+            <CardNumberInputField
+                idx={0}
+                value={parts[0]}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                inputRef={(el) => (inputsRef.current[0] = el)}
+            />
+            <span className="mx-2 text-gray-500 text-lg">-</span>
+            <CardNumberInputField
+                idx={1}
+                value={parts[1]}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                inputRef={(el) => (inputsRef.current[1] = el)}
+            />
+            <span className="mx-2 text-gray-500 text-lg">-</span>
+            <CardNumberInputField
+                idx={2}
+                value={parts[2]}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                inputRef={(el) => (inputsRef.current[2] = el)}
+            />
+            <span className="mx-2 text-gray-500 text-lg">-</span>
+            <CardNumberInputField
+                idx={3}
+                value={parts[3]}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                inputRef={(el) => (inputsRef.current[3] = el)}
+            />
         </div>
     );
 };
+
+
+/**
+ * 카드번호 input 단일 필드
+ */
+const CardNumberInputField = ({ idx, value, onChange, onKeyDown, inputRef }) => {
+    return (
+        <div className="relative flex-1 border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors">
+            <input
+                ref={inputRef}
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                className="w-full py-4 rounded-xl outline-none text-center placeholder:text-black/40"
+                value={value}
+                onChange={(e) => onChange(idx, e)}
+                onKeyDown={(e) => onKeyDown(idx, e)}
+            />
+        </div>
+    );
+};
+
 
 export { CustomCommonInput, CardNumberInput };

@@ -29,7 +29,8 @@ const MyPageMain = () => {
     const navigations = [
         { title: 'MY / 설정', path: 'TITLE' },
         { title: '내 정보', path: '/my-page/profile' },
-        { title: '내 차량번호 등록 및 입/출차 내역', path: '/my-page/my-car' },
+        { title: '내 차량번호 관리 및 입/출차 내역 조회', path: '/my-page/my-car' },
+        { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
         { title: '앱 설정', path: '/my-page/settings' },
         
         { title: '', path: 'LINE' },
