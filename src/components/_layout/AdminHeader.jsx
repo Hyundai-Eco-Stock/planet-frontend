@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const AdminHeader = () => {
     const menus = [
@@ -11,12 +11,16 @@ const AdminHeader = () => {
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-                <h1 className="
-                    text-xl text-gray-900
-                    inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline
-                ">
+
+                <Link
+                    to="/home/main"
+                    className="text-xl text-gray-900
+                    inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
+                    aria-label="planet 홈으로 이동"
+                >
                     planet 관리자 대시보드
-                    </h1>
+                </Link>
+
                 <nav className="flex gap-6">
                     {menus.map((menu) => (
                         <NavLink

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faBagShopping } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
 const HeaderWithShopping = () => {
@@ -75,7 +75,7 @@ const HeaderWithShopping = () => {
             <div className="flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 로고 텍스트 */}
                 <Link
-                    to="/home"
+                    to="/home/main"
                     className="inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
                     aria-label="planet 홈으로 이동"
                 >
@@ -100,7 +100,7 @@ const HeaderWithShopping = () => {
                         aria-label="장바구니 보기"
                         className="relative flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                     >
-                        <FontAwesomeIcon icon={faBagShopping} className="text-lg" />
+                        <FontAwesomeIcon icon={faShoppingCart} className="text-lg" />
                         <span className="sr-only">장바구니</span>
 
                         {/* 장바구니 개수 배지 */}

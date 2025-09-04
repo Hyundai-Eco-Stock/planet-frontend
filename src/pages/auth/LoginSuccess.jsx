@@ -1,10 +1,13 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import useAuthStore from '@/store/authStore';
+import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
 
 export default function LoginSuccess() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { requestToPermitPushNotification } = useNotifications();
 
     // 1) 쿼리 파라미터 읽기
     const queryParams = new URLSearchParams(location.search);
@@ -12,12 +15,11 @@ export default function LoginSuccess() {
     const email = queryParams.get("email");
     const name = queryParams.get("name");
     const profileUrl = queryParams.get("profileUrl");
-    
 
     useEffect(() => {
         if (accessToken && email && name) {
             console.log(`accessToken: ${accessToken}`)
-            
+
             // Zustand에 저장
             useAuthStore.getState().setLoginStatus(true);
             useAuthStore.getState().setAccessToken(accessToken);
@@ -25,6 +27,8 @@ export default function LoginSuccess() {
             useAuthStore.getState().setName(name);
             useAuthStore.getState().setProfile(profileUrl);
             
+            requestToPermitPushNotification();
+
             // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/login/success");
 

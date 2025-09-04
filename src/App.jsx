@@ -1,8 +1,6 @@
 import './App.css'
 
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useNotifications } from '@/hooks/fcm_notification/useNotifications'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
@@ -71,6 +69,27 @@ import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 // QR
 import QrResolvePage from '@/pages/pickup/QrResolvePage'
 
+// 에코딜
+import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
+import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
+
+//래플 
+import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
+import RaffleListPage from './pages/raffle/RaffleListPage'
+
+// PHTI
+import PhtiSurvey from '@/pages/phti/PhtiSurvey'
+import PhtiResult from "@/pages/phti/PhtiResult";
+
+// 관리자
+import Test from '@/pages/admin/Test'
+import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
+import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
+import PhtiDashboard from '@/pages/admin/PhtiDashboard'
+import DonationDashboard from '@/pages/admin/DonationDashboard'
+
+// -------------------------- 라우팅 끝 --------------------------
+
 const OrderRedirect = () => {
 	const location = useLocation()
 	const deliveryType = location.state?.deliveryType || 'DELIVERY'
@@ -82,40 +101,14 @@ const OrderRedirect = () => {
 }
 
 
-// 에코딜
-import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
-import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
-
-//래플 
-import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
-import RaffleListPage from './pages/raffle/RaffleListPage'
-
-// PHTI
-import PhtiSurvey from '@/pages/phti/PhtiSurvey'
-
-// 관리자
-import Test from '@/pages/admin/Test'
-import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
-import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
-import PhtiDashboard from '@/pages/admin/PhtiDashboard'
-import DonationDashboard from '@/pages/admin/DonationDashboard'
-
-// -------------------------- 라우팅 끝 --------------------------
-
 function App() {
-
-	const { syncPushEnabledState } = useNotifications();
-
-	useEffect(() => {
-		syncPushEnabledState();
-	}, [syncPushEnabledState]);
 
 	return (
 		<Routes>
 			{/* 리다이렉트 path */}
 			<Route path="/home" element={<Navigate to="/home/main" />} />
 			<Route path="/" element={<Navigate to="/home" />} />
-			<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />}  />
+			<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />} />
 
 			{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutShopping />}>
@@ -152,13 +145,14 @@ function App() {
 			<Route element={<LayoutShoppingWithBack />}>
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
-				<Route path="/phti/survey" element={<PhtiSurvey />} />
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndClose title="" />}>
 				<Route path="/signup/local" element={<LocalSignUp />} />
 				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
+				<Route path="/phti/survey" element={<PhtiSurvey />} />
+				<Route path="/phti/result" element={<PhtiResult />} />
 			</Route>
 
 			{/* 로고만 있는 Layout (헤더만) */}
