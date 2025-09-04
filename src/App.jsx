@@ -1,12 +1,6 @@
 import './App.css'
 
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useNotifications } from '@/hooks/fcm_notification/useNotifications'
-import useAuthStore from './store/authStore'
-import Swal from 'sweetalert2'
-
-import useNotificationStore from './store/notificationStore';
 
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
@@ -108,42 +102,6 @@ const OrderRedirect = () => {
 
 
 function App() {
-
-	const { loginStatus } = useAuthStore();
-	const navigate = useNavigate();
-	const { pushEnabled } = useNotificationStore();
-
-	useEffect(() => {
-		console.log("pushEnabled: ", pushEnabled);
-		// 로그인 시 푸시 알림이 거부되어 있으면
-		if (!loginStatus) return;
-
-		if (!pushEnabled) {
-			// 아직 브라우저 알림 권한 요청한 적 없을 때 허용 요청하기
-			if (Notification.permission === 'default') {
-				Notification.requestPermission()
-					.then((permission) => {
-						console.log(permission); // "granted" | "denied" | "default"
-					});
-			}
-
-			// 브라우저 알림 권한이 허용일 때 푸시 알림 허용을 위해 앱 세팅 페이지로 보내는 것 추천
-			if (Notification.permission === 'granted') {
-				Swal.fire({
-					title: '알림 설정',
-					text: '플래닛의 소식을 받아보시겠어요? 알림을 설정하면 에코딜, 래플 등 다양한 정보를 빠르게 얻을 수 있어요.',
-					icon: 'info',
-					showCancelButton: true,
-					confirmButtonText: '설정하기',
-					cancelButtonText: '다음에 할게요',
-				}).then((result) => {
-					if (result.isConfirmed) {
-						navigate('/my-page/settings');
-					}
-				});
-			}
-		}
-	}, [loginStatus]);
 
 	return (
 		<Routes>

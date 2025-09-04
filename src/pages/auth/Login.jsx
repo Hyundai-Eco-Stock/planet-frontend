@@ -9,12 +9,16 @@ import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import SpeechBubble from "@/components/auth/SpeechBubble";
 import { localLogin } from "@/api/auth/auth.api";
 import useAuthStore from "@/store/authStore";
+import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
 
 const Login = () => {
 
     const navigate = useNavigate();
+
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
+
+    const { requestToPermitPushNotification } = useNotifications();
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -26,7 +30,10 @@ const Login = () => {
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
             useAuthStore.getState().setProfile(profileUrl);
-            navigate("/");
+
+            requestToPermitPushNotification();
+            
+            navigate("/my-page/main");
         } catch (error) {
             console.error("Login failed:", error);
         }
