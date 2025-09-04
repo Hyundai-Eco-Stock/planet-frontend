@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchPhtiQuestinosAndChoices, submitPhtiSurvey } from "@/api/phti/phti.api";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 
 const variants = {
     enter: (direction) => ({
@@ -20,7 +21,7 @@ const variants = {
 
 const PhtiSurvey = () => {
     const navigate = useNavigate();
-    
+
     const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0); // 이동 방향 저장
@@ -37,6 +38,10 @@ const PhtiSurvey = () => {
     }, []);
 
     const handleNext = () => {
+        const currentQuestionId = questions[currentIndex].questionId;
+        // 선택 안 했으면 넘어가지 않음
+        if (!answers[currentQuestionId]) return;
+
         if (currentIndex < questions.length - 1) {
             setDirection(1); // 앞으로
             setCurrentIndex((prev) => prev + 1);
@@ -51,11 +56,19 @@ const PhtiSurvey = () => {
     };
 
     const handleChoiceSelect = (questionId, choiceId) => {
-        setAnswers((prev) => ({
-            ...prev,
-            [questionId]: choiceId,
-        }));
-        handleNext();
+        setAnswers((prev) => {
+            const updated = {
+                ...prev,
+                [questionId]: choiceId,
+            };
+
+            // 선택이 반영된 뒤 자동 다음으로 이동
+            if (currentIndex < questions.length - 1) {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
+            }
+            return updated;
+        });
     };
 
     const handleSubmit = async () => {
@@ -67,14 +80,16 @@ const PhtiSurvey = () => {
         };
         const data = await submitPhtiSurvey(payload);
         console.log(data);
-        
+
         navigate("/phti/result", { state: { result: data } });
     };
 
     if (questions.length === 0) return <div>로딩중...</div>;
 
+    const isFirstPage = currentIndex === 0;
     const isLastPage = currentIndex === questions.length - 1;
-
+    const allAnswered = Object.keys(answers).length === questions.length;
+    
     return (
         <div className="h-full flex flex-col items-center justify-center p-2">
             <div className="w-full max-w-xl h-full bg-white shadow-lg rounded-2xl p-6 relative overflow-hidden">
@@ -103,8 +118,8 @@ const PhtiSurvey = () => {
                                             key={choice.choiceId}
                                             className={`w-full text-left px-4 py-3 rounded-xl border transition 
                                                     ${isSelected
-                                                        ? "bg-emerald-500 text-white"
-                                                        : "bg-white border-gray-300 hover:bg-emerald-50"
+                                                    ? "bg-emerald-500 text-white"
+                                                    : "bg-white border-gray-300 hover:bg-emerald-50"
                                                 }`}
                                             onClick={() =>
                                                 handleChoiceSelect(
@@ -124,8 +139,9 @@ const PhtiSurvey = () => {
 
                 {/* 하단 네비게이션 */}
                 <div className="flex justify-between items-center mt-6">
-                    {!isLastPage ? (
-                        <>
+                    <div className="flex-1 flex justify-start items-center">
+                        {
+                            !isFirstPage &&
                             <button
                                 onClick={handleBack}
                                 disabled={currentIndex === 0}
@@ -133,9 +149,16 @@ const PhtiSurvey = () => {
                             >
                                 뒤로
                             </button>
-                            <span className="text-sm text-gray-500">
-                                {currentIndex + 1} / {questions.length}
-                            </span>
+                        }
+                    </div>
+
+                    <span className="flex-1 text-sm text-center text-gray-500">
+                        {currentIndex + 1} / {questions.length}
+                    </span>
+
+                    <div className="flex-1 flex justify-end items-center">
+                        {
+                            !isLastPage &&
                             <button
                                 onClick={handleNext}
                                 disabled={currentIndex === questions.length - 1}
@@ -143,16 +166,17 @@ const PhtiSurvey = () => {
                             >
                                 다음
                             </button>
-                        </>
-                    ) : (
-                        <button
-                            onClick={handleSubmit}
-                            className="w-full py-3 rounded-lg bg-emerald-600 text-white font-bold"
-                        >
-                            제출하기
-                        </button>
-                    )}
+                        }
+                    </div>
                 </div>
+            </div>
+
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-4">
+                <CustomCommonButton
+                    onClick={handleSubmit}
+                    children="제출하기"
+                    disabled={!allAnswered}
+                />
             </div>
         </div>
     );
