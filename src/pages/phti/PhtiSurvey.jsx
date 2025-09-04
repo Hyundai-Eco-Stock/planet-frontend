@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchPhtiQuestinosAndChoices, submitPhtiSurvey } from "@/api/phti/phti.api";
 import { motion, AnimatePresence } from "framer-motion";
-import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const variants = {
     enter: (direction) => ({
@@ -19,6 +19,8 @@ const variants = {
 };
 
 const PhtiSurvey = () => {
+    const navigate = useNavigate();
+    
     const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0); // 이동 방향 저장
@@ -65,55 +67,8 @@ const PhtiSurvey = () => {
         };
         const data = await submitPhtiSurvey(payload);
         console.log(data);
-        Swal.fire({
-            title: `🌱 당신의 PHTI 결과`,
-            html: `
-                <div style="text-align:center; margin-bottom:15px;">
-                    <h2 style="font-size: 28px; font-weight: bold; color:#10B981; margin: 0;">
-                        ${data.primaryPhti}
-                    </h2>
-                    <p style="font-size: 16px; color:#374151; margin-top: 8px;">
-                        ${data.primaryPhtiCustomDescription}
-                    </p>
-                </div>
         
-                <div style="text-align:left; font-size: 14px; color:#374151;">
-                    <p style="margin:6px 0;">📊 <b>에코 성향</b> (${data.ecoChoiceRatio}%)</p>
-                    <div style="background:#E5E7EB; border-radius:8px; height:10px; margin-bottom:10px;">
-                        <div style="width:${data.ecoChoiceRatio}%; height:100%; background:#10B981; border-radius:8px;"></div>
-                    </div>
-        
-                    <p style="margin:6px 0;">📊 <b>가치 소비</b> (${data.valueChoiceRatio}%)</p>
-                    <div style="background:#E5E7EB; border-radius:8px; height:10px; margin-bottom:10px;">
-                        <div style="width:${data.valueChoiceRatio}%; height:100%; background:#3B82F6; border-radius:8px;"></div>
-                    </div>
-        
-                    <p style="margin:6px 0;">📊 <b>도전 성향</b> (${data.raffleChoiceRatio}%)</p>
-                    <div style="background:#E5E7EB; border-radius:8px; height:10px; margin-bottom:10px;">
-                        <div style="width:${data.raffleChoiceRatio}%; height:100%; background:#F59E0B; border-radius:8px;"></div>
-                    </div>
-        
-                    <p style="margin:6px 0;">📊 <b>포인트 사용</b> (${data.pointChoiceRatio}%)</p>
-                    <div style="background:#E5E7EB; border-radius:8px; height:10px; margin-bottom:10px;">
-                        <div style="width:${data.pointChoiceRatio}%; height:100%; background:#EF4444; border-radius:8px;"></div>
-                    </div>
-                </div>
-        
-                <hr style="margin:15px 0;">
-        
-                <div style="text-align:center; font-size:14px; color:#6B7280;">
-                    <p>🥈 2순위: <b style="color:#111827;">${data.secondaryPhti}</b></p>
-                    <p>🥉 3순위: <b style="color:#111827;">${data.tertiaryPhti}</b></p>
-                </div>
-            `,
-            showConfirmButton: true,
-            confirmButtonText: "확인",
-            confirmButtonColor: "#10B981",
-            width: 650,
-            customClass: {
-                popup: 'rounded-2xl shadow-2xl'
-            }
-        });
+        navigate("/phti/result", { state: { result: data } });
     };
 
     if (questions.length === 0) return <div>로딩중...</div>;

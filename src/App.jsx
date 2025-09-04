@@ -71,17 +71,6 @@ import PaymentFailPage from '@/pages/payment/PaymentFailPage'
 // QR
 import QrResolvePage from '@/pages/pickup/QrResolvePage'
 
-const OrderRedirect = () => {
-	const location = useLocation()
-	const deliveryType = location.state?.deliveryType || 'DELIVERY'
-
-	if (deliveryType === 'PICKUP') {
-		return <Navigate to="/orders/pickup" state={location.state} replace />
-	}
-	return <Navigate to="/orders/delivery" state={location.state} replace />
-}
-
-
 // 에코딜
 import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
 import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
@@ -92,6 +81,7 @@ import RaffleListPage from './pages/raffle/RaffleListPage'
 
 // PHTI
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
+import PhtiResult from "@/pages/phti/PhtiResult";
 
 // 관리자
 import Test from '@/pages/admin/Test'
@@ -101,6 +91,17 @@ import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
 
 // -------------------------- 라우팅 끝 --------------------------
+
+const OrderRedirect = () => {
+	const location = useLocation()
+	const deliveryType = location.state?.deliveryType || 'DELIVERY'
+
+	if (deliveryType === 'PICKUP') {
+		return <Navigate to="/orders/pickup" state={location.state} replace />
+	}
+	return <Navigate to="/orders/delivery" state={location.state} replace />
+}
+
 
 function App() {
 
@@ -152,13 +153,14 @@ function App() {
 			<Route element={<LayoutShoppingWithBack />}>
 				<Route path="/shopping/detail" element={<ShoppingDetail />} />
 				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
-				<Route path="/phti/survey" element={<PhtiSurvey />} />
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndClose title="" />}>
 				<Route path="/signup/local" element={<LocalSignUp />} />
 				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
+				<Route path="/phti/survey" element={<PhtiSurvey />} />
+				<Route path="/phti/result" element={<PhtiResult />} />
 			</Route>
 
 			{/* 로고만 있는 Layout (헤더만) */}
