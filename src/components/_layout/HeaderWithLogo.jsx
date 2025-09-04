@@ -10,7 +10,7 @@ const HeaderWithLogo = ({ title = "", onClose }) => {
             <div className="flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 로고 */}
                 <Link
-                    to="/home"
+                    to="/home/main"
                     className="inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
                     aria-label="planet 홈으로 이동"
                 >

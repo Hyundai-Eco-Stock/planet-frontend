@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faBagShopping, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faArrowLeft, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
 const HeaderWithShopping = ({ onBackClick }) => {
@@ -107,7 +107,7 @@ const HeaderWithShopping = ({ onBackClick }) => {
                         aria-label="장바구니 보기"
                         className="relative flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                     >
-                        <FontAwesomeIcon icon={faBagShopping} className="text-lg" />
+                        <FontAwesomeIcon icon={faShoppingCart} className="text-lg" />
                         <span className="sr-only">장바구니</span>
 
                         {/* 장바구니 개수 배지 */}

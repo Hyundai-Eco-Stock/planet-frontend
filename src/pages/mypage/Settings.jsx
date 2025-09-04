@@ -2,6 +2,7 @@ import { useNotifications } from "@/hooks/fcm_notification/useNotifications";
 import useNotificationStore from "@/store/notificationStore";
 import { useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Settings = () => {
     const { setTitle } = useOutletContext();
@@ -17,7 +18,26 @@ const Settings = () => {
         if (pushEnabled) {
             await revokePushToken();
         } else {
-            await requestPermission();
+            if (Notification.permission !== 'granted') {
+                await Notification.requestPermission()
+                    .then((permission) => {
+                        // "granted" | "denied" | "default"
+                        console.log(permission);
+                    });
+            } 
+            
+            if (Notification.permission === "denied" || Notification.permission === "default") {
+                Swal.fire({
+                    icon: 'error',
+                    title: '알림 권한 설정',
+                    text: '앱의 알림 권한을 허용해주세요',
+                    confirmButtonText: '확인',
+                })
+                return;
+            }
+            requestPermission();
+
+            
         }
     };
 

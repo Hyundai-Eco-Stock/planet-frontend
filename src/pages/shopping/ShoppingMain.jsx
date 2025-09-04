@@ -115,13 +115,18 @@ export default function ShoppingMain() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      <CategoryBar
-        categories={barCategories}
-        active={activeCategoryId}
-        expanded={expanded}
-        onSelect={handleSelect}
-        onToggle={() => setExpanded((v) => !v)}
-      />
+      {/* 고정된 카테고리 바 (헤더 높이 64px 아래) */}
+      <div className="fixed left-0 right-0 z-40 bg-white border-b border-gray-100 px-4" style={{ top: '64px' }}>
+        <CategoryBar
+          categories={barCategories}
+          active={activeCategoryId}
+          expanded={expanded}
+          onSelect={handleSelect}
+          onToggle={() => setExpanded((v) => !v)}
+        />
+      </div>
+      {/* 고정 바의 높이만큼 공간 확보 (검색 영역이 가려지지 않도록) */}
+      <div className="h-[96px]" />
 
       {/* 검색 바: CategoryBar 아래 */}
       <div className="mt-2">
