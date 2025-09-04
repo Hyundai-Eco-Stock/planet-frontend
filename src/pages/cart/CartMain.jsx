@@ -8,14 +8,14 @@ import { CustomCommonButton } from '@/components/_custom/CustomButtons'
 const CartMain = () => {
   const navigate = useNavigate()
   
-  // 하이드레이션 상태 추가
+  // 하이드레이션 상태
   const [isHydrated, setIsHydrated] = useState(false)
+  // 강제 리렌더링용 상태
+  const [, forceUpdate] = useState({})
   
-  // localStorage에서 직접 데이터 읽기
-  const [localCartData, setLocalCartData] = useState({ deliveryCart: [], pickupCart: [] })
-  
-  // 스토어에서 필요한 데이터와 함수들 가져오기
-  const { getTotalProducts } = useCartStore()
+  // Zustand store에서 모든 상태 구독하기
+  const cartStore = useCartStore()
+  const { deliveryCart, pickupCart } = cartStore
   
   // 현재 선택된 탭
   const [activeTab, setActiveTab] = useState('delivery')
@@ -23,61 +23,76 @@ const CartMain = () => {
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
   
-  // 컴포넌트 마운트 시 localStorage에서 직접 데이터 로드
+  // cartStorageUpdate 이벤트로 강제 리렌더링
   useEffect(() => {
-    const loadCartData = () => {
+    const handleCartUpdate = () => {
+      forceUpdate({})
+      
+      // 한 번만 자동 새로고침 (개발 중에만)
+      if (window.location.pathname === '/cart/main' && !window.cartRefreshed) {
+        window.cartRefreshed = true
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
+      }
+    }
+    
+    window.addEventListener('cartStorageUpdate', handleCartUpdate)
+    
+    return () => {
+      window.removeEventListener('cartStorageUpdate', handleCartUpdate)
+    }
+  }, [])
+  
+  // 하이드레이션 처리 - 단순화
+  useEffect(() => {
+    // 페이지 진입 시 강제로 localStorage 동기화
+    const forceSync = () => {
       try {
         const cartData = localStorage.getItem('cart-storage')
         if (cartData) {
-          const parsedData = JSON.parse(cartData)
-          const state = parsedData.state || parsedData
+          const parsed = JSON.parse(cartData)
+          const state = parsed.state || parsed
           
-          setLocalCartData({
-            deliveryCart: state.deliveryCart || [],
-            pickupCart: state.pickupCart || []
-          })
-        } else {
-          setLocalCartData({ deliveryCart: [], pickupCart: [] })
+          // 현재 store 상태와 localStorage 상태가 다르면 store 업데이트
+          if (state.deliveryCart && state.pickupCart) {
+            const currentState = useCartStore.getState()
+            if (
+              state.deliveryCart.length !== currentState.deliveryCart.length ||
+              state.pickupCart.length !== currentState.pickupCart.length
+            ) {
+              useCartStore.setState({
+                deliveryCart: state.deliveryCart,
+                pickupCart: state.pickupCart
+              })
+              forceUpdate({}) // 리렌더링 강제
+            }
+          }
         }
       } catch (error) {
-        console.error('Error loading cart data:', error)
-        setLocalCartData({ deliveryCart: [], pickupCart: [] })
+        console.error('동기화 실패:', error)
       } finally {
         setIsHydrated(true)
       }
     }
     
-    // 즉시 로드
-    loadCartData()
+    forceSync()
     
-    // localStorage 변경 감지
-    const handleStorageChange = (e) => {
-      if (e.key === 'cart-storage') {
-        loadCartData()
-      }
-    }
+    // 100ms 후 한 번 더 체크
+    const timer = setTimeout(forceSync, 100)
     
-    const handleCartUpdate = () => {
-      loadCartData()
-    }
-    
-    window.addEventListener('storage', handleStorageChange)
-    window.addEventListener('cartStorageUpdate', handleCartUpdate)
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('cartStorageUpdate', handleCartUpdate)
-    }
+    return () => clearTimeout(timer)
   }, [])
   
   // 각 탭에 상품이 있는지 확인
-  const hasDeliveryProducts = localCartData.deliveryCart.length > 0
-  const hasPickupProducts = localCartData.pickupCart.length > 0
+  const hasDeliveryProducts = deliveryCart.length > 0
+  const hasPickupProducts = pickupCart.length > 0
   const hasAnyProducts = hasDeliveryProducts || hasPickupProducts
   
   // 현재 활성 탭의 장바구니 가져오기
   const getCurrentCart = () => {
-    return activeTab === 'delivery' ? localCartData.deliveryCart : localCartData.pickupCart
+    const result = activeTab === 'delivery' ? deliveryCart : pickupCart
+    return result
   }
   
   // 선택된 상품들만 필터링
@@ -120,6 +135,17 @@ const CartMain = () => {
   const handleSelectedChange = useCallback((selectedIds) => {
     setSelectedProductIds(selectedIds)
   }, [])
+  
+  // 상품이 삭제되어서 선택 목록에서 제거된 경우 처리
+  useEffect(() => {
+    const currentCart = getCurrentCart()
+    const currentProductIds = currentCart.map(product => product.id)
+    
+    // 삭제된 상품은 선택 목록에서 제거
+    setSelectedProductIds(prev => 
+      prev.filter(id => currentProductIds.includes(id))
+    )
+  }, [deliveryCart, pickupCart, activeTab])
   
   // 주문하기 버튼 클릭
   const handleOrderClick = () => {
@@ -175,7 +201,7 @@ const CartMain = () => {
           }`}
           onClick={() => setActiveTab('delivery')}
         >
-          일반 배송 ({localCartData.deliveryCart.length})
+          일반 배송 ({deliveryCart.length})
         </button>
         <button 
           className={`flex-1 py-4 text-center font-medium transition-colors ${
@@ -185,7 +211,7 @@ const CartMain = () => {
           }`}
           onClick={() => setActiveTab('pickup')}
         >
-          픽업 배송 ({localCartData.pickupCart.length})
+          픽업 배송 ({pickupCart.length})
         </button>
       </div>
       
