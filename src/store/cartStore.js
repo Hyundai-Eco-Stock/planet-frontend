@@ -33,10 +33,12 @@ const useCartStore = create(
           })
         }
         
-        // localStorage 변경 알림
+        // 강제 새로고침 이벤트
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('cartStorageUpdate'));
-        }, 0);
+          // 한 번 더 강제로 발생
+          window.dispatchEvent(new Event('cart-storage'));
+        }, 10);
       },
       
       // 수량 업데이트

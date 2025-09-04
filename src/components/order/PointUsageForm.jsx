@@ -6,19 +6,30 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
   const [pointAmount, setPointAmount] = useState(initial)
   const [inputValue, setInputValue] = useState(String(initial))
 
+  const MIN_PAYMENT_AMOUNT = 100 // 최소 결제 금액
+
   // 최대 사용 가능 포인트
-  const maxUsablePoint = Math.max(
+  const rawMaxUsable = Math.max(
     0,
     Math.min(
       Number.isFinite(availablePoint) ? availablePoint : 0,
-      Number.isFinite(maxUsage) ? maxUsage : availablePoint ?? 0 // maxUsage 미지정 시 보유포인트까지만
+      Number.isFinite(maxUsage) ? maxUsage : availablePoint ?? 0
     )
   )
+
+  const maxUsablePoint = Math.max(0, rawMaxUsable - MIN_PAYMENT_AMOUNT)
 
   // 공통 클램프 함수
   const clamp = (n) => {
     const v = Number.isFinite(n) ? n : 0
-    return Math.max(0, Math.min(v, maxUsablePoint))
+    const max = Math.max(0, Math.min(v, maxUsablePoint))
+    // finalAmount = productTotal + donationAmount - pointUsage
+    // 이게 MIN_PAYMENT_AMOUNT 이상 되도록 보정
+    const finalAmount = maxUsage - max
+    if (finalAmount < MIN_PAYMENT_AMOUNT) {
+      return maxUsage - MIN_PAYMENT_AMOUNT
+    }
+    return max
   }
 
   // 포맷 제어용: blur 시 콤마, focus 시 생 숫자
@@ -83,7 +94,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
   const handleInputFocus = () => {
     // 입력 시작 시 천단위 구분자 제거
-    setInputValue(formatThousand(pointAmount))
+    setInputValue(pointAmount.toString())
   }
 
   const useAllPoints = () => {
@@ -122,12 +133,13 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
             onChange={(e) => handleUsePointsToggle(e.target.checked)}
             className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
           />
-           <label htmlFor="usePoints" className="ml-2 text-gray-700">포인트 사용하기</label>
+          <label htmlFor="usePoints" className="ml-2 text-gray-700">포인트 사용하기</label>
         </div>
 
-        {Number.isFinite(maxUsage) && maxUsage < availablePoint && (
-          <div className="text-xs text-orange-600">최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능</div>
-        )}
+        <div className="text-xs text-orange-600">
+          최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능
+          <span className="text-gray-400 ml-1">(최소 {MIN_PAYMENT_AMOUNT}원 결제 필요)</span>
+        </div>
       </div>
 
       {/* 포인트 입력 영역 */}
@@ -143,8 +155,8 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
               onBlur={handleInputBlur}
               disabled={!usePoints}
               className={`w-full px-3 py-2 pr-8 border rounded-lg text-right ${usePoints
-                  ? 'border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white'
-                  : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                ? 'border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white'
+                : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                 }`}
               placeholder="0"
             />
@@ -154,11 +166,10 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
           <button
             onClick={useAllPoints}
             disabled={!usePoints || maxUsablePoint === 0 || isAllPointsUsed}
-            className={`px-4 py-2 border rounded-lg text-sm ${
-              usePoints && !isAllPointsUsed
-                ? 'text-green-600 border-green-600 hover:bg-green-50'
-                : 'text-gray-400 border-gray-300 cursor-not-allowed'
-            }`}
+            className={`px-4 py-2 border rounded-lg text-sm ${usePoints && !isAllPointsUsed
+              ? 'text-green-600 border-green-600 hover:bg-green-50'
+              : 'text-gray-400 border-gray-300 cursor-not-allowed'
+              }`}
           >
             {isAllPointsUsed ? '최대 사용중' : '전액 사용'}
           </button>
@@ -170,7 +181,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
             <div className="flex justify-between items-center text-sm">
               <span className="text-green-700">포인트 사용</span>
               <span className="font-semibold text-green-700">
-                -{actualUsage.toLocaleString()}P ({actualUsage.toLocaleString()}원 할인)
+                {actualUsage.toLocaleString()}P ({actualUsage.toLocaleString()}원 할인)
               </span>
             </div>
             <div className="flex justify-between items-center text-xs text-green-600 mt-1">
