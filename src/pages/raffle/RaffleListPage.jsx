@@ -17,7 +17,10 @@ const RaffleListPage = () => {
     (item, e) => {
       e.stopPropagation(); // 카드 클릭 막기
       navigate(`/raffle/detail/${item.raffleId}`, {
-        state: { personalStockInfoList },
+        state: {
+          personalStockInfoList,
+          winnerName: item.winnerName
+        },
       });
     },
     [navigate, personalStockInfoList]
