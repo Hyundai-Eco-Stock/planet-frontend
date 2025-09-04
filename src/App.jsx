@@ -39,6 +39,7 @@ import EcoStockMain from '@/pages/eco_stock/EcoStockMain'
 import MyPageMain from '@/pages/mypage/MyPageMain'
 import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
+import MyCardInfo from '@/pages/mypage/MyCardInfo'
 import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 import Settings from '@/pages/mypage/Settings'
 import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
@@ -140,6 +141,7 @@ function App() {
 				<Route path="/my-page/profile" element={<MyProfile />} />
 				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
+				<Route path="/my-page/my-card" element={<MyCardInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
 				<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
 				<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />

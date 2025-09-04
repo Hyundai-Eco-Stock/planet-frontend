@@ -20,11 +20,11 @@ const CustomCommonButton = ({
             onClick={onClick}
             disabled={disabled}
             className={`
-                    w-full py-4 rounded-xl 
+                    w-full py-3 rounded-xl 
+                    text-white text-lg font-semibold
                     bg-emerald-500 hover:bg-emerald-600
-                    text-white text-lg font-normal
-                    disabled:opacity-50 disabled:cursor-not-allowed
                     active:translate-y-[1px] transition
+                    disabled:opacity-50 disabled:cursor-not-allowed
                     ${className}`}
         >
             {children}

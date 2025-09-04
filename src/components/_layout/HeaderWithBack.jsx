@@ -16,20 +16,21 @@ const HeaderWithBack = ({ title = "" }) => {
         <header className="sticky top-0 z-50 bg-white text-[#0b1020]">
             <div className="px-4 flex items-center justify-between py-3 h-16">
                 {/* 왼쪽: 뒤로가기 버튼 */}
-                <button
-                    type="button"
-                    onClick={onBackClick}
-                    aria-label="뒤로가기"
-                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
-                >
-                    <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
-                    <span className="sr-only">뒤로가기</span>
-                </button>
+                <div className="flex-1 flex items-center justify-start">
+                    <button
+                        type="button"
+                        onClick={onBackClick}
+                        aria-label="뒤로가기"
+                        className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
+                    </button>
+                </div>
 
-                <h1 className="font-bold text-xl">{title}</h1>
+                <h1 className="flex-1 text-center font-bold text-xl">{title}</h1>
 
                 {/* 오른쪽 비워둠 */}
-                <div className="flex items-center gap-5"></div>
+                <div className="flex-1 items-center justify-end"></div>
             </div>
         </header>
     );
