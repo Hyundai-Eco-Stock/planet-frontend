@@ -72,6 +72,7 @@ const StatusChip = ({ status }) => {
   const norm = {
     PAID: "PAID",
     DONE: "PAID", // sometimes PAID/DONE are mixed in upstream
+    COMPLETED: "PAID", // treat COMPLETED as confirmed
     ALL_CANCELLED: "ALL_CANCELLED",
     ALL_CANCELED: "ALL_CANCELLED",
     ALL_CANCLLED: "ALL_CANCELLED",
@@ -160,9 +161,10 @@ export default function MyBuyHistory() {
     <main className="p-4 max-w-screen-md mx-auto space-y-4">
       {groups.map((order) => {
         const isPaymentDone = String(order.paymentStatus).toUpperCase() === "DONE";
-        const isOrderDone = String(order.orderStatus).toUpperCase() === "DONE";
-        const isAllCancelled = String(order.orderStatus).toUpperCase() === "ALL_CANCELLED";
-        const isPartialCancelled = String(order.orderStatus).toUpperCase() === "PARTIAL_CANCELLED";
+        const orderStatusUpper = String(order.orderStatus).toUpperCase();
+        const isOrderDone = orderStatusUpper === "DONE" || orderStatusUpper === "COMPLETED";
+        const isAllCancelled = orderStatusUpper === "ALL_CANCELLED";
+        const isPartialCancelled = orderStatusUpper === "PARTIAL_CANCELLED";
         const isConfirmed = isOrderDone && isPaymentDone; // 둘 다 DONE일 때만 구매확정
         // Actions: 결제 DONE이면서 주문이 아직 DONE이 아닐 때만 표시 (전체취소 제외)
         const showActionButtons = isPaymentDone && !isOrderDone && !isAllCancelled;
