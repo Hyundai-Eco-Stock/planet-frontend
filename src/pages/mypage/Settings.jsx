@@ -30,7 +30,7 @@ const Settings = () => {
                 Swal.fire({
                     icon: 'error',
                     title: '알림 권한 설정',
-                    text: '브라우저의 알림 권한을 허용해주세요',
+                    text: '앱의 알림 권한을 허용해주세요',
                     confirmButtonText: '확인',
                 })
                 return;
