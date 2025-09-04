@@ -8,26 +8,69 @@ const useCartStore = create(
       deliveryCart: [],
       // 픽업 배송 장바구니 (PICKUP - 에코딜 상품만)
       pickupCart: [],
+
+      // 매장 중복 확인 함수
+      checkStoreConflict: (productId, newStoreId) => {
+        const { pickupCart } = get()
+        const existingProduct = pickupCart.find(cartProduct => cartProduct.id === productId)
+        
+        if (existingProduct && existingProduct.selectedStore) {
+          // 같은 상품이 존재하고 다른 매장인 경우
+          if (existingProduct.selectedStore.id !== newStoreId) {
+            return {
+              hasConflict: true,
+              existingStore: existingProduct.selectedStore,
+              existingQuantity: existingProduct.quantity
+            }
+          }
+        }
+        
+        return { hasConflict: false }
+      },
       
       // 장바구니에 상품 추가 (상품 타입에 따라 자동 분류)
-      addToCart: (product, quantity = 1) => {
+      addToCart: (product, quantity = 1, options = {}) => {
+        // 매장 충돌 처리 옵션
+        const { force = false, action = null } = options
+        
         // 에코딜 상품이면 픽업 장바구니, 아니면 일반 배송 장바구니
         const cartKey = product.isEcoDeal ? 'pickupCart' : 'deliveryCart'
         const currentCart = get()[cartKey]
         
         const existingProduct = currentCart.find(cartProduct => cartProduct.id === product.id)
         
+        // 에코딜 상품이고 매장 정보가 있는 경우 충돌 검사
+        if (product.isEcoDeal && product.selectedStore && existingProduct && !force) {
+          // 다른 매장인지 확인
+          if (existingProduct.selectedStore && existingProduct.selectedStore.id !== product.selectedStore.id) {
+            // 충돌 발생 - 외부에서 처리하도록 에러 반환
+            throw new Error('STORE_CONFLICT')
+          }
+        }
+        
         if (existingProduct) {
-          // 이미 있는 상품이면 기존 수량 + 새로 추가할 수량
-          set({
-            [cartKey]: currentCart.map(cartProduct =>
-              cartProduct.id === product.id 
-                ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
-                : cartProduct
-            )
-          })
+          // 매장 충돌 해결 액션에 따른 처리
+          if (action === 'replace') {
+            // 새 매장으로 교체
+            set({
+              [cartKey]: currentCart.map(cartProduct =>
+                cartProduct.id === product.id 
+                  ? { ...product, quantity: quantity }  // 완전히 새 상품으로 교체
+                  : cartProduct
+              )
+            })
+          } else {
+            // 기본: 수량만 증가 (기존 매장 정보 유지)
+            set({
+              [cartKey]: currentCart.map(cartProduct =>
+                cartProduct.id === product.id 
+                  ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
+                  : cartProduct
+              )
+            })
+          }
         } else {
-          // 새 상품 추가 (지정된 수량으로)
+          // 새 상품 추가
           set({
             [cartKey]: [...currentCart, { ...product, quantity }]
           })
@@ -39,6 +82,8 @@ const useCartStore = create(
           // 한 번 더 강제로 발생
           window.dispatchEvent(new Event('cart-storage'));
         }, 10);
+
+        return { success: true }
       },
       
       // 수량 업데이트
