@@ -9,7 +9,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
   useEffect(() => {
     const el = itemRefs.current[active];
     if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [active]);
+  }, [active, categories]);
 
   return (
     <section className="sticky top-0 z-20 bg-white pt-2 pb-1">
