@@ -4,7 +4,7 @@ import CartProduct from './CartProduct'
 import { CustomCommonButton } from '@/components/_custom/CustomButtons'
 
 const CartSection = ({ cartType, products, onSelectedChange }) => {
-  const { clearCart } = useCartStore()
+  const { clearCart, removeFromCart } = useCartStore()
   
   // 선택된 상품들의 ID 배열 (초기에는 빈 배열로 시작)
   const [selectedProducts, setSelectedProducts] = useState([])
@@ -68,15 +68,25 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
       return
     }
     
-    if (window.confirm(`선택한 상품을 삭제하시겠습니까?`)) {
-      // 선택된 상품들을 하나씩 삭제
-      selectedProducts.forEach(productId => {
+    const selectedCount = selectedProducts.length
+    if (window.confirm(`선택한 ${selectedCount}개 상품을 삭제하시겠습니까?`)) {      
+      // 각 선택된 상품을 개별 삭제
+      selectedProducts.forEach((productId, index) => {
         const product = products.find(p => p.id === productId)
         if (product) {
-          useCartStore.getState().removeFromCart(productId, product.isEcoDeal)
+          // 개별 삭제 실행
+          removeFromCart(productId, product.isEcoDeal)
+        } else {
+          console.warn(`상품을 찾을 수 없음: ${productId}`)
         }
       })
-      setSelectedProducts([]) // 선택 목록 초기화
+      
+      // 최종 상태 로그
+      setTimeout(() => {
+        console.log('최종 장바구니 상태:', useCartStore.getState())
+      }, 100)
+      
+      setSelectedProducts([])
     }
   }
   
@@ -123,7 +133,7 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
           <button
             onClick={handleDeleteSelected}
             disabled={selectedProducts.length === 0}
-            className="text-sm px-3 py-1.5 border border-gray-300 rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            className="text-sm px-3 py-1.5 border border-gray-300 rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             선택삭제
           </button>

@@ -11,6 +11,8 @@ import PickupStoreInfo from '../../components/order/PickupStoreInfo'
 import PointUsageForm from '../../components/order/PointUsageForm'
 import DonationForm from '../../components/order/DonationForm'
 import PaymentSummary from '../../components/payment/PaymentSummary'
+import EcoDealWarningBox from '@/components/eco-deal/EcoDealWarningBox'
+import EcoDealAgreementCheckbox from '@/components/eco-deal/EcoDealAgreementCheckbox'
 
 const PickupOrderPage = () => {
   const navigate = useNavigate()
@@ -29,6 +31,7 @@ const PickupOrderPage = () => {
   const { pickupCart } = useCartStore()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [agreeNoCancel, setAgreeNoCancel] = useState(false);
 
   // 결제위젯 refs
   const widgetRef = useRef(null)
@@ -36,6 +39,11 @@ const PickupOrderPage = () => {
 
   // 환경변수에서 Toss clientKey 직접 사용
   const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY
+
+  // 에코딜 상품 검사
+  const hasEcoDeals = orderDraft?.products?.some(product =>
+    product.ecoDealStatus || product.isEcoDeal
+  ) || false
 
   useEffect(() => {
     const initializeOrder = async () => {
@@ -256,9 +264,26 @@ const PickupOrderPage = () => {
     return remainder === 0 ? 0 : (1000 - remainder)
   }
 
+  // 에코딜 상품이 없으면 자동으로 동의 상태로 설정 (기존 useEffect들 뒤에 추가)
+  useEffect(() => {
+    if (!hasEcoDeals) {
+      setAgreeNoCancel(true)
+    } else {
+      setAgreeNoCancel(false)
+    }
+  }, [hasEcoDeals])
+
+
+
   // 결제하기 버튼 클릭
   const handlePayment = async () => {
     if (!orderDraft) return
+
+    // 에코딜 동의 체크 추가
+    if (hasEcoDeals && !agreeNoCancel) {
+      alert('에코딜 상품의 취소 불가 정책에 동의해주세요.')
+      return
+    }
 
     // 유효성 검사 (다중 매장 지원)
     if (!orderDraft.pickupInfo?.storeGroups || orderDraft.pickupInfo.storeGroups.length === 0) {
@@ -415,6 +440,8 @@ const PickupOrderPage = () => {
     )
   }
 
+  const isPaymentDisabled = hasEcoDeals ? !agreeNoCancel : false
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
@@ -472,7 +499,7 @@ const PickupOrderPage = () => {
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
-          maxUsage={orderDraft.payment.productTotal}
+          maxUsage={(orderDraft.payment.productTotal || 0) + (orderDraft.payment.donationAmount || 0)}
           onUpdate={updatePointUsage}
         />
 
@@ -481,6 +508,16 @@ const PickupOrderPage = () => {
           recommendedAmount={calculateRecommendedDonation()}
           currentAmount={orderDraft.payment.donationAmount}
           onUpdate={updateDonationAmount}
+        />
+
+        {/* 에코딜 경고 박스 */}
+        <EcoDealWarningBox hasEcoDeals={hasEcoDeals} />
+
+        {/* 에코딜 동의 체크 박스 */}
+        <EcoDealAgreementCheckbox
+          hasEcoDeals={hasEcoDeals}
+          isAgreed={agreeNoCancel}
+          onAgreementChange={setAgreeNoCancel}
         />
 
         {/* 결제 위젯 */}
@@ -497,14 +534,21 @@ const PickupOrderPage = () => {
         <div className="max-w-4xl mx-auto p-4">
           <button
             onClick={handlePayment}
-            disabled={isSubmitting}
-            className="w-full bg-green-500 text-white py-4 rounded-lg text-lg font-semibold hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            disabled={isSubmitting || isPaymentDisabled}
+            className={`w-full py-4 rounded-lg text-lg font-semibold transition-colors ${isPaymentDisabled
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : isSubmitting
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-green-500 text-white hover:bg-green-600'
+              }`}
           >
             {isSubmitting ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 처리 중...
               </div>
+            ) : isPaymentDisabled ? (
+              '취소 불가 정책 동의 필요'
             ) : (
               `${orderDraft.payment.finalAmount.toLocaleString()}원 결제하기`
             )}

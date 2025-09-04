@@ -8,9 +8,15 @@ import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInpu
 
 import useAuthStore from "@/store/authStore";
 import DaumPostcode from "@/components/address/DaumPostcode";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 const MyProfile = () => {
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("프로필 수정");
+    }, [setTitle]);
+
     const navigate = useNavigate();
 
     const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기

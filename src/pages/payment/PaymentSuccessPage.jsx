@@ -175,27 +175,32 @@ const PaymentSuccessPage = () => {
           </p>
 
           {!!orderResult && (
-            <div className="bg-gray-50 rounded-lg p-6 mb-8">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="text-left">
-                  <span className="text-gray-600">주문번호:</span>
-                  <p className="font-mono font-medium">{orderResult.orderNumber ?? orderResult.orderId}</p>
+            <div className="bg-gray-50 rounded-lg p-6 mb-8 space-y-4">
+              {/* 주문번호 - 별도 영역 */}
+              <div className="bg-white rounded-lg p-4 border">
+                <span className="text-gray-600 text-sm font-medium block mb-2">주문번호</span>
+                <div className="font-mono text-sm font-bold text-gray-900 break-all leading-relaxed bg-gray-50 p-3 rounded">
+                  {orderResult.orderNumber ?? orderResult.orderId}
                 </div>
-                <div className="text-left">
-                  <span className="text-gray-600">결제금액:</span>
-                  <p className="font-semibold text-green-600">
+              </div>
+
+              {/* 나머지 정보들 - 그리드 레이아웃 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="text-center p-3 bg-white rounded-lg border">
+                  <span className="text-gray-600 text-xs block mb-1">결제금액</span>
+                  <p className="font-bold text-green-600 text-lg">
                     {Number(amount || 0).toLocaleString()}원
                   </p>
                 </div>
-                <div className="text-left">
-                  <span className="text-gray-600">배송방식:</span>
-                  <p className="font-medium">
+                <div className="text-center p-3 bg-white rounded-lg border">
+                  <span className="text-gray-600 text-xs block mb-1">배송방식</span>
+                  <p className="font-medium text-gray-900">
                     {orderResult?.qrCodeData ? '픽업' : '일반 배송'}
                   </p>
                 </div>
-                <div className="text-left">
-                  <span className="text-gray-600">결제수단:</span>
-                  <p className="font-medium">{orderResult.paymentMethod ?? '신용카드'}</p>
+                <div className="text-center p-3 bg-white rounded-lg border">
+                  <span className="text-gray-600 text-xs block mb-1">결제수단</span>
+                  <p className="font-medium text-gray-900">{orderResult.paymentMethod ?? '신용카드'}</p>
                 </div>
               </div>
             </div>

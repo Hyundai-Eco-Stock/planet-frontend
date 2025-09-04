@@ -3,6 +3,8 @@ import CategoryBar from "./CategoryBar";
 // import CategorySheet from "./CategorySheet";
 import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
 import {ProductComponent} from "../../components/product/ProductComponent";
+import ShoppingDetail from "./ShoppingDetail";
+import HeaderWithShoppingAndBack from "@/components/_layout/HeaderWithShoppingAndBack";
 import { useSearchParams } from "react-router-dom";
 
 export default function ShoppingMain() {
@@ -16,6 +18,7 @@ export default function ShoppingMain() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [detailProductId, setDetailProductId] = useState(null); // 상세 모달용
 
   // URL 쿼리(category) 동기화용
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,6 +56,20 @@ export default function ShoppingMain() {
         setError(e?.message || "초기 데이터 로드에 실패했어요");
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  // 뒤로가기 복귀 시 스크롤 위치 복원
+  useEffect(() => {
+    try {
+      const yStr = sessionStorage.getItem('shopping-main-scroll');
+      if (yStr != null) {
+        const y = Number(yStr) || 0;
+        // 렌더 이후에 복원 시도
+        requestAnimationFrame(() => window.scrollTo(0, y));
+        setTimeout(() => window.scrollTo(0, y), 0);
+        sessionStorage.removeItem('shopping-main-scroll');
+      }
+    } catch (_) {}
   }, []);
 
   /* 카테고리 클릭 : URL 갱신 & 즉시 상품 목록 로드 */
@@ -141,7 +158,21 @@ export default function ShoppingMain() {
         items={items} 
         loading={loading} 
         error={error}
+        onOpenDetail={(pid) => setDetailProductId(pid)}
       />
+
+      {detailProductId != null && (
+        <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+          <HeaderWithShoppingAndBack onBackClick={() => setDetailProductId(null)} />
+          <main className="px-4 pb-24 overflow-y-auto scrollbar-hide flex-1">
+            <ShoppingDetail
+              productId={detailProductId}
+              onRequestNavigate={(pid) => setDetailProductId(pid)}
+              isFullScreen
+            />
+          </main>
+        </div>
+      )}
     </div>
   );
 }

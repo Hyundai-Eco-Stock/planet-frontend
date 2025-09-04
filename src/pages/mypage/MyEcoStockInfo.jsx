@@ -1,35 +1,66 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchMyEcostocks } from "@/api/member/member.api";
+import { fetchMyEcostocks, fetchEcostockPrices } from "@/api/member/member.api";
  
 
 const MyEcoStockInfo = () => {
   const [items, setItems] = useState([]);
+  const [prices, setPrices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastSyncAt, setLastSyncAt] = useState(null);
+
+  const loadAll = async () => {
+    let canceled = false;
+    setLoading(true);
+    setError(null);
+    try {
+      const [stocks, priceList] = await Promise.all([fetchMyEcostocks(), fetchEcostockPrices()]);
+      if (canceled) return;
+      setItems(Array.isArray(stocks) ? stocks : []);
+      setPrices(Array.isArray(priceList) ? priceList : []);
+      setLastSyncAt(new Date());
+    } catch (e) {
+      if (canceled) return;
+      console.error("내 에코스톡/가격 조회 실패", e);
+      setError(e?.message || "내 에코스톡을 불러오지 못했어요.");
+      setItems([]);
+      setPrices([]);
+    } finally {
+      if (canceled) return;
+      setLoading(false);
+    }
+    return () => { canceled = true };
+  };
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError(null);
-    fetchMyEcostocks()
-      .then((data) => {
-        if (!mounted) return;
-        setItems(Array.isArray(data) ? data : []);
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        console.error("내 에코스톡 조회 실패", e);
-        setError(e?.message || "내 에코스톡을 불러오지 못했어요.");
-        setItems([]);
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
-    return () => {
-      mounted = false;
-    };
+    (async () => {
+      if (!mounted) return;
+      await loadAll();
+    })();
+    return () => { mounted = false; };
   }, []);
+
+  const priceMap = useMemo(() => {
+    const map = new Map();
+    (prices || []).forEach((p) => {
+      const id = p.ecoStockId ?? p.eco_stock_id;
+      if (id == null) return;
+      map.set(id, Number(p.stockPrice ?? p.stock_price));
+    });
+    return map;
+  }, [prices]);
+
+  const enriched = useMemo(() => {
+    return (items || []).map((it) => {
+      const qty = Number(it.currentTotalQuantity || 0);
+      const amt = Number(it.currentTotalAmount || 0);
+      const avg = qty > 0 ? amt / qty : 0;
+      const cur = priceMap.has(it.ecoStockId) ? Number(priceMap.get(it.ecoStockId)) : null;
+      const changePct = cur != null && avg > 0 ? ((cur - avg) / avg) * 100 : null;
+      return { ...it, avgUnitPrice: avg, stockPrice: cur, changePercent: changePct };
+    });
+  }, [items, priceMap]);
 
   const summary = useMemo(() => {
     const totalQty = items.reduce((s, v) => s + (v.currentTotalQuantity || 0), 0);
@@ -39,37 +70,43 @@ const MyEcoStockInfo = () => {
   }, [items]);
 
   return (
-    <div style={{ padding: 24 }}>
-      {/* 요약 바 */}
-      <div
-        style={{
-          marginTop: 16,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
-        }}
-      >
-        <Stat label="총 수량" value={formatNumber(summary.totalQty)} suffix="개" />
-        <Stat label="총 금액" value={formatNumber(summary.totalAmt)} suffix="원" />
-        <Stat label="총 포인트" value={formatNumber(summary.totalPoint)} suffix="P" />
+    <div className="p-4 md:p-6">
+      {/* Header with Sync */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-base md:text-lg font-extrabold tracking-tight">내 에코스톡</h2>
+        <button
+          type="button"
+          onClick={loadAll}
+          disabled={loading}
+          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold shadow-sm transition-colors ${loading ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-800'}`}
+          aria-busy={loading}
+        >
+          <svg
+            className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M10 2a8 8 0 106.32 12.906l-1.264-.948A6.5 6.5 0 1116.5 10H14l2.5 3L19 10h-2.5A8 8 0 0010 2z" />
+          </svg>
+          {loading ? '동기화 중…' : '동기화'}
+        </button>
+      </div>
+      {lastSyncAt && (
+        <div className="mb-3 text-[11px] text-gray-500">최근 동기화: {lastSyncAt.toLocaleString('ko-KR')}</div>
+      )}
+      {/* Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <SummaryCard label="총 수량" value={`${formatNumber(summary.totalQty)}`} suffix="개" color="indigo" />
+        <SummaryCard label="총 금액" value={`${formatNumber(summary.totalAmt)}`} suffix="원" color="emerald" />
+        <SummaryCard label="총 포인트" value={`${formatNumber(summary.totalPoint)}`} suffix="P" color="amber" />
       </div>
 
-      {/* 아이템 카드 그리드 */}
-      <div
-        style={{
-          marginTop: 20,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: 16,
-        }}
-      >
-        {loading && (
-          <div style={{ gridColumn: "1 / -1", color: "#6b7280" }}>불러오는 중…</div>
-        )}
-        {!loading && error && (
-          <div style={{ gridColumn: "1 / -1", color: "#ef4444" }}>{error}</div>
-        )}
-        {!loading && !error && items.map((it) => (
+      {/* List */}
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {loading && <div className="col-span-full text-gray-500">불러오는 중…</div>}
+        {!loading && error && <div className="col-span-full text-rose-600">{error}</div>}
+        {!loading && !error && enriched.map((it) => (
           <EcoCard key={it.memberStockInfoId} data={it} />
         ))}
       </div>
@@ -77,23 +114,41 @@ const MyEcoStockInfo = () => {
   );
 };
 
-const Stat = ({ label, value, suffix }) => (
-  <div
-    style={{
-      border: "1px solid #eee",
-      borderRadius: 12,
-      padding: 16,
-      background: "#fff",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-    }}
-  >
-    <div style={{ color: "#6b7280", fontSize: 12 }}>{label}</div>
-    <div style={{ marginTop: 6, fontSize: 20, fontWeight: 700 }}>
-      {value}
-      <span style={{ marginLeft: 4, fontSize: 12, color: "#6b7280" }}>{suffix}</span>
+const SummaryCard = ({ label, value, suffix, color = "indigo" }) => {
+  const colorMap = {
+    indigo: {
+      ring: "ring-indigo-100",
+      bg: "from-indigo-50 to-white",
+      text: "text-indigo-700",
+      dot: "bg-indigo-500",
+    },
+    emerald: {
+      ring: "ring-emerald-100",
+      bg: "from-emerald-50 to-white",
+      text: "text-emerald-700",
+      dot: "bg-emerald-500",
+    },
+    amber: {
+      ring: "ring-amber-100",
+      bg: "from-amber-50 to-white",
+      text: "text-amber-700",
+      dot: "bg-amber-500",
+    },
+  }[color] || colorMap.indigo;
+
+  return (
+    <div className={`rounded-2xl border border-gray-200 ring-1 ${colorMap.ring} bg-gradient-to-b ${colorMap.bg} p-4`}> 
+      <div className="flex items-center justify-between">
+        <div className="text-xs text-gray-500">{label}</div>
+        <span className={`w-2.5 h-2.5 rounded-full ${colorMap.dot}`} />
+      </div>
+      <div className="mt-2 text-xl font-extrabold tracking-tight">
+        {value}
+        <span className="ml-1 text-xs text-gray-500">{suffix}</span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const EcoCard = ({ data }) => {
   const {
@@ -101,47 +156,47 @@ const EcoCard = ({ data }) => {
     currentTotalQuantity,
     currentTotalAmount,
     point,
+    stockPrice,
+    avgUnitPrice,
+    changePercent,
   } = data || {};
 
   return (
-    <div
+    <article
       role="article"
       aria-label={ecoStockName}
-      style={{
-        border: "1px solid #eee",
-        borderRadius: 12,
-        overflow: "hidden",
-        background: "#fff",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-      }}
+      className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden"
     >
-      <div style={{ padding: 16 }}>
-        {/* 상단 타이틀 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 10,
-            height: 10,
-            borderRadius: 999,
-            background: "#22c55e",
-          }} />
-          <div style={{ fontSize: 16, fontWeight: 700 }}>{ecoStockName}</div>
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100" />
+            <h3 className="text-sm font-bold tracking-tight">{ecoStockName}</h3>
+          </div>
+          <div className="text-right">
+            {typeof changePercent === 'number' && <ChangeBadge value={changePercent} />}
+          </div>
         </div>
 
-        {/* 내용 */}
-        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+        {/* Body */}
+        <div className="mt-3 grid gap-2">
+          <KV label="평균 단가" value={`${avgUnitPrice ? formatNumber(Number(avgUnitPrice.toFixed(0))) : "-"} P`} />
+          <KV label="현재가" value={`${stockPrice != null ? formatNumber(stockPrice) : "-"} P`} />
+          <div className="h-px bg-gray-100 my-1" />
           <KV label="보유 수량" value={`${formatNumber(currentTotalQuantity)} 개`} />
           <KV label="평가 금액" value={`${formatNumber(currentTotalAmount)} 원`} />
           <KV label="적립 포인트" value={`${formatNumber(point)} P`} />
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
 const KV = ({ label, value }) => (
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <span style={{ fontSize: 13, color: "#6b7280" }}>{label}</span>
-    <span style={{ fontSize: 14, fontWeight: 600 }}>{value}</span>
+  <div className="flex items-center justify-between text-sm">
+    <span className="text-gray-500">{label}</span>
+    <span className="font-semibold">{value}</span>
   </div>
 );
 
@@ -149,5 +204,23 @@ function formatNumber(n) {
   const num = Number(n || 0);
   return num.toLocaleString("ko-KR");
 }
+
+const ChangeBadge = ({ value }) => {
+  const v = Number(value || 0);
+  const up = v > 0;
+  const down = v < 0;
+  const base = "inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-semibold";
+  const cls = up
+    ? `${base} bg-rose-50 text-rose-700 border border-rose-200`
+    : down
+    ? `${base} bg-blue-50 text-blue-700 border border-blue-200`
+    : `${base} bg-gray-50 text-gray-600 border border-gray-200`;
+  return (
+    <span className={cls}>
+      <span aria-hidden>{up ? "▲" : down ? "▼" : "—"}</span>
+      <span>{`${up ? "+" : ""}${Math.abs(v).toFixed(2)}%`}</span>
+    </span>
+  );
+};
 
 export default MyEcoStockInfo;
