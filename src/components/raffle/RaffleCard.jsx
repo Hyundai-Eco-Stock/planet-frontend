@@ -13,6 +13,7 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
 
     const currentQuantity = userStock?.currentTotalQuantity ?? 0;
     const hasEnoughStock = currentQuantity >= item.ecoStockAmount;
+    const hasWinner = !!item.winnerName; // 당첨자가 있는지 확인
 
     return (
         <div className="relative bg-white backdrop-blur-sm rounded-3xl shadow-xl cursor-pointer transition-all duration-300 border border-gray-300">
@@ -43,13 +44,27 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
             {/* 본문 */}
             <div className="p-6 space-y-6">
                 <div className="text-center">
-                    <div className="inline-block bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
-                        진행중
+                    <div className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${
+                        hasWinner 
+                            ? 'bg-yellow-500 text-white' 
+                            : 'bg-green-600 text-white'
+                    }`}>
+                        {hasWinner ? '당첨자 발표' : '진행중'}
                     </div>
                     <div className="mb-4">
                         <CountdownTimer endDate={endDateObj} large />
                     </div>
                 </div>
+
+                {/* 당첨자 정보 표시 */}
+                {hasWinner && (
+                    <div className="text-center mb-4">
+                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+                            <div className="text-yellow-800 font-bold text-lg mb-2">🎉 당첨자</div>
+                            <div className="text-yellow-700 font-semibold">{item.winnerName}</div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="text-center mb-4">
                     <div
