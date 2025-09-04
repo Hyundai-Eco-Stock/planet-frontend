@@ -2,14 +2,16 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { getPersonalStockInfo } from '@/api/memberStockInfo/memberStockInfo.api';
 import { stockSell } from '@/api/stockSell/stockSell.api';
+import useAuthStore from '@/store/authStore';
 
 // 개인 주식 정보 조회 훅
 export const usePersonalStockInfo = (stockId) => {
     const [memberStockInfo, setMemberStockInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { loginStatus } = useAuthStore.getState();
 
     const fetchPersonalStockInfo = useCallback(async () => {
-        if (!stockId) {
+        if (!loginStatus || !stockId) {
             setMemberStockInfo(null);
             setIsLoading(false);
             return;
@@ -147,7 +149,7 @@ export const useStockSell = (stockInfo, stock, onSell, onSuccess) => {
 
             const result = await stockSell(sellStockRequest);
             console.log(result);
-            
+
             if (onSell) {
                 await onSell(sellStockRequest);
             }
