@@ -7,31 +7,38 @@ const MyEcoStockInfo = () => {
   const [prices, setPrices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastSyncAt, setLastSyncAt] = useState(null);
+
+  const loadAll = async () => {
+    let canceled = false;
+    setLoading(true);
+    setError(null);
+    try {
+      const [stocks, priceList] = await Promise.all([fetchMyEcostocks(), fetchEcostockPrices()]);
+      if (canceled) return;
+      setItems(Array.isArray(stocks) ? stocks : []);
+      setPrices(Array.isArray(priceList) ? priceList : []);
+      setLastSyncAt(new Date());
+    } catch (e) {
+      if (canceled) return;
+      console.error("내 에코스톡/가격 조회 실패", e);
+      setError(e?.message || "내 에코스톡을 불러오지 못했어요.");
+      setItems([]);
+      setPrices([]);
+    } finally {
+      if (canceled) return;
+      setLoading(false);
+    }
+    return () => { canceled = true };
+  };
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError(null);
-    Promise.all([fetchMyEcostocks(), fetchEcostockPrices()])
-      .then(([stocks, priceList]) => {
-        if (!mounted) return;
-        setItems(Array.isArray(stocks) ? stocks : []);
-        setPrices(Array.isArray(priceList) ? priceList : []);
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        console.error("내 에코스톡/가격 조회 실패", e);
-        setError(e?.message || "내 에코스톡을 불러오지 못했어요.");
-        setItems([]);
-        setPrices([]);
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
-    return () => {
-      mounted = false;
-    };
+    (async () => {
+      if (!mounted) return;
+      await loadAll();
+    })();
+    return () => { mounted = false; };
   }, []);
 
   const priceMap = useMemo(() => {
@@ -64,6 +71,30 @@ const MyEcoStockInfo = () => {
 
   return (
     <div className="p-4 md:p-6">
+      {/* Header with Sync */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-base md:text-lg font-extrabold tracking-tight">내 에코스톡</h2>
+        <button
+          type="button"
+          onClick={loadAll}
+          disabled={loading}
+          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold shadow-sm transition-colors ${loading ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-800'}`}
+          aria-busy={loading}
+        >
+          <svg
+            className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M10 2a8 8 0 106.32 12.906l-1.264-.948A6.5 6.5 0 1116.5 10H14l2.5 3L19 10h-2.5A8 8 0 0010 2z" />
+          </svg>
+          {loading ? '동기화 중…' : '동기화'}
+        </button>
+      </div>
+      {lastSyncAt && (
+        <div className="mb-3 text-[11px] text-gray-500">최근 동기화: {lastSyncAt.toLocaleString('ko-KR')}</div>
+      )}
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <SummaryCard label="총 수량" value={`${formatNumber(summary.totalQty)}`} suffix="개" color="indigo" />
@@ -182,7 +213,7 @@ const ChangeBadge = ({ value }) => {
   const cls = up
     ? `${base} bg-rose-50 text-rose-700 border border-rose-200`
     : down
-    ? `${base} bg-blue-50 text-blue-700 border border-blue-200`
+    ? `${base} bg-emerald-50 text-emerald-700 border border-emerald-200`
     : `${base} bg-gray-50 text-gray-600 border border-gray-200`;
   return (
     <span className={cls}>
