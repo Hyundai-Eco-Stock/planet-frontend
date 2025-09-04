@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { fetchEcoDealProductDetail } from "../../api/product/ecoProduct.api";
 import Toast from "@/components/common/Toast";
+import StoreConflictModal from "@/components/eco-deal/StoreConflictModal";
+import useCartStore from "@/store/cartStore";
 
 export default function ShoppingDetail() {
   const [sp] = useSearchParams();
@@ -15,6 +17,11 @@ export default function ShoppingDetail() {
   const [error, setError] = useState(null);
 
   const [showToast, setShowToast] = useState(false);
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflictData, setConflictData] = useState(null);
+
+  // Zustand store 사용
+  const { addToCart, checkStoreConflict } = useCartStore();
 
   useEffect(() => {
     if (!productId) {
@@ -34,7 +41,7 @@ export default function ShoppingDetail() {
       .finally(() => setLoading(false));
   }, [productId]);
 
-  // 메인 정보 파생
+  // 메인 정보 파싱
   const main = useMemo(() => rows[0] || null, [rows]);
   const name = main?.productName ?? "상품명";
   const price = main?.price;
@@ -90,16 +97,51 @@ export default function ShoppingDetail() {
     });
   };
 
-  // 장바구니 담기 (localstorage 사용)
+  // 장바구니 담기 (매장 충돌 처리 포함)
   const handleAddToCart = () => {
     if (!main) return;
     if (!selectedStoreId) {
       alert('지점을 선택해주세요.');
       return;
     }
-    const sel = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
 
-    // 사진과 동일한 스키마로 저장
+    const selectedStore = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
+    if (!selectedStore) {
+      alert('선택된 매장 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 매장 충돌 검사
+    const conflictCheck = checkStoreConflict(main.productId, selectedStore.departmentStoreId);
+    
+    if (conflictCheck.hasConflict) {
+      // 충돌 발생 시 모달 표시
+      setConflictData({
+        productId: main.productId,
+        productName: main.productName,
+        existingStore: conflictCheck.existingStore,
+        newStore: {
+          id: selectedStore.departmentStoreId,
+          name: selectedStore.departmentStoreName
+        },
+        existingQuantity: conflictCheck.existingQuantity,
+        newQuantity: qty,
+        selectedStore: selectedStore
+      });
+      setShowConflictModal(true);
+      return;
+    }
+
+    // 충돌이 없으면 바로 추가
+    addToCartInternal();
+  };
+
+  // 실제 장바구니 추가 함수
+  const addToCartInternal = (options = {}) => {
+    if (!main || !selectedStoreId) return;
+
+    const selectedStore = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
+    
     const item = {
       id: main.productId,
       name: main.productName,
@@ -108,48 +150,72 @@ export default function ShoppingDetail() {
       isEcoDeal: true,
       quantity: Number(qty || 1),
       salePercent: Number(main.salePercent ?? 0),
-      selectedStore: sel ? {
-        id: sel.departmentStoreId,
-        name: sel.departmentStoreName,
-        latitude: sel.lat ?? null,
-        longitude: sel.lng ?? null,
+      selectedStore: selectedStore ? {
+        id: selectedStore.departmentStoreId,
+        name: selectedStore.departmentStoreName,
+        latitude: selectedStore.lat ?? null,
+        longitude: selectedStore.lng ?? null,
       } : null,
     };
 
-    // 상태 로드/초기화
-    let store;
-      const raw = localStorage.getItem('cart-storage');
-      store = raw ? JSON.parse(raw) : null;
-    if (!store || typeof store !== 'object') {
-      store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
-    } else {
-      store.state = store.state || {};
-      if (!Array.isArray(store.state.deliveryCart)) store.state.deliveryCart = [];
-      if (!Array.isArray(store.state.pickupCart)) store.state.pickupCart = [];
-      if (typeof store.version !== 'number') store.version = 0;
-    }
-
-    // pickupCart 갱신(동일 id면 수량 누적)
-    const list = store.state.pickupCart;
-    const idx = list.findIndex((i) => String(i.id) === String(item.id));
-    if (idx >= 0) {
-      const prevQty = Number(list[idx].quantity || 0);
-      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity, selectedStore: item.selectedStore };
-    } else {
-      list.push(item);
-    }
-
-
-    // 저장
     try {
-      localStorage.setItem('cart-storage', JSON.stringify(store));
+      addToCart(item, item.quantity, options);
       setShowToast(true);
-    } catch (e) {
-      console.error('cart-storage 저장 실패', e);
+    } catch (error) {
+      console.error('장바구니 추가 실패:', error);
       alert('장바구니 저장에 실패했습니다.');
     }
   };
 
+  // 충돌 모달 핸들러들
+  const handleKeepExisting = () => {
+    // 기존 매장 유지하고 수량만 증가
+    if (!conflictData) return;
+    
+    // 기존 매장 정보로 상품 추가 (force: true로 충돌 검사 우회)
+    const existingStoreData = rows.find(r => String(r.departmentStoreId) === String(conflictData.existingStore.id));
+    
+    const item = {
+      id: main.productId,
+      name: main.productName,
+      price: Number(main.price ?? 0),
+      imageUrl: main.imageUrl || '',
+      isEcoDeal: true,
+      quantity: Number(qty || 1),
+      salePercent: Number(main.salePercent ?? 0),
+      selectedStore: {
+        id: conflictData.existingStore.id,
+        name: conflictData.existingStore.name,
+        latitude: existingStoreData?.lat ?? null,
+        longitude: existingStoreData?.lng ?? null,
+      },
+    };
+
+    try {
+      addToCart(item, item.quantity, { force: true }); // 기존 매장으로 수량 증가
+      setShowToast(true);
+    } catch (error) {
+      console.error('장바구니 추가 실패:', error);
+      alert('장바구니 저장에 실패했습니다.');
+    }
+    
+    setShowConflictModal(false);
+    setConflictData(null);
+  };
+
+  const handleReplaceWithNew = () => {
+    // 새 매장으로 교체
+    if (!conflictData) return;
+    
+    addToCartInternal({ force: true, action: 'replace' });
+    setShowConflictModal(false);
+    setConflictData(null);
+  };
+
+  const handleCloseConflictModal = () => {
+    setShowConflictModal(false);
+    setConflictData(null);
+  };
 
   if (loading) return <div className="p-4">불러오는 중…</div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
@@ -246,10 +312,12 @@ export default function ShoppingDetail() {
               </div>
             </div>
           </div>
+        </div>
       </div>
-    </div>
+
       {/* 하단 여백: 고정 바와 겹침 방지 */}
       <div className="h-24" />
+      
       {/* 하단 고정 버튼 바 */}
       <div
         className="fixed left-0 right-0 z-50"
@@ -279,11 +347,25 @@ export default function ShoppingDetail() {
         </div>
       </div>
 
+      {/* 토스트 메시지 */}
       <Toast
         message="나의 장바구니에 담았어요"
         isVisible={showToast}
         onHide={() => setShowToast(false)}
         duration={3000}
+      />
+
+      {/* 매장 충돌 모달 */}
+      <StoreConflictModal
+        isOpen={showConflictModal}
+        onClose={handleCloseConflictModal}
+        productName={conflictData?.productName}
+        existingStore={conflictData?.existingStore}
+        newStore={conflictData?.newStore}
+        existingQuantity={conflictData?.existingQuantity}
+        newQuantity={conflictData?.newQuantity}
+        onKeepExisting={handleKeepExisting}
+        onReplaceWithNew={handleReplaceWithNew}
       />
     </main>
   );
