@@ -1,3 +1,5 @@
+import ClipLoader from "react-spinners/ClipLoader";
+
 import { useEffect, useState } from "react";
 import { fetchPhtiQuestinosAndChoices, submitPhtiSurvey } from "@/api/phti/phti.api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +29,8 @@ const PhtiSurvey = () => {
     const [direction, setDirection] = useState(0); // 이동 방향 저장
 
     const [answers, setAnswers] = useState({});
+
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -78,10 +82,15 @@ const PhtiSurvey = () => {
                 choiceId
             }))
         };
-        const data = await submitPhtiSurvey(payload);
-        console.log(data);
+        try {
+            setLoading(true);
+            const data = await submitPhtiSurvey(payload);
+            console.log(data);
+            navigate("/phti/result", { state: { result: data } });
+        } finally {
+            setLoading(false);
+        }
 
-        navigate("/phti/result", { state: { result: data } });
     };
 
     if (questions.length === 0) return <div>로딩중...</div>;
@@ -89,7 +98,7 @@ const PhtiSurvey = () => {
     const isFirstPage = currentIndex === 0;
     const isLastPage = currentIndex === questions.length - 1;
     const allAnswered = Object.keys(answers).length === questions.length;
-    
+
     return (
         <div className="h-full flex flex-col items-center justify-center p-2">
             <div className="w-full max-w-xl h-full bg-white shadow-lg rounded-2xl p-6 relative overflow-hidden">
@@ -171,12 +180,16 @@ const PhtiSurvey = () => {
                 </div>
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 px-4 pb-4">
-                <CustomCommonButton
-                    onClick={handleSubmit}
-                    children="제출하기"
-                    disabled={!allAnswered}
-                />
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-4 flex justify-center">
+                {loading ? (
+                    <ClipLoader size={32} color="#10B981" />
+                ) : (
+                    <CustomCommonButton
+                        onClick={handleSubmit}
+                        children="제출하기"
+                        disabled={!allAnswered}
+                    />
+                )}
             </div>
         </div>
     );
