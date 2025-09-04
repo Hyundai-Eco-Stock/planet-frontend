@@ -170,7 +170,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
             <div className="flex justify-between items-center text-sm">
               <span className="text-green-700">포인트 사용</span>
               <span className="font-semibold text-green-700">
-                -{actualUsage.toLocaleString()}P ({actualUsage.toLocaleString()}원 할인)
+                {actualUsage.toLocaleString()}P ({actualUsage.toLocaleString()}원 할인)
               </span>
             </div>
             <div className="flex justify-between items-center text-xs text-green-600 mt-1">
