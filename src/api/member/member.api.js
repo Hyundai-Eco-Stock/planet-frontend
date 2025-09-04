@@ -68,3 +68,10 @@ export const fetchMyEcostocks = async () => {
 	console.log("내 에코스톡 조회:", response.data);
 	return response.data;
 };
+
+// 마이페이지 - 내 에코스톡 (모든 종목 가격 가져오기)
+export const fetchEcostockPrices = async () => {
+	const response = await apiClient.get("portfolio/price-list");
+	console.log("모든 종목 가격 조회:", response.data);
+	return response.data;
+};
