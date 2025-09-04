@@ -10,6 +10,7 @@ export const useNotifications = () => {
 
 	// 앱 로드 시 실제 권한 및 토큰 존재 여부를 확인하여 상태 동기화
 	const syncPushEnabledState = useCallback(async () => {
+		console.log("syncPushEnabledState 실행")
 		if ("Notification" in window && "serviceWorker" in navigator) {
 			if (Notification.permission === "granted") {
 				try {
@@ -26,7 +27,7 @@ export const useNotifications = () => {
 		} else {
 			setPushEnabled(false);
 		}
-	}, [messaging, setPushEnabled]);
+	}, [setPushEnabled]);
 
 	
 

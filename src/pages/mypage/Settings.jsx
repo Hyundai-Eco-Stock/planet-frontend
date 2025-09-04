@@ -17,6 +17,9 @@ const Settings = () => {
         if (pushEnabled) {
             await revokePushToken();
         } else {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
             await requestPermission();
         }
     };
