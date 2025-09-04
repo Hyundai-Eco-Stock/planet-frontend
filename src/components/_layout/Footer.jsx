@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Shopping from '@/assets/navigation_icon/Shopping.svg';
 import House from '@/assets/navigation_icon/House.svg';
@@ -8,6 +8,7 @@ import Planet from '@/assets/navigation_icon/Planet.svg';
 const Footer = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const menus = [
         { name: "홈", icon: House, path: "/home/main" },
@@ -25,13 +26,23 @@ const Footer = () => {
         <div className="flex w-full justify-between h-full">
             {
                 menus.map((menu) => {
+                    const isActive = location.pathname.startsWith(menu.path);
+
                     return <button
                         className="flex-1 flex flex-col items-center justify-center cursor-pointer"
                         onClick={() => handleMenuClick(menu)}
                         key={menu.name}
                     >
-                        <img src={menu.icon} className="w-6 h-6 mb-1"/>
-                        <span className='text-sm font-semibold text-gray-900'>{menu.name}</span>
+                        <img
+                            src={menu.icon}
+                            
+                            className={`w-6 h-6 mb-1 ${isActive ? "text-emerald-600" : "text-white"}`}
+                        />
+                        <span
+                            className={`text-sm font-semibold ${isActive ? "text-emerald-600" : "text-gray-900"}`}
+                        >
+                            {menu.name}
+                        </span>
                     </button>
                 })
             }
