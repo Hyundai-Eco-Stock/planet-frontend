@@ -36,13 +36,15 @@ const ModernStockSelector = ({ stockList, selectedStockId, onStockChange, disabl
                 onClick={handleToggle}
                 disabled={disabled}
                 className={`
-                    flex items-center text-xl font-bold text-gray-900
+                    flex items-center text-xl font-bold text-gray-900 min-w-0
                     ${disabled ? 'cursor-not-allowed' : 'hover:text-blue-600 cursor-pointer'}
                     transition-colors
                 `}
             >
-                <span>{selectedStock?.name || '주식 선택'}</span>
-                <svg className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+                <span className="truncate whitespace-nowrap overflow-hidden">
+                    {selectedStock?.name || '주식 선택'}
+                </span>
+                <svg className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -57,7 +59,7 @@ const ModernStockSelector = ({ stockList, selectedStockId, onStockChange, disabl
                                 key={stock.id}
                                 onClick={() => handleSelect(stock.id)}
                                 className={`
-                                    w-full px-3 py-2 text-left text-sm
+                                    w-full px-3 py-2 text-left text-sm truncate
                                     ${selectedStockId === stock.id ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-50'}
                                 `}
                             >

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchCategories } from "../../api/product/product.api";
 import { getRaffleList } from "../../api/raffleList/raffleList.api";
@@ -107,7 +107,7 @@ const Home = () => {
                 key={i}
                 className={`h-1.5 rounded-full transition-all ${
                   slide === i ? "w-4 bg-white" : "w-2 bg-white/70"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -148,49 +148,87 @@ const Home = () => {
             <span className="text-xs text-gray-500">{raffles.length}개 진행중</span>
           </div>
 
-          <div className="space-y-3">
-            {raffles.map((r) => (
-              <Link
-                key={r.raffleId}
-                to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
-                state={{ 
-                  winnerName: r.winnerName  // 전체 래플 데이터 (winnerName 포함)
-                }}
-                className="block"
-                aria-label={`${r.productName} 상세 보기`}
-              >
-                <article className="flex gap-3 rounded-lg bg-white border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
-                  <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-                    {r.imageUrl ? (
-                      <img src={r.imageUrl} alt={r.productName} className="w-full h-full object-cover" />
-                    ) : null}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">{r.productName}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {r.brandName} · {currency(r.price)}원
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      {r.startDate} ~ {r.endDate}
-                    </div>
-                    <div className="text-[11px] text-emerald-700 mt-1">
-                      {r.ecoStockName} {r.ecoStockAmount ? `+${currency(r.ecoStockAmount)} 적립` : ""}
-                      {typeof r.participateCount === "number" ? ` · ${currency(r.participateCount)}명 참여` : ""}
-                    </div>
-                  </div>
-                </article>
-              </Link>
-            ))}
-          </div>
+<div className="space-y-3">
+  {raffles.map((r) => {
+    const content = (
+      <article className={`flex gap-3 rounded-lg border border-gray-200 p-3 transition-colors ${
+        r.winnerName
+          ? 'bg-gray-100 opacity-70 cursor-default'
+          : 'bg-white hover:bg-gray-50 cursor-pointer'
+      }`}>
+        <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+          {r.imageUrl ? (
+            <img
+              src={r.imageUrl}
+              alt={r.productName}
+              className={`w-full h-full object-cover ${r.winnerName ? 'grayscale' : ''}`}
+            />
+          ) : null}
+        </div>
+        <div className="flex-1 min-w-0">
+          {r.winnerName ? (
+            // 당첨자가 있을 때 - 간단하게 당첨자만 표시
+            <>
+              <div className="text-sm font-medium text-gray-500 truncate mb-2">
+                {r.productName}
+              </div>
+              <div className="flex items-center gap-2">
+                <div>
+                  <div className="text-xs text-yellow-600 font-medium">당첨자</div>
+                  <div className="text-sm font-semibold text-gray-700">{r.winnerName}</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            // 당첨자가 없을 때 - 기존 상세 정보 표시
+            <>
+              <div className="text-sm font-medium truncate">
+                {r.productName}
+              </div>
+              <div className="text-xs text-gray-500 mt-0.5">
+                {r.brandName} · {currency(r.price)}원
+              </div>
+              <div className="text-xs text-gray-600 mt-1">
+                {r.startDate} ~ {r.endDate}
+              </div>
+              <div className="text-[11px] text-emerald-700 mt-1">
+                {r.ecoStockName} {r.ecoStockAmount ? `+${currency(r.ecoStockAmount)} 적립` : ""}
+                {typeof r.participateCount === "number" ? ` · ${currency(r.participateCount)}명 참여` : ""}
+              </div>
+            </>
+          )}
+        </div>
+      </article>
+    );
+
+    // 당첨자가 있으면 일반 div로, 없으면 Link로 렌더링
+    return r.winnerName ? (
+      <div key={r.raffleId} className="block">
+        {content}
+      </div>
+    ) : (
+      <Link
+        key={r.raffleId}
+        to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
+        state={{
+          winnerName: r.winnerName
+        }}
+        className="block"
+        aria-label={`${r.productName} 상세 보기`}
+      >
+        {content}
+      </Link>
+    );
+  })}
+</div>
         </div>
       </section>
 
       {/* Scrim for FAB open */}
       <div
         onClick={() => setFabOpen(false)}
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${
-          fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
       />
 
 
