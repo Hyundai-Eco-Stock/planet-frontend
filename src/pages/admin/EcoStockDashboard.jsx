@@ -43,7 +43,7 @@ const EcoStockDashboard = () => {
         // 보유 현황 데이터 호출
         fetchEcoStockHoldingAmountDataGroupByMember()
             .then((res) => {
-                setUserDistributionData(res.data.items); // [{range, userCount, percentage}, ...]
+                setUserDistributionData(res.data.items);
                 setSummary({
                     totalIssued: res.data.totalIssued,
                     totalUsers: res.data.totalUsers,
@@ -82,13 +82,13 @@ const EcoStockDashboard = () => {
     };
 
     return (
-        <div className="">
+        <div>
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
-                {/* <div className="mt-4">
+                <div className="mt-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">에코 스톡 (Eco Stock)</h1>
                     <p className="text-gray-600">에코스톡 발급 현황, 사용자 보유 분포</p>
-                </div> */}
+                </div>
 
                 {/* 요약 카드 */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -145,7 +145,7 @@ const EcoStockDashboard = () => {
 
                 {/* 차트 섹션 */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    
+
                     {/* 에코스톡 발급 비율 차트 */}
                     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                         <div className="flex items-center mb-6">
@@ -228,11 +228,11 @@ const EcoStockDashboard = () => {
                                         label={{ value: '사용자 수', angle: -90, position: 'insideLeft' }}
                                     />
                                     <Tooltip content={<CustomBarTooltip />} />
-                                    <Bar
-                                        dataKey="userCount"
-                                        fill="#3B82F6"
-                                        radius={[4, 4, 0, 0]}
-                                    />
+                                    <Bar dataKey="userCount" radius={[4, 4, 0, 0]}>
+                                        {userDistributionData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -261,8 +261,6 @@ const EcoStockDashboard = () => {
                         </div>
                     </div>
                 </div>
-
-
 
                 {/* 날짜별 필터 및 새로고침 */}
                 {/* <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">

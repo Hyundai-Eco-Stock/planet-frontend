@@ -6,32 +6,23 @@ import { Users, PieChart as PieChartIcon, BarChart3 } from "lucide-react";
 import { fetchIssueAndOrderPatternsByPhti, fetchMemberPercentageByPhti } from "@/api/admin/admin.api";
 
 // 색상 팔레트
-const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#A855F7", "#14B8A6"];
+const COLORS = [
+    "#3B82F6", 
+    "#10B981", 
+    "#F59E0B", 
+    "#EF4444", 
+    "#8B5CF6", 
+    "#06B6D4", 
+    "#A855F7", 
+    "#14B8A6"
+];
 
 const PhtiDashboard = () => {
     // PHTI 사용자 분포
-    const [phtiDistribution, setPhtiDistribution] = useState([
-        // { type: "EGDS", users: 120 },
-        // { type: "EGDI", users: 95 },
-        // { type: "EGAS", users: 80 },
-        // { type: "EGAI", users: 60 },
-        // { type: "EPDS", users: 70 },
-        // { type: "EPDI", users: 90 },
-        // { type: "CPAS", users: 50 },
-        // { type: "CPDI", users: 40 },
-    ]);
+    const [phtiDistribution, setPhtiDistribution] = useState([]);
 
     // 주문/교환 패턴
-    const [phtiPattern, setPhtiPattern] = useState([
-        // { type: "EGDS", orders: 320, exchanges: 150 },
-        // { type: "EGDI", orders: 280, exchanges: 180 },
-        // { type: "EGAS", orders: 200, exchanges: 120 },
-        // { type: "EGAI", orders: 150, exchanges: 90 },
-        // { type: "EPDS", orders: 220, exchanges: 140 },
-        // { type: "EPDI", orders: 260, exchanges: 160 },
-        // { type: "CPAS", orders: 130, exchanges: 70 },
-        // { type: "CPDI", orders: 110, exchanges: 65 },
-    ]);
+    const [phtiPattern, setPhtiPattern] = useState([]);
 
     const [summary, setSummary] = useState({
         totalUsers: 0,
@@ -61,16 +52,16 @@ const PhtiDashboard = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div>
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
-                <div className="mb-8">
+                <div className="mt-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">PHTI 통계</h1>
                     <p className="text-gray-600">PHTI 유형별 사용자 분포와 행동 패턴을 분석합니다</p>
                 </div>
 
                 {/* 요약 카드 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <SummaryCard title="총 사용자" value={`${summary.totalUsers}명`} icon={<Users className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
                     <SummaryCard title="최다 사용자 PHTI" value={summary.topPhti} icon={<PieChartIcon className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />
                     <SummaryCard title="평균 주문 건수" value={`${summary.avgOrders}건`} icon={<BarChart3 className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
