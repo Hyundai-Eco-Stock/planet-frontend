@@ -183,9 +183,10 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
             <input
               type="tel"
               value={formData.phone}
-              onChange={(e) => handlePhoneChange(e.target.value)}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="연락처를 입력하세요 (선택사항)"
+              // 연락처는 항상 입력 가능하도록 disabled 속성 제거
             />
           </div>
         </div>
@@ -284,6 +285,7 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
         <div className="text-xs text-gray-500">
           <p>• 정확한 배송을 위해 주소 검색을 이용해주세요.</p>
           <p>• 상세주소에는 동, 호수 등 구체적인 위치를 입력해주세요.</p>
+          <p>• 연락처는 배송 관련 연락이 필요할 때 사용되며, 선택사항입니다.</p>
         </div>
       </div>
     </div>

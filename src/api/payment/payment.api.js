@@ -32,56 +32,42 @@ export const confirmPayment = async (paymentData) => {
 };
 
 // 결제 전체 취소
-export const cancelPayment = async (orderId, cancelReason) => {
+export const cancelEntireOrder = async (orderHistoryId, cancelReason = '고객 요청') => {
   try {
-    const response = await apiClient.post(`/orders/${orderId}/cancel`, {
+    const response = await apiClient.post(`/payments/${orderHistoryId}/cancel`, {
       cancelReason,
       cancelType: 'CANCELED'
     });
     
     return response.data;
   } catch (error) {
-    console.error('결제 취소 API 오류:', error);
+    console.error('주문 전체 취소 API 오류:', error);
     throw error;
   }
 };
 
 // 결제 부분 취소 
-export const partialCancelPayment = async (orderId, cancelData) => {
-  // cancelData 구조 예상:
-  // {
-  //   reason: string,
-  //   cancelItems: [{ productId, quantity, amount }],
-  //   totalCancelAmount: number,
-  //   shouldRefundDonation: boolean
-  // }
-  
-  const totalOrderAmount = cancelData.originalAmount || 0;
-  const cancelAmount = cancelData.totalCancelAmount || 0;
-  
-  // 포인트는 취소 금액 비례로 환불
-  const refundPoints = totalOrderAmount > 0 
-    ? Math.floor((cancelData.originalPointsUsed || 0) * (cancelAmount / totalOrderAmount))
-    : 0;
-  
-  // 기부금은 사용자 선택에 따라
-  const refundDonation = cancelData.shouldRefundDonation 
-    ? (cancelData.originalDonationAmount || 0)
-    : 0;
-
+export const cancelPartialOrder = async (orderHistoryId, orderProductIds, reason = '고객 요청', refundDonation = false) => {
   try {
-    const response = await apiClient.post(`/orders/${orderId}/cancel`, {
-      cancelReason: cancelData.reason,
-      cancelType: 'PARTIAL_CANCELED',
-      cancelAmount: cancelAmount,
-      cancelItems: cancelData.cancelItems,
-      refundPoints,
+    const cancelItems = Array.isArray(orderProductIds) 
+      ? orderProductIds.map(id => ({ orderProductId: id }))
+      : [{ orderProductId: orderProductIds }];
+    
+    console.log('부분 취소 요청 데이터:', {
+      cancelItems,
+      cancelReason: reason,
       refundDonation
+    });
+    
+    const response = await apiClient.post(`/payments/${orderHistoryId}/cancel/partial`, {
+      cancelItems: cancelItems,
+      cancelReason: reason,
+      refundDonation: refundDonation
     });
     
     return response.data;
   } catch (error) {
-    console.error('부분 결제 취소 API 오류:', error);
+    console.error('주문 부분 취소 API 오류:', error);
     throw error;
   }
 };

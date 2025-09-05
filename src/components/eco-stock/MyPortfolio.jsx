@@ -2,6 +2,7 @@ import React from 'react';
 import { usePersonalStockInfo, useStockCalculations, useStockSell, formatCurrency, formatPercent } from '@/hooks/eco-stock/usePortfolio';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '@/store/authStore';
 
 const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
     const navigate = useNavigate();
@@ -9,7 +10,7 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
     const { memberStockInfo, isLoading: dataLoading, refetch } = usePersonalStockInfo(stockInfo?.id);
     const stock = useStockCalculations(currentData, memberStockInfo, dataLoading);
     const { isSelling, handleSell } = useStockSell(stockInfo, stock, onSell, refetch);
-
+    const { loginStatus } = useAuthStore.getState();
     const isProfit = stock.profitLoss >= 0;
 
     // ESG 활동 인증 팝업 및 라우팅
@@ -30,7 +31,10 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
             }
         });
     };
-
+    // 로그인 페이지로 이동
+    const handleLoginRedirect = () => {
+        navigate('/login');
+    };
     // 로딩 상태
     if (!currentData || dataLoading) {
         return (
@@ -42,21 +46,36 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
         );
     }
 
-    // 보유 주식 없음
-    if (stock.isEmpty) {
+    // 보유 주식 없음 또는 미로그인
+    if (!loginStatus || stock.isEmpty) {
         return (
             <div className="bg-white border-t border-gray-200 p-4">
                 <div className="max-w-4xl mx-auto text-center">
                     <div className="py-8">
                         <div className="text-6xl mb-4">📊</div>
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">보유 중인 에코스톡이 없습니다</h3>
-                        <p className="text-gray-500 mb-6">ESG 실천을 통해 에코 스톡을 받아보세요!</p>
-                        <button
-                            onClick={handleEsgCertificate}
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-                        >
-                            ESG 활동 인증하러 가기
-                        </button>
+                        {!loginStatus ? (
+                            <>
+                                <h3 className="text-xl font-semibold text-gray-700 mb-2">로그인이 필요합니다</h3>
+                                <p className="text-gray-500 mb-6">로그인하여 내 포트폴리오를 확인해보세요!</p>
+                                <button
+                                    onClick={handleLoginRedirect}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                                >
+                                    로그인하러 가기
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="text-xl font-semibold text-gray-700 mb-2">보유 중인 에코스톡이 없습니다</h3>
+                                <p className="text-gray-500 mb-6">ESG 실천을 통해 에코 스톡을 받아보세요!</p>
+                                <button
+                                    onClick={handleEsgCertificate}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                                >
+                                    ESG 활동 인증하러 가기
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

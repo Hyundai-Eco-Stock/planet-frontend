@@ -136,6 +136,9 @@ const Home = () => {
               <Link
                 key={r.raffleId}
                 to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
+                state={{ 
+                  winnerName: r.winnerName  // 전체 래플 데이터 (winnerName 포함)
+                }}
                 className="block"
                 aria-label={`${r.productName} 상세 보기`}
               >

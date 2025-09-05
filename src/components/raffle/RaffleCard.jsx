@@ -1,9 +1,10 @@
 import { memo, useMemo, useState } from "react";
 import CountdownTimer from "./CountdownTimer";
+import useAuthStore from "@/store/authStore";
 
 const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
     const [imgFailed, setImgFailed] = useState(false);
-
+    const { loginStatus } = useAuthStore.getState();
     // 바뀔 때만 다시 계산되도록 가볍게 메모
     const endDateObj = useMemo(() => new Date(item.endDate), [item.endDate]);
     const userStock = useMemo(
@@ -13,6 +14,7 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
 
     const currentQuantity = userStock?.currentTotalQuantity ?? 0;
     const hasEnoughStock = currentQuantity >= item.ecoStockAmount;
+    const hasWinner = !!item.winnerName; // 당첨자가 있는지 확인
 
     return (
         <div className="relative bg-white backdrop-blur-sm rounded-3xl shadow-xl cursor-pointer transition-all duration-300 border border-gray-300">
@@ -43,35 +45,57 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
             {/* 본문 */}
             <div className="p-6 space-y-6">
                 <div className="text-center">
-                    <div className="inline-block bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
-                        진행중
+                    <div className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${hasWinner
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-green-600 text-white'
+                        }`}>
+                        {hasWinner ? '당첨자 발표' : '진행중'}
                     </div>
                     <div className="mb-4">
                         <CountdownTimer endDate={endDateObj} large />
                     </div>
                 </div>
 
-                <div className="text-center mb-4">
-                    <div
-                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium border-2 ${hasEnoughStock
-                            ? "bg-green-100 text-green-700 border-green-300"
-                            : "bg-red-100 text-red-700 border-red-300"
-                            }`}
-                    >
-                        {hasEnoughStock ? (
-                            <span className="flex items-center gap-2">
-                                <span>✅ 응모 가능</span>
-                                <span className="text-xs">({currentQuantity}개 보유)</span>
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-2">
-                                <span>❌ {item.ecoStockName} 부족</span>
-                                <span className="text-xs">
-                                    ({currentQuantity}/{item.ecoStockAmount}개)
-                                </span>
-                            </span>
-                        )}
+                {/* 당첨자 정보 표시 */}
+                {hasWinner && (
+                    <div className="text-center mb-4">
+                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+                            <div className="text-yellow-800 font-bold text-lg mb-2">🎉 당첨자</div>
+                            <div className="text-yellow-700 font-semibold">{item.winnerName}</div>
+                        </div>
                     </div>
+                )}
+
+                {/* 로그인 상태에 따른 에코스톡 정보 표시 */}
+                <div className="text-center mb-4">
+                    {!loginStatus ? (
+                        <div className="inline-block px-4 py-2 rounded-full text-sm font-medium border-2 bg-blue-100 text-blue-700 border-blue-300">
+                            <span className="flex items-center gap-2">
+                                <span>🔐 로그인 필요</span>
+                            </span>
+                        </div>
+                    ) : (
+                        <div
+                            className={`inline-block px-4 py-2 rounded-full text-sm font-medium border-2 ${hasEnoughStock
+                                ? "bg-green-100 text-green-700 border-green-300"
+                                : "bg-red-100 text-red-700 border-red-300"
+                                }`}
+                        >
+                            {hasEnoughStock ? (
+                                <span className="flex items-center gap-2">
+                                    <span>✅ 응모 가능</span>
+                                    <span className="text-xs">({currentQuantity}개 보유)</span>
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <span>❌ {item.ecoStockName} 부족</span>
+                                    <span className="text-xs">
+                                        ({currentQuantity}/{item.ecoStockAmount}개)
+                                    </span>
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="text-center space-y-3">
