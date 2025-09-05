@@ -88,7 +88,7 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    <span>❌ {item.ecoStockName} 부족</span>
+                                    <span>❌ {item.ecoStockName} 에코스톡 부족</span>
                                     <span className="text-xs">
                                         ({currentQuantity}/{item.ecoStockAmount}개)
                                     </span>

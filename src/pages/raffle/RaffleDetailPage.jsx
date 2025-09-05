@@ -356,7 +356,7 @@ const RaffleDetailPage = () => {
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <span>❌ {raffle.ecoStockName} 부족</span>
+                    <span>❌ {raffle.ecoStockName} 에코스톡 부족</span>
                     <span className="text-xs">({currentQuantity}/{raffle.ecoStockAmount}개)</span>
                   </span>
                 )}
@@ -451,7 +451,7 @@ const RaffleDetailPage = () => {
                 ? '✅ 이미 참여한 래플입니다'
                 : hasEnoughStock
                   ? '🎯 응모하기'
-                  : `❌ ${raffle.ecoStockName} 부족`
+                  : `❌ ${raffle.ecoStockName} 에코스톡 부족`
           }
         </button>
       </div>
