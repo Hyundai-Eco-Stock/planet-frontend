@@ -75,3 +75,9 @@ export const fetchEcostockPrices = async () => {
 	console.log("모든 종목 가격 조회:", response.data);
 	return response.data;
 };
+
+// 마이페이지 - 포인트 기록 조회
+export const fetchMemberPointHistory = async () => {
+	const response = await apiClient.get("/members/me/point-histories");
+	return response.data;
+};

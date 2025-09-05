@@ -36,7 +36,7 @@ const MyPageMain = () => {
         { title: '', path: 'LINE' },
         
         { title: 'ECO STOCK 인증 / 보유 / 사용', path: 'TITLE' },
-        { title: '에코스톡 발급/사용 내역', path: '/my-page/my-eco-stock' },
+        { title: '에코스톡 발급 & 포인트 교환 내역', path: '/my-page/my-assets' },
         { title: '오프라인 활동 인증', path: '/eco-stock/certificate' },
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
 

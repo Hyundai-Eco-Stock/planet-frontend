@@ -87,6 +87,7 @@ import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
+import MyAssetsPage from './pages/mypage/MyAssetsPage'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -131,7 +132,7 @@ function App() {
 				<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 				<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
 				<Route path="/my-page/profile" element={<MyProfile />} />
-				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
+				<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/my-card" element={<MyCardInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
