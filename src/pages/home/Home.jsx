@@ -57,34 +57,53 @@ const Home = () => {
     })();
   }, []);
 
-  const sliderStyle = useMemo(
-    () => ({
-      width: `${total * 100}%`,
-      transform: `translateX(-${slide * (100 / total)}%)`,
-      transition: "transform 500ms ease",
-    }),
-    [slide, total]
-  );
+  const bannerRef = useRef(null);
+  // 자동 슬라이드 + 스크롤 동기화
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const w = el.clientWidth || 1;
+      const idx = Math.round(el.scrollLeft / w);
+      setSlide((s) => (s !== idx ? idx : s));
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    // 3초마다 다음 슬라이드로 스크롤
+    const el = bannerRef.current;
+    if (!el) return;
+    const id = setInterval(() => {
+      const w = el.clientWidth || 0;
+      const next = (slide + 1) % total;
+      el.scrollTo({ left: w * next, behavior: 'smooth' });
+      setSlide(next);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [slide, total]);
 
   return (
     <div className="pb-20">
       {/* 상단 배너 캐러셀 */}
       <section className="pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
-          <div className="flex" style={sliderStyle}>
+          <div
+            ref={bannerRef}
+            className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide"
+          >
             {DUMMY_BANNERS.map((b, idx) => (
-              <div
-                key={idx}
-                className="flex-shrink-0"
-                style={{ width: `${100 / total}%` }}
-              >
+              <div key={idx} className="flex-shrink-0 min-w-full snap-start">
                 <button
                   type="button"
                   onClick={() => navigate(`/shopping/detail?productId=${encodeURIComponent(b.productId)}`)}
-                  className="w-full aspect-square cursor-pointer"
+                  className="block w-full cursor-pointer"
                   aria-label={`배너 ${idx + 1} 이동`}
                 >
-                  <img src={b.src} alt={`banner-${idx}`} className="w-full h-full object-cover" />
+                  <div className="relative w-full pt-[100%]">
+                    <img src={b.src} alt={`banner-${idx}`} className="absolute inset-0 w-full h-full object-cover" />
+                  </div>
                 </button>
               </div>
             ))}
