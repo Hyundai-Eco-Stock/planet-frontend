@@ -177,12 +177,12 @@ const Home = () => {
       />
 
 
-      {/* Floating Actions: 푸드딜 / 래플 */}
-      <div className="fixed right-4 bottom-28 z-50">
+      {/* Floating Actions: 푸드딜 / 래플 (컨테이너는 pointer-events-none로 두고, 실제 요소에만 auto) */}
+      <div className="fixed right-4 bottom-28 z-50 pointer-events-none">
         <div className="flex flex-col items-end gap-2">
           <div
             className={`flex flex-col items-end gap-2 transition-all duration-200 ${
-              fabOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+              fabOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none"
             }`}
           >
             <div className="rounded-2xl bg-white border border-gray-200 shadow-xl overflow-hidden">
@@ -211,7 +211,7 @@ const Home = () => {
             aria-label={fabOpen ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={fabOpen}
             onClick={() => setFabOpen((v) => !v)}
-            className="w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
+            className="pointer-events-auto w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
           >
             {fabOpen ? "×" : "+"}
           </button>
