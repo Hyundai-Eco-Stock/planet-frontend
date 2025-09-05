@@ -82,16 +82,16 @@ const EcoStockDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="">
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코스톡 관리자 대시보드</h1>
-                    <p className="text-gray-600">에코스톡 발급 현황 및 사용자 보유 분포를 확인하세요</p>
-                </div>
+                {/* <div className="mt-4">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코 스톡 (Eco Stock)</h1>
+                    <p className="text-gray-600">에코스톡 발급 현황, 사용자 보유 분포</p>
+                </div> */}
 
                 {/* 요약 카드 */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                         <div className="flex items-center justify-between">
                             <div>
@@ -145,6 +145,7 @@ const EcoStockDashboard = () => {
 
                 {/* 차트 섹션 */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    
                     {/* 에코스톡 발급 비율 차트 */}
                     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                         <div className="flex items-center mb-6">
@@ -264,7 +265,7 @@ const EcoStockDashboard = () => {
 
 
                 {/* 날짜별 필터 및 새로고침 */}
-                <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                {/* <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <h3 className="text-lg font-semibold text-gray-900">데이터 설정</h3>
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -291,7 +292,7 @@ const EcoStockDashboard = () => {
                             <span className="font-medium">데이터 소스:</span> 실시간 DB 연동
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
