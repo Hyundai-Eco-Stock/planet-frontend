@@ -1,32 +1,24 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchCategories } from "../../api/product/product.api";
 import { getRaffleList } from "../../api/raffleList/raffleList.api";
 
+// 배너 클릭 시 이동할 상품 ID는 주석의 숫자를 반영했습니다.
 const DUMMY_BANNERS = [
-  "https://image.msscdn.net/display/images/2025/09/01/ca6ea88399554a8494b7c6e1782166bf.jpg",
-  "https://image.msscdn.net/display/images/2025/09/01/18c20c1924bb4f24b6167fce66ac1abc.jpg",
-  "https://image.msscdn.net/display/images/2025/09/01/9c9eb13992574927881841f0be0ced38.jpg",
-  "https://image.msscdn.net/display/images/2025/08/29/f4ba6b9b90994dc5a35189b9dabff140.jpg",
-  "https://image.msscdn.net/display/images/2025/08/29/ad8f37650a6c4294a7a1e507abe43f9c.jpg",
+  { src: "https://image.thehyundai.com/static/8/5/9/26/A1/40A1269580_0_600.jpg", productId: 168 },
+  { src: "https://image.thehyundai.com/static/7/2/6/37/A1/40A1376277_0_600.jpg", productId: 82 },
+  { src: "https://image.thehyundai.com/static/1/8/1/67/A1/40A1671811_0_600.jpg", productId: 140 },
+  { src: "https://image.thehyundai.com/static/5/9/3/56/A1/60A1563953_0_600.jpg", productId: 45 },
 ];
 
 const currency = (n) => (n == null ? "" : Number(n).toLocaleString());
 
 
 const Home = () => {
+  const navigate = useNavigate();
   // 캐러셀
   const [slide, setSlide] = useState(0);
   const total = DUMMY_BANNERS.length;
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    // 3초마다 다음 슬라이드
-    timerRef.current = setInterval(() => {
-      setSlide((s) => (s + 1) % total);
-    }, 3000);
-    return () => clearInterval(timerRef.current);
-  }, [total]);
 
   // 카테고리
   const [categories, setCategories] = useState([]);
@@ -56,30 +48,55 @@ const Home = () => {
     })();
   }, []);
 
-  const sliderStyle = useMemo(
-    () => ({
-      width: `${total * 100}%`,
-      transform: `translateX(-${slide * (100 / total)}%)`,
-      transition: "transform 500ms ease",
-    }),
-    [slide, total]
-  );
+  const bannerRef = useRef(null);
+  // 자동 슬라이드 + 스크롤 동기화
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const w = el.clientWidth || 1;
+      const idx = Math.round(el.scrollLeft / w);
+      setSlide((s) => (s !== idx ? idx : s));
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    // 3초마다 다음 슬라이드로 스크롤 (현재 스크롤 위치 기준)
+    const el = bannerRef.current;
+    if (!el) return;
+    const id = setInterval(() => {
+      const w = el.clientWidth || 0;
+      const idx = Math.round((el.scrollLeft || 0) / (w || 1));
+      const next = (idx + 1) % total;
+      el.scrollTo({ left: w * next, behavior: 'smooth' });
+      setSlide(next);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [total]);
 
   return (
-    <div className="pb-20">
+    <div className="max-w-xl pb-20">
       {/* 상단 배너 캐러셀 */}
       <section className="pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
-          <div className="flex" style={sliderStyle}>
-            {DUMMY_BANNERS.map((src, idx) => (
-              <div
-                key={idx}
-                className="flex-shrink-0"
-                style={{ width: `${100 / total}%` }}
-              >
-                <div className="w-full aspect-square">
-                  <img src={src} alt={`banner-${idx}`} className="w-full h-full object-cover" />
-                </div>
+          <div
+            ref={bannerRef}
+            className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide"
+          >
+            {DUMMY_BANNERS.map((b, idx) => (
+              <div key={idx} className="flex-shrink-0 min-w-full snap-start">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/shopping/detail?productId=${encodeURIComponent(b.productId)}`)}
+                  className="block w-full cursor-pointer"
+                  aria-label={`배너 ${idx + 1} 이동`}
+                >
+                  <div className="relative w-full pt-[100%]">
+                    <img src={b.src} alt={`banner-${idx}`} className="absolute inset-0 w-full h-full object-cover" />
+                  </div>
+                </button>
               </div>
             ))}
           </div>
@@ -215,12 +232,13 @@ const Home = () => {
       />
 
 
-      {/* Floating Actions: 푸드딜 / 래플 */}
-      <div className="fixed right-4 bottom-28 z-50">
+      {/* Floating Actions: 푸드딜 / 래플 (컨테이너는 pointer-events-none로 두고, 실제 요소에만 auto) */}
+      <div className="fixed right-4 bottom-28 z-50 pointer-events-none">
         <div className="flex flex-col items-end gap-2">
           <div
-            className={`flex flex-col items-end gap-2 transition-all duration-200 ${fabOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
-              }`}
+            className={`flex flex-col items-end gap-2 transition-all duration-200 ${
+              fabOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none"
+            }`}
           >
             <div className="rounded-2xl bg-white border border-gray-200 shadow-xl overflow-hidden">
               <Link
@@ -248,7 +266,7 @@ const Home = () => {
             aria-label={fabOpen ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={fabOpen}
             onClick={() => setFabOpen((v) => !v)}
-            className="w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
+            className="pointer-events-auto w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
           >
             {fabOpen ? "×" : "+"}
           </button>

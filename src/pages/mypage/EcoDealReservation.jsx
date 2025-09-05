@@ -37,12 +37,14 @@ export default function EcoDealReservation() {
 
   const normalizeStatus = (s) => {
     const raw = String(s || "").toUpperCase();
+    if (["COMPLETED"].includes(raw)) return "COMPLETED";
     if (["PAID", "DONE"].includes(raw)) return "PAID";
     if (["ALL_CANCELLED", "ALL_CANCELED", "ALL_CANCLLED"].includes(raw)) return "ALL_CANCELLED";
     if (["PARTIAL_CANCELLED", "PARTIAL_CANCELED", "PARTIAL_CANCLLED", "PARTIOAL_CANCLED"].includes(raw)) return "PARTIAL_CANCELLED";
     return "PENDING";
   };
   const statusLabel = (norm) => ({
+    COMPLETED: "픽업완료",
     PAID: "구매확정",
     ALL_CANCELLED: "전체취소됨",
     PARTIAL_CANCELLED: "부분취소됨",
@@ -120,6 +122,7 @@ export default function EcoDealReservation() {
                 <div className="font-bold">주문번호 {order.orderNumber}</div>
                 <div className="text-gray-500 flex gap-2 items-center text-xs">
                   <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${
+                    order.orderStatus === "COMPLETED" ? "bg-sky-50 text-sky-700 border-sky-200" :
                     order.orderStatus === "PAID" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                     order.orderStatus === "ALL_CANCELLED" ? "bg-rose-50 text-rose-700 border-rose-200" :
                     order.orderStatus === "PARTIAL_CANCELLED" ? "bg-amber-50 text-amber-700 border-amber-200" :
@@ -131,14 +134,20 @@ export default function EcoDealReservation() {
                 </div>
               </div>
               <div>
-                {order.ecoDealQrUrl ? (
-                  <button type="button" onClick={() => openQr(order.ecoDealQrUrl)} className="inline-block px-2 py-1 border border-gray-900 rounded-md text-xs text-gray-900">
-                    QR 보기
-                  </button>
-                ) : (
-                  <span className="inline-block px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-500 bg-gray-100">
-                    QR 미발급
-                  </span>
+                {order.orderStatus === 'COMPLETED' ? null : (
+                  order.ecoDealQrUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => openQr(order.ecoDealQrUrl)}
+                      className="inline-flex items-center justify-center h-7 px-2 border border-gray-900 rounded-md text-[10px] leading-none text-gray-900 whitespace-nowrap"
+                    >
+                       QR 보기
+                     </button>
+                   ) : (
+                    <span className="inline-flex items-center justify-center h-7 px-2 border border-gray-300 rounded-md text-[10px] leading-none text-gray-500 bg-gray-100 whitespace-nowrap">
+                       QR 미발급
+                     </span>
+                   )
                 )}
               </div>
             </header>

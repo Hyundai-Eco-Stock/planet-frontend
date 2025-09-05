@@ -34,7 +34,7 @@ const HeaderWithLogoAndClose = ({ title = "", onClose }) => {
                     </Link>
                 </div>
 
-                <h1 className="flex-1 font-bold text-xl">{title}</h1>
+                <h1 className="flex-2 font-bold text-xl">{title}</h1>
 
                 {/* 오른쪽: 닫기 버튼 */}
                 <div className="flex-1 flex items-center gap-5 justify-end">

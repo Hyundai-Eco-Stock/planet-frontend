@@ -14,7 +14,7 @@ const MyProfile = () => {
     const { setTitle } = useOutletContext();
 
     useEffect(() => {
-        setTitle("프로필 수정");
+        setTitle("내 정보 수정");
     }, [setTitle]);
 
     const navigate = useNavigate();
@@ -42,6 +42,27 @@ const MyProfile = () => {
     const yearRef = useRef(null);
     const monthRef = useRef(null);
     const dayRef = useRef(null);
+
+    // 페이지 렌더링 시 데이터 가져와 넣기
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchMemberProfile();
+            console.log(data);
+            setName(data.name);
+            setEmail(data.email);
+            setSex(data.sex);
+            if (data.birth) {
+                const [year, month, day] = data.birth.split("-");
+                setBirthYear(year);
+                setBirthMonth(month);
+                setBirthDay(day);
+            }
+            setProfileImageUrl(data.profileUrl);
+            if (data.address) setAddress(data.address);
+            if (data.detailAddress) setDetailAddress(data.detailAddress);
+        };
+        fetchData();
+    }, []);
 
     // ✅ 실시간 유효성 검사
     useEffect(() => {
@@ -123,27 +144,6 @@ const MyProfile = () => {
         }
     };
 
-    // 페이지 렌더링 시 데이터 가져와 넣기
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await fetchMemberProfile();
-            console.log(data);
-            setName(data.name);
-            setEmail(data.email);
-            setSex(data.sex);
-            if (data.birth) {
-                const [year, month, day] = data.birth.split("-");
-                setBirthYear(year);
-                setBirthMonth(month);
-                setBirthDay(day);
-            }
-            setProfileImageUrl(data.profileUrl);
-            setAddress(data.address);
-            setDetailAddress(data.detailAddress);
-        };
-        fetchData();
-    }, []);
-
     return (
         <div className="flex flex-col gap-3 pb-24">
             {/* 프로필 이미지 */}
@@ -204,6 +204,7 @@ const MyProfile = () => {
                         type="number"
                         value={birthYear}
                         placeholder="YYYY"
+                        closeBtnVisible={false}
                         onChange={(e) => {
                             setBirthYear(e.target.value);
                             if (e.target.value.length === 4) {
@@ -212,10 +213,12 @@ const MyProfile = () => {
                         }}
                         ref={yearRef}
                     />
+                    <span className="m-auto">년</span>
                     <CustomCommonInput
                         type="number"
                         value={birthMonth}
                         placeholder="MM"
+                        closeBtnVisible={false}
                         onChange={(e) => {
                             setBirthMonth(e.target.value);
                             if (e.target.value.length === 2) {
@@ -224,13 +227,16 @@ const MyProfile = () => {
                         }}
                         ref={monthRef}
                     />
+                    <span className="m-auto">월</span>
                     <CustomCommonInput
                         type="number"
                         value={birthDay}
+                        closeBtnVisible={false}
                         placeholder="DD"
                         onChange={(e) => setBirthDay(e.target.value)}
                         ref={dayRef}
                     />
+                    <span className="m-auto">일</span>
                 </div>
             </label>
 

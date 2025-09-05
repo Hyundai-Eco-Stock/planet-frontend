@@ -13,7 +13,7 @@ const AdminHeader = () => {
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
 
                 <Link
-                    to="/home/main"
+                    to="/admin/dashboard/main"
                     className="text-xl text-gray-900
                     inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
                     aria-label="planet 홈으로 이동"

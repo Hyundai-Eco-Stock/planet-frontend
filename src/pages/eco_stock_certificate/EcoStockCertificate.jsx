@@ -1,7 +1,15 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
+import { useEffect } from "react";
 
 const EcoStockCertificate = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("오프라인 활동 인증");
+    }, [setTitle]);
+
 
     const ecoStockCertificateList = [
         { name: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
@@ -9,16 +17,12 @@ const EcoStockCertificate = () => {
     ]
 
     return (
-        <div className="text-center">
-            <div className="text-2xl mt-10 mb-10">에코 스톡 인증</div>
-
-            <div className="px-4 flex flex-col gap-2">
-                {
-                    ecoStockCertificateList.map((certificate) =>
-                        <Component key={certificate.name} {...certificate} />
-                    )
-                }
-            </div>
+        <div className="flex flex-col mt-6 gap-6">
+            {
+                ecoStockCertificateList.map((certificate) =>
+                    <Component key={certificate.name} {...certificate} />
+                )
+            }
         </div>
     );
 }

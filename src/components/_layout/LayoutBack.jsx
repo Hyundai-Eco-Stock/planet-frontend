@@ -7,7 +7,7 @@ const LayoutBack = () => {
     const [title, setTitle] = useState("");
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="m-auto max-w-xl min-h-screen flex flex-col">
             
             <HeaderWithBack title={title} />
 
@@ -15,7 +15,7 @@ const LayoutBack = () => {
                 <Outlet context={{ setTitle }} />
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 z-50 h-24 bg-white">
+            <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 h-24 w-full max-w-xl bg-white">
                 <Footer />
             </footer>
         </div>
