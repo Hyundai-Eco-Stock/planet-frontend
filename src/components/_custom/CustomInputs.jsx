@@ -1,7 +1,7 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useRef } from "react";
 
 /**
@@ -30,6 +30,17 @@ const CustomCommonInput = forwardRef(
         },
         ref
     ) => {
+        const [showPassword, setShowPassword] = useState(false);
+
+        const isPassword = type === "password";
+        
+        const inputType = isPassword
+            ? showPassword
+                ? "text"
+                : "password"
+            : type === "number"
+                ? "text"
+                : type;
 
         const handleChange = (e) => {
             let newValue = e.target.value;
@@ -49,7 +60,7 @@ const CustomCommonInput = forwardRef(
             <div className="relative w-full border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors">
                 <input
                     ref={ref}
-                    type={type === "number" ? "text" : type}
+                    type={inputType}
                     inputMode={type === "number" ? "numeric" : undefined}
                     placeholder={placeholder}
                     value={value ?? ""}
@@ -63,6 +74,18 @@ const CustomCommonInput = forwardRef(
                     {...props}
                 />
 
+                {/* 비밀번호 눈 아이콘 */}
+                {isPassword && value && !readOnly && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-10 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                        <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                    </button>
+                )}
+
+                {/* X 버튼 */}
                 {value && closeBtnVisible && !readOnly && (
                     <button
                         type="button"
