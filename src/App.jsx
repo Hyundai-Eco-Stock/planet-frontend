@@ -114,7 +114,6 @@ function App() {
 			<Route element={<LayoutShopping />}>
 				<Route path="/home/main" element={<HomeMain />} />
 				<Route path="/shopping/main" element={<ShoppingMain />} />
-				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 				<Route path='/eco-deal/main' element={<EcoDealMain />} />
 			</Route>
 
@@ -122,6 +121,7 @@ function App() {
 			<Route element={<LayoutLogoAndFooter />}>
 				<Route path="/my-page/main" element={<MyPageMain />} />
 				<Route path="/raffle" element={<RaffleListPage />} />
+				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
