@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchMyOrders } from "@/api/member/member.api";
+import { cancelEntireOrder, cancelPartialOrder } from "@/api/payment/payment.api";
+import { confirmOrder } from "@/api/order/order.api";
 import { useNavigate } from "react-router-dom";
 
 /** utils */
@@ -39,6 +41,7 @@ function groupOrders(rows) {
         orderType: r.orderType,
         ecoAny: eco,
         paymentStatus: r.paymentStatus ?? r.payment_status,
+        refundDonationPrice: r.refundDonationPrice || 0,
         items: [],
       });
     }
@@ -63,65 +66,46 @@ function groupOrders(rows) {
 
 /** chips */
 const Chip = ({ children, className = "" }) => (
-  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${className}`}>{children}</span>
+  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>{children}</span>
 );
 
 const StatusChip = ({ status }) => {
   const raw = String(status || "").toUpperCase();
-  // tolerate common typos
   const norm = {
     PAID: "PAID",
-    DONE: "PAID", // sometimes PAID/DONE are mixed in upstream
-    COMPLETED: "PAID", // treat COMPLETED as confirmed
+    DONE: "DONE", 
+    COMPLETED: "COMPLETED",
     ALL_CANCELLED: "ALL_CANCELLED",
     ALL_CANCELED: "ALL_CANCELLED",
-    ALL_CANCLLED: "ALL_CANCELLED",
     PARTIAL_CANCELLED: "PARTIAL_CANCELLED",
     PARTIAL_CANCELED: "PARTIAL_CANCELLED",
-    PARTIAL_CANCLLED: "PARTIAL_CANCELLED",
-    PARTIOAL_CANCLED: "PARTIAL_CANCELLED",
   }[raw] || "PENDING";
 
   const labelMap = {
-    PAID: "구매확정",
-    ALL_CANCELLED: "전체취소됨",
-    PARTIAL_CANCELLED: "부분취소됨",
-    PENDING: "구매확정 대기중",
+    PAID: "결제완료",
+    DONE: "구매확정",
+    COMPLETED: "픽업완료", 
+    ALL_CANCELLED: "전체취소",
+    PARTIAL_CANCELLED: "부분취소",
+    PENDING: "처리중",
   };
   const colorMap = {
-    PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    ALL_CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
-    PARTIAL_CANCELLED: "bg-amber-50 text-amber-700 border-amber-200",
-    PENDING: "bg-gray-50 text-gray-700 border-gray-200",
+    PAID: "bg-gray-100 text-gray-800 border border-gray-200",
+    DONE: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    COMPLETED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    ALL_CANCELLED: "bg-red-50 text-red-700 border border-red-200",
+    PARTIAL_CANCELLED: "bg-amber-50 text-amber-700 border border-amber-200", 
+    PENDING: "bg-gray-50 text-gray-700 border border-gray-200",
   };
   return <Chip className={colorMap[norm]}>{labelMap[norm]}</Chip>;
 };
 
-const TypeChip = ({ type }) => (
-  <Chip className={type === "PICKUP" ? "bg-sky-50 text-sky-700 border-sky-200" : "bg-indigo-50 text-indigo-700 border-indigo-200"}>
-    {type === "PICKUP" ? "픽업" : "배송"}
-  </Chip>
-);
-
 const EcoChip = ({ eco }) => (
   eco ? (
-    <Chip className="gap-1 bg-emerald-50 text-emerald-700 border-emerald-200">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-        <path d="M12 2c-4 0-7 3-7 7 0 2 1 3.7 2.5 4.8C6.6 15 6 16 6 17c0 2.2 1.8 4 4 4h1v1h2v-1h1c2.2 0 4-1.8 4-4 0-1-.6-2-1.5-3.2C18 12.7 19 11 19 9c0-4-3-7-7-7z" />
-        <rect x="11" y="18" width="2" height="4" />
-      </svg>
-      에코딜
-    </Chip>
+    <Chip className="bg-emerald-50 text-emerald-700 border border-emerald-200">에코딜</Chip>
   ) : (
-    <Chip className="bg-gray-50 text-gray-600 border-gray-200">일반</Chip>
+    <Chip className="bg-gray-50 text-gray-600 border border-gray-200">일반</Chip>
   )
-);
-
-const ConfirmChip = () => (
-  <Chip className="bg-emerald-50 text-emerald-700 border-emerald-200">구매확정</Chip>
-);
-const AllCancelChip = () => (
-  <Chip className="bg-rose-50 text-rose-700 border-rose-200">전체 취소</Chip>
 );
 
 /** main */
@@ -129,10 +113,25 @@ export default function MyBuyHistory() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [selectedByOrder, setSelectedByOrder] = useState({}); // { [orderHistoryId]: Set(orderProductId) }
-  const [cancelModal, setCancelModal] = useState({ open: false, orderId: null, items: [], reason: "" });
+  const [selectedByOrder, setSelectedByOrder] = useState({});
+  const [cancelModal, setCancelModal] = useState({ 
+    open: false, 
+    orderId: null, 
+    items: [], 
+    reason: "",
+    isPartial: false,
+    refundDonation: false,
+    donationAmount: 0
+  });
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    orderId: null,
+    items: [],
+    isPartial: false
+  });
 
   const toggleSelect = (orderId, orderProductId, checked) => {
     setSelectedByOrder((prev) => {
@@ -141,6 +140,72 @@ export default function MyBuyHistory() {
       else set.delete(orderProductId);
       return { ...prev, [orderId]: set };
     });
+  };
+
+  // 주문 데이터 새로고침
+  const refreshOrders = async () => {
+    try {
+      const res = await fetchMyOrders();
+      setRows(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error('주문 목록 새로고침 실패:', e);
+    }
+  };
+
+  // 취소 처리
+  const handleCancel = async () => {
+    if (!cancelModal.orderId || cancelModal.items.length === 0) return;
+
+    setActionLoading(true);
+    try {
+      const { orderId, items, reason, isPartial, refundDonation } = cancelModal;
+      
+      if (isPartial) {
+        await cancelPartialOrder(orderId, items, reason, refundDonation);
+        alert('부분 취소가 완료되었습니다.');
+      } else {
+        await cancelEntireOrder(orderId, reason);
+        alert('전체 취소가 완료되었습니다.');
+      }
+
+      await refreshOrders();
+      setSelectedByOrder(prev => ({ ...prev, [orderId]: new Set() }));
+      
+    } catch (error) {
+      console.error('취소 처리 실패:', error);
+      alert(`취소 처리 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setActionLoading(false);
+      setCancelModal({ open: false, orderId: null, items: [], reason: "", isPartial: false, refundDonation: false, donationAmount: 0 });
+    }
+  };
+
+  // 확정 처리
+  const handleConfirm = async () => {
+    if (!confirmModal.orderId) return;
+
+    setActionLoading(true);
+    try {
+      const { orderId, items, isPartial } = confirmModal;
+      
+      if (isPartial && items.length > 0) {
+        await confirmOrder(orderId, items);
+        alert('선택한 상품의 구매 확정이 완료되었습니다.');
+      } else {
+        await confirmOrder(orderId, []);
+        alert('전체 구매 확정이 완료되었습니다.');
+      }
+
+      await refreshOrders();
+      setSelectedByOrder(prev => ({ ...prev, [orderId]: new Set() }));
+      
+    } catch (error) {
+      console.error('확정 처리 실패:', error);
+      alert(`구매 확정 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setActionLoading(false);
+      setConfirmModal({ open: false, orderId: null, items: [], isPartial: false });
+    }
   };
 
   useEffect(() => {
@@ -153,63 +218,57 @@ export default function MyBuyHistory() {
 
   const groups = useMemo(() => groupOrders(rows), [rows]);
 
-  if (loading) return <div className="p-6 text-sm text-gray-500">로딩 중…</div>;
-  if (error) return <div className="p-6 text-sm text-rose-600">{error}</div>;
-  if (!groups.length) return <div className="p-6 text-sm text-gray-500">구매 내역이 없습니다.</div>;
+  if (loading) return <div className="p-6 text-center text-gray-500">로딩 중...</div>;
+  if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
+  if (!groups.length) return <div className="p-6 text-center text-gray-500">구매 내역이 없습니다.</div>;
 
   return (
-    <main className="p-4 max-w-screen-md mx-auto space-y-4">
+    <main className="p-4 space-y-4">
       {groups.map((order) => {
-        const isPaymentDone = String(order.paymentStatus).toUpperCase() === "DONE";
         const orderStatusUpper = String(order.orderStatus).toUpperCase();
-        const isOrderDone = orderStatusUpper === "DONE" || orderStatusUpper === "COMPLETED";
+        const paymentStatusUpper = String(order.paymentStatus).toUpperCase();
+        
+        const isCompleted = orderStatusUpper === "DONE" || orderStatusUpper === "COMPLETED";
         const isAllCancelled = orderStatusUpper === "ALL_CANCELLED";
         const isPartialCancelled = orderStatusUpper === "PARTIAL_CANCELLED";
-        const isConfirmed = isOrderDone && isPaymentDone; // 둘 다 DONE일 때만 구매확정
-        // Actions: 결제 DONE이면서 주문이 아직 DONE이 아닐 때만 표시 (전체취소 제외)
-        const showActionButtons = isPaymentDone && !isOrderDone && !isAllCancelled;
-        // Header status chip 표시용 상태 계산
+        const isPaid = orderStatusUpper === "PAID" && paymentStatusUpper === "DONE";
+        
+        const showActionButtons = (isPaid || isPartialCancelled) && !isCompleted && !isAllCancelled;
+        const availableItems = order.items.filter(item => item.cancelStatus !== "Y");
+        const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
+        const totalItems = order.items.length;
+
         const headerStatus = (() => {
           if (isAllCancelled) return "ALL_CANCELLED";
           if (isPartialCancelled) return "PARTIAL_CANCELLED";
-          if (isConfirmed) return "PAID"; // StatusChip에서 "구매확정" 라벨로 표시됨
+          if (isCompleted) return "DONE";
+          if (isPaid) return "PAID";
           return "PENDING";
         })();
 
         return (
-          <section
-            key={order.orderHistoryId}
-            className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 ring-1 ring-gray-200 shadow-sm hover:shadow-md transition-shadow"
-          >
-            {/* top ribbon */}
-            <div className={`absolute inset-x-0 top-0 h-1 ${order.ecoAny ? "bg-gradient-to-r from-emerald-400 to-green-500" : "bg-gradient-to-r from-gray-200 to-gray-300"}`} />
+          <div key={order.orderHistoryId} className="bg-white rounded-lg shadow-sm border border-gray-200">
+            {/* 상단 컬러 바 */}
+            <div className={`h-1 ${order.ecoAny ? "bg-emerald-400" : "bg-gray-400"}`} />
 
-            {/* header */}
-            <header className="px-4 pt-3 pb-2 flex items-center justify-between">
-              <div className="flex min-w-0 items-center gap-2">        
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold leading-tight truncate">주문번호 {order.orderNumber}</div>
-                  <div className="text-[11px] text-gray-500">{formatDate(order.createdAt)}</div>
+            {/* 헤더 */}
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <div className="text-sm font-medium text-gray-900 mb-1">
+                    주문번호 {order.orderNumber}
+                  </div>
+                  <div className="text-xs text-gray-500">{formatDate(order.createdAt)}</div>
                 </div>
-                <div className="hidden sm:flex items-center gap-1 ml-2">
-                  <StatusChip status={headerStatus} />
-                </div>
+                <StatusChip status={headerStatus} />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-[11px] text-gray-500">결제금액</div>
-                  <div className="text-base font-extrabold">{currency(order.finalPayPrice)}</div>
-                </div>
+              <div className="text-right">
+                <div className="text-lg font-bold text-gray-900">{currency(order.finalPayPrice)}</div>
               </div>
-            </header>
-
-            {/* chips (mobile) */}
-            <div className="px-4 pb-3 sm:hidden flex items-center gap-1">
-              <StatusChip status={headerStatus} />
             </div>
 
-            {/* items */}
-            <ul className="px-2 pb-2 space-y-2">
+            {/* 상품 목록 */}
+            <div className="p-4 space-y-3">
               {order.items.map((it) => {
                 const unitPrice = Number(
                   it.finalProductPrice != null
@@ -218,8 +277,11 @@ export default function MyBuyHistory() {
                 );
                 const lineTotal = unitPrice * Number(it.quantity || 1);
                 const eco = it.ecoDealStatus === "Y";
+                const isCancelled = it.cancelStatus === "Y";
+                const canSelect = showActionButtons && !isCancelled;
+                
                 return (
-                  <li
+                  <div
                     key={it.orderProductId}
                     onClick={() =>
                       navigate(
@@ -228,157 +290,232 @@ export default function MyBuyHistory() {
                           : `/shopping/detail?productId=${it.productId}`
                       )
                     }
-                    className={`relative cursor-pointer rounded-xl border border-gray-100 bg-white/70 hover:bg-white transition-colors shadow-sm p-2 sm:p-3 flex items-center gap-3 ${isAllCancelled ? "opacity-60" : ""} ${isPartialCancelled && it.cancelStatus === "Y" ? "opacity-60" : ""} ${isConfirmed ? "ring-2 ring-emerald-300 shadow-lg bg-gradient-to-r from-emerald-50/70 to-white" : ""}`}
+                    className={`relative cursor-pointer rounded-lg border border-gray-200 bg-white hover:bg-gray-50 p-3 flex items-center gap-3
+                      ${isCancelled || isAllCancelled ? "opacity-50 grayscale" : ""} 
+                      ${isCompleted && !isCancelled ? "ring-1 ring-emerald-200 bg-emerald-50/20" : ""}`}
                   >
-                    {showActionButtons && !(isPartialCancelled && it.cancelStatus === "Y") && (
+                    {/* 체크박스 */}
+                    {canSelect && (
                       <input
                         type="checkbox"
-                        className="w-4 h-4 accent-rose-600 mt-0.5"
+                        className="w-4 h-4 accent-emerald-600"
                         checked={Boolean(selectedByOrder[order.orderHistoryId]?.has(it.orderProductId))}
                         onChange={(e) => toggleSelect(order.orderHistoryId, it.orderProductId, e.target.checked)}
                         onClick={(e) => e.stopPropagation()}
                       />
                     )}
-                    <div className="w-14 h-14 rounded-lg overflow-hidden flex-none ring-1 ring-gray-100 bg-gray-50 relative">
+
+                    {/* 상품 이미지 */}
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
                       {it.imageUrl ? (
-                        <img src={it.imageUrl} alt={it.productName || `상품 #${it.productId}`} className="w-full h-full object-cover" />
+                        <img src={it.imageUrl} alt={it.productName} className="w-full h-full object-cover" />
                       ) : (
-                        <div className={`w-full h-full grid place-items-center text-xs ${eco ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-50 text-gray-300'}`}>
-                          {eco ? (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                              <path d="M12 2c-4 0-7 3-7 7 0 2 1 3.7 2.5 4.8C6.6 15 6 16 6 17c0 2.2 1.8 4 4 4h1v1h2v-1h1c2.2 0 4-1.8 4-4 0-1-.6-2-1.5-3.2C18 12.7 19 11 19 9c0-4-3-7-7-7z" />
-                              <rect x="11" y="18" width="2" height="4" />
-                            </svg>
-                          ) : (
-                            <span>IMG</span>
-                          )}
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <span className="text-xs">이미지</span>
                         </div>
                       )}
                     </div>
-                    {isConfirmed && (
-                      <div className="absolute right-2 top-2">
-                        <Chip className="bg-emerald-600 text-white border-emerald-600">구매확정</Chip>
-                      </div>
-                    )}
+
+                    {/* 상품 정보 */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium line-clamp-1">
-                        {it.productName || `상품 #${it.productId}`}
+                      <div className="font-medium text-gray-900 text-sm truncate mb-1">
+                        {it.productName}
                       </div>
-                      {isPartialCancelled && (
-                        <div className="mt-1">
-                          {it.cancelStatus === "Y" ? (
-                            <Chip className="bg-rose-50 text-rose-700 border-rose-200">취소됨</Chip>
+                      
+                      <div className="flex items-center gap-2 mb-1">
+                        <EcoChip eco={eco} />
+                        {isPartialCancelled && (
+                          isCancelled ? (
+                            <Chip className="bg-red-50 text-red-700 border border-red-200">취소됨</Chip>
                           ) : (
-                            <Chip className="bg-sky-50 text-sky-700 border-sky-200">유지</Chip>
-                          )}
-                        </div>
-                      )}
-                      <div className="mt-0.5 text-[11px] text-gray-500">
-                        수량 {it.quantity} · 단가 {currency(it.finalProductPrice ?? it.price)}
-                        {Number(it.salePercent || 0) > 0 && (
-                          <span className="ml-1 align-middle">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                              -{Number(it.salePercent)}%
-                            </span>
-                          </span>
+                            <Chip className="bg-gray-100 text-gray-700 border border-gray-200">유지</Chip>
+                          )
                         )}
                       </div>
-                      <div className="mt-1"><EcoChip eco={eco} /></div>
+                      
+                      <div className="text-xs text-gray-500">
+                        수량 {it.quantity} · {currency(unitPrice)}
+                        {Number(it.salePercent || 0) > 0 && (
+                          <span className="ml-1 text-red-600">-{Number(it.salePercent)}%</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-sm font-semibold whitespace-nowrap">{currency(lineTotal)}</div>
-                  </li>
+
+                    {/* 가격 & 배지 */}
+                    <div className="text-right">
+                      <div className="font-bold text-gray-900 text-sm mb-1">{currency(lineTotal)}</div>
+                      
+                      {isCompleted && it.cancelStatus !== "Y" && (
+                        <Chip className="bg-emerald-600 text-white">확정</Chip>
+                      )}
+                      
+                      {it.cancelStatus === "Y" && (
+                        <Chip className="bg-gray-500 text-white">취소</Chip>
+                      )}
+                    </div>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
 
-            {/* cancellation action (only for PAID) */}
+            {/* 액션 버튼 */}
             {showActionButtons && (
-              <div className="px-4 pb-3 flex items-center justify-between gap-2">
-                <div className="text-[11px] text-gray-500"></div>
-                <div className="flex items-center gap-2">
+              <div className="p-4 border-t border-gray-100 flex justify-between items-center">
+                <div className="text-xs text-gray-500">
+                  {selectedItems.length > 0 && `${selectedItems.length}개 선택`}
+                </div>
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => {
-                      const selected = Array.from(selectedByOrder[order.orderHistoryId] || []);
-                      setCancelModal({ open: true, orderId: order.orderHistoryId, items: selected, reason: "" });
+                      const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
+                      const isPartialCancel = selectedItems.length > 0 && selectedItems.length < availableItems.length;
+                      setCancelModal({ 
+                        open: true, 
+                        orderId: order.orderHistoryId, 
+                        items: selectedItems, 
+                        reason: "",
+                        isPartial: isPartialCancel,
+                        refundDonation: false,
+                        donationAmount: order.donationPrice || 0
+                      });
                     }}
-                    disabled={!(selectedByOrder[order.orderHistoryId] && selectedByOrder[order.orderHistoryId].size > 0)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors
-                      ${selectedByOrder[order.orderHistoryId] && selectedByOrder[order.orderHistoryId].size > 0
-                        ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                        : "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"}`}
+                    disabled={selectedItems.length === 0 || actionLoading}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium
+                      ${selectedItems.length > 0 && !actionLoading
+                        ? "bg-red-600 text-white"
+                        : "bg-gray-100 text-gray-400"}`}
                   >
-                    구매취소
+                    취소
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      const selected = Array.from(selectedByOrder[order.orderHistoryId] || []);
-                      const items = selected.join(",");
-                      navigate(`/orders/confirm?orderHistoryId=${order.orderHistoryId}${items ? `&items=${items}` : ""}`);
+                      const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
+                      const isPartialConfirm = selectedItems.length > 0 && selectedItems.length < totalItems;
+                      setConfirmModal({
+                        open: true,
+                        orderId: order.orderHistoryId,
+                        items: selectedItems,
+                        isPartial: isPartialConfirm
+                      });
                     }}
-                    className="px-3 py-1.5 rounded-lg text-sm font-semibold border bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700"
+                    disabled={actionLoading}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium
+                      ${!actionLoading ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-400"}`}
                   >
-                    구매확정
+                    확정
                   </button>
                 </div>
               </div>
             )}
 
-            {/* footer */}
-            <footer className="px-4 pb-4">
-              <div className="mt-1 rounded-xl bg-gray-50/80 ring-1 ring-gray-100 p-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]">
-                <div className="text-gray-500">상품금액</div>
-                <div className="text-right font-medium">{currency(order.originPrice)}</div>
-                <div className="text-gray-500">포인트 사용</div>
-                <div className="text-right font-medium">-{currency(order.usedPoint)}</div>
-                <div className="text-gray-500">기부</div>
-                <div className="text-right font-medium">{currency(order.donationPrice)}</div>
-                <div className="col-span-2 border-t border-gray-200 mt-2 pt-2 flex items-center justify-between">
-                  <div className="text-sm font-semibold">결제금액</div>
-                  <div className="text-base font-extrabold">{currency(order.finalPayPrice)}</div>
+            {/* 결제 정보 */}
+            <div className="p-4 bg-gray-50 rounded-b-lg text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">상품금액</span>
+                  <span>{currency(order.originPrice)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">포인트 사용</span>
+                  <span className="text-red-600">-{currency(order.usedPoint)}</span>
+                </div>
+                
+                {/* 기부금 표시 - 환불 정보 포함 */}
+                <div className="flex justify-between">
+                  <span className="text-gray-500">기부</span>
+                  <div className="text-right">
+                    <div className="text-emerald-600">{currency(order.donationPrice)}</div>
+                    {order.refundDonationPrice > 0 && (
+                      <div className="text-xs text-gray-400">
+                        환불: {currency(order.refundDonationPrice)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between font-bold">
+                  <span>결제금액</span>
+                  <span>{currency(order.finalPayPrice)}</span>
                 </div>
               </div>
-            </footer>
-          </section>
+            </div>
+          </div>
         );
       })}
 
+      {/* 간단한 취소 모달 */}
       {cancelModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl ring-1 ring-gray-200">
-            <div className="text-base font-semibold mb-1">정말 취소하시겠습니까?</div>
-            <p className="text-[12px] text-gray-500 mb-3">취소 사유를 작성해 주세요.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm bg-white rounded-lg p-4">
+            <h3 className="text-lg font-bold mb-3">주문 취소</h3>
             <textarea
-              className="w-full h-28 resize-none rounded-lg border border-gray-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
-              placeholder="예: 단순 변심, 상품 정보 오류 등"
+              className="w-full h-20 border border-gray-300 rounded-lg p-2 text-sm"
+              placeholder="취소 사유를 입력해 주세요"
               value={cancelModal.reason}
               onChange={(e) => setCancelModal((m) => ({ ...m, reason: e.target.value }))}
             />
-            <div className="mt-3 flex justify-end gap-2">
+            
+            {cancelModal.isPartial && cancelModal.donationAmount > 0 && (
+              <div className="mt-3 p-3 bg-amber-50 rounded-lg">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4"
+                    checked={cancelModal.refundDonation}
+                    onChange={(e) => setCancelModal((m) => ({ ...m, refundDonation: e.target.checked }))}
+                  />
+                  <span className="text-sm">기부금 환불 ({currency(cancelModal.donationAmount)})</span>
+                </label>
+              </div>
+            )}
+            
+            <div className="flex gap-2 mt-4">
               <button
-                type="button"
-                onClick={() => setCancelModal({ open: false, orderId: null, items: [], reason: "" })}
-                className="px-3 py-1.5 rounded-lg text-sm border border-gray-200 text-gray-700 hover:bg-gray-50"
+                onClick={() => setCancelModal({ open: false, orderId: null, items: [], reason: "", isPartial: false, refundDonation: false, donationAmount: 0 })}
+                className="flex-1 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                닫기
+                취소
               </button>
               <button
-                type="button"
-                onClick={() => {
-                  // Placeholder: pass selection & reason. Adjust endpoint as needed.
-                  const items = cancelModal.items.join(",");
-                  const reason = encodeURIComponent(cancelModal.reason || "");
-                  navigate(`/orders/cancel?orderHistoryId=${cancelModal.orderId}&items=${items}&reason=${reason}`);
-                  setCancelModal({ open: false, orderId: null, items: [], reason: "" });
-                }}
-                disabled={cancelModal.items.length === 0}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors
-                  ${cancelModal.items.length > 0
-                    ? "bg-rose-600 text-white border-rose-600 hover:bg-rose-700"
-                    : "bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed"}`}
+                onClick={handleCancel}
+                disabled={cancelModal.items.length === 0 || actionLoading}
+                className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm disabled:bg-gray-300"
               >
                 확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 간단한 확정 모달 */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm bg-white rounded-lg p-4">
+            <h3 className="text-lg font-bold mb-3">구매 확정</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              {confirmModal.isPartial 
+                ? `${confirmModal.items.length}개 상품을 확정하시겠습니까?`
+                : '전체 상품을 확정하시겠습니까?'
+              }
+            </p>
+            <p className="text-xs text-amber-600 mb-4">확정 후 취소가 불가능합니다.</p>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmModal({ open: false, orderId: null, items: [], isPartial: false })}
+                className="flex-1 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={actionLoading}
+                className="flex-1 py-2 bg-emerald-600 text-white rounded-lg text-sm disabled:bg-gray-300"
+              >
+                확정
               </button>
             </div>
           </div>
