@@ -65,8 +65,7 @@ const MyEcoStockInfo = () => {
   const summary = useMemo(() => {
     const totalQty = items.reduce((s, v) => s + (v.currentTotalQuantity || 0), 0);
     const totalAmt = items.reduce((s, v) => s + (v.currentTotalAmount || 0), 0);
-    const totalPoint = items.reduce((s, v) => s + (v.point || 0), 0);
-    return { totalQty, totalAmt, totalPoint };
+    return { totalQty, totalAmt };
   }, [items]);
 
   return (
@@ -97,9 +96,7 @@ const MyEcoStockInfo = () => {
       )}
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <SummaryCard label="총 수량" value={`${formatNumber(summary.totalQty)}`} suffix="개" color="indigo" />
-        <SummaryCard label="총 금액" value={`${formatNumber(summary.totalAmt)}`} suffix="원" color="emerald" />
-        <SummaryCard label="총 포인트" value={`${formatNumber(summary.totalPoint)}`} suffix="P" color="amber" />
+        <SummaryCard label="총 포인트" value={`${formatNumber(items.point)}`} suffix="P" color="amber" />
       </div>
 
       {/* List */}
@@ -186,7 +183,6 @@ const EcoCard = ({ data }) => {
           <div className="h-px bg-gray-100 my-1" />
           <KV label="보유 수량" value={`${formatNumber(currentTotalQuantity)} 개`} />
           <KV label="평가 금액" value={`${formatNumber(currentTotalAmount)} 원`} />
-          <KV label="적립 포인트" value={`${formatNumber(point)} P`} />
         </div>
       </div>
     </article>
