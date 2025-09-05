@@ -8,6 +8,7 @@ import {
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { SimpleSelect } from "@/components/_custom/CustomSelect";
+import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 
 const CarAccessHistoryCreate = () => {
     const [carNumber, setCarNumber] = useState("");
@@ -79,12 +80,11 @@ const CarAccessHistoryCreate = () => {
                     placeholder="입출차 선택"
                 />
 
-                <button
+                <CustomCommonButton
                     onClick={handleCreate}
-                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg"
-                >
-                    기록 생성
-                </button>
+                    className="w-[15rem] px-4 py-4 bg-emerald-500 text-white rounded-lg"
+                    children="기록 생성"
+                />
             </div>
 
             {/* 최근 기록 목록 */}
