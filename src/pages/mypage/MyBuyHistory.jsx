@@ -532,6 +532,16 @@ export default function MyBuyHistory() {
               onChange={(e) => setCancelModal((m) => ({ ...m, reason: e.target.value }))}
             />
 
+            {/* 포인트 절사 안내 */}
+            {cancelModal.isPartial && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700 font-medium">💡 안내</p>
+                <p className="text-xs text-blue-600 mt-1">
+                  부분 취소 시 포인트는 상품 개수에 비례하여 환불되며, 소수점 이하는 절사됩니다.
+                </p>
+              </div>
+            )}
+
             {cancelModal.isPartial && cancelModal.donationAmount > 0 && (
               <div className="mt-3 p-3 bg-amber-50 rounded-lg">
                 <label className="flex items-center gap-2">
