@@ -5,22 +5,67 @@ import CountdownTimer from "@/components/raffle/CountdownTimer";
 import { getRaffleDetail } from "@/api/raffleDetail/raffleDetail.api";
 import { raffleParticipate } from "@/api/raffleParticipate/raffleParticipate.api";
 import Swal from 'sweetalert2'; // SweetAlert2 추가
+import { getMemberStockInfoAll } from "@/api/memberStockInfoAll/memberStockInfoAll.api";
+import { getRaffleEntryStatus } from "@/api/raffleEntryStatus/raffleEntryStatus.api";
+import useAuthStore from "@/store/authStore";
 
 const RaffleDetailPage = () => {
   const { raffleId } = useParams();
   const navigate = useNavigate();
+  // 두 번째 방법 (추천)
   const location = useLocation();
-
-  const [personalStockInfoList, setPersonalStockInfoList] = useState(
-    location.state?.personalStockInfoList || []
-  );
+  const winnerName = location.state?.winnerName;
+  const { loginStatus } = useAuthStore.getState();
+  const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [raffle, setRaffle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [participateLoading, setParticipateLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [entryStatus, setEntryStatus] = useState(false);
 
-  
+
+  // personalStockInfoList를 API로 가져오는 useEffect 추가
+  useEffect(() => {
+    const fetchPersonalStockInfo = async () => {
+      if (!loginStatus) {
+        setPersonalStockInfoList([]);
+        return;
+      }
+      try {
+        const stockData = await getMemberStockInfoAll();
+        setPersonalStockInfoList(stockData || []);
+      } catch (err) {
+        console.error("개인 에코스톡 정보 조회 실패:", err);
+        // 에러가 발생해도 빈 배열로 유지하여 페이지가 정상 동작하도록 함
+        setPersonalStockInfoList([]);
+      }
+    };
+
+    fetchPersonalStockInfo();
+  }, [loginStatus]); // 컴포넌트 마운트 시 한 번만 실행
+
+  useEffect(() => {
+    const fetchRaffleEntryStatus = async () => {
+      if (!loginStatus) {
+        setEntryStatus(false);
+        return;
+      }
+      try {
+        const entryStatus = await getRaffleEntryStatus(raffleId);
+        if (entryStatus.status === true) {
+          console.log(entryStatus);
+
+          setEntryStatus(true);
+        }
+      } catch (err) {
+        console.error("개인 응모 내역 조회:", err);
+      }
+    };
+
+    fetchRaffleEntryStatus();
+  }, [raffleId]);
+
   // 에코스톡 보유량 확인 함수
   const getUserStock = (ecoStockName) => {
     return personalStockInfoList.find(stock => stock.ecoStockName === ecoStockName);
@@ -188,7 +233,7 @@ const RaffleDetailPage = () => {
       } else {
         await showSuccessPopup(currentQuantity - raffle.ecoStockAmount); // fallback
       }
-      
+
       console.log('성공 팝업 완료');
 
     } catch (error) {
@@ -276,38 +321,55 @@ const RaffleDetailPage = () => {
             래플 당첨 시 100% 무료로 받아가세요
           </div>
         </div>
-
-        {/* 에코스톡 보유 현황 */}
-        <div className="mb-6">
-          <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${hasEnoughStock
-            ? 'bg-green-100 text-green-700 border-2 border-green-300'
-            : 'bg-red-100 text-red-700 border-2 border-red-300'
-            }`}>
-            {hasEnoughStock ? (
-              <span className="flex items-center gap-2">
-                <span>✅ 응모 가능</span>
-                <span className="text-xs">({currentQuantity}개 보유)</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <span>❌ {raffle.ecoStockName} 부족</span>
-                <span className="text-xs">({currentQuantity}/{raffle.ecoStockAmount}개)</span>
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* 응모 조건 */}
-        <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm">🎁</span>
-            </div>
-            <div className="text-sm font-medium text-green-800">
-              {raffle.ecoStockName} 에코스톡 {raffle.ecoStockAmount}개 필요
+        {/* 당첨자가 있으면 당첨자 정보, 없으면 기존 에코스톡 정보 */}
+        {winnerName ? (
+          <div className="mb-6">
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm">🏆</span>
+                </div>
+                <div className="text-sm font-medium text-yellow-800">
+                  당첨자: {winnerName}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* 에코스톡 보유 현황 */}
+            <div className="mb-6">
+              <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${hasEnoughStock
+                ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                : 'bg-red-100 text-red-700 border-2 border-red-300'
+                }`}>
+                {hasEnoughStock ? (
+                  <span className="flex items-center gap-2">
+                    <span>✅ 응모 가능</span>
+                    <span className="text-xs">({currentQuantity}개 보유)</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <span>❌ {raffle.ecoStockName} 부족</span>
+                    <span className="text-xs">({currentQuantity}/{raffle.ecoStockAmount}개)</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* 응모 조건 */}
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm">🎁</span>
+                </div>
+                <div className="text-sm font-medium text-green-800">
+                  {raffle.ecoStockName} 에코스톡 {raffle.ecoStockAmount}개 필요
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="mb-4">
           <CountdownTimer endDate={new Date(raffle.endDate)} large={true} />
@@ -362,16 +424,29 @@ const RaffleDetailPage = () => {
       {/* 하단 응모 버튼 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white px-6 py-4 border-t shadow-lg z-50">
         <button
-          onClick={handleEnterRaffle}
-          disabled={isSubmitting}
+          onClick={winnerName ? undefined : handleEnterRaffle}
+          disabled={isSubmitting || entryStatus || winnerName}
           className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors shadow-md ${isSubmitting
             ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-            : hasEnoughStock
-              ? 'bg-green-500 text-white hover:bg-green-600'
-              : 'bg-red-500 text-white hover:bg-red-600'
+            : entryStatus
+              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+              : winnerName
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : hasEnoughStock
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-red-500 text-white hover:bg-red-600'
             }`}
         >
-          {isSubmitting ? '처리 중...' : hasEnoughStock ? '🎯 응모하기' : `❌ ${raffle.ecoStockName} 부족`}
+          {isSubmitting
+            ? '처리 중...'
+            : winnerName
+              ? '🏆 마감'
+              : entryStatus
+                ? '✅ 이미 참여한 래플입니다'
+                : hasEnoughStock
+                  ? '🎯 응모하기'
+                  : `❌ ${raffle.ecoStockName} 부족`
+          }
         </button>
       </div>
 
