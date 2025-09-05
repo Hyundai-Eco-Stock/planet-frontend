@@ -64,6 +64,7 @@ const ChangePassword = () => {
             <label>
                 <span>비밀번호</span>
                 <CustomCommonInput
+                    type="password"
                     value={password}
                     onChange={handlePasswordChange}
                 />
@@ -72,6 +73,7 @@ const ChangePassword = () => {
             <label>
                 <span>비밀번호 확인</span>
                 <CustomCommonInput
+                    type="password"
                     value={passwordAgain}
                     onChange={handlePasswordAgainChange}
                 />
