@@ -209,6 +209,7 @@ const RaffleDetailPage = () => {
       await handleConfirmEntry();
     }
   };
+  
   const handleConfirmEntry = async () => {
     console.log('handleConfirmEntry 시작');
 
@@ -230,8 +231,15 @@ const RaffleDetailPage = () => {
       // 성공 시 에코스톡 수량 업데이트
       if (result && result.result === 1 && result.remainingQuantity !== undefined && result.ecoStockId) {
         updatePersonalStockInfo(result.ecoStockId, result.remainingQuantity);
+        
+        // 응모 성공 시 entryStatus를 true로 설정
+        setEntryStatus(true);
+        
         await showSuccessPopup(result.remainingQuantity);
       } else {
+        // 응모 성공 시 entryStatus를 true로 설정 (fallback)
+        setEntryStatus(true);
+        
         await showSuccessPopup(currentQuantity - raffle.ecoStockAmount); // fallback
       }
 
