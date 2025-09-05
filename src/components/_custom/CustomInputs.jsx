@@ -78,6 +78,7 @@ const CustomCommonInput = forwardRef(
                 {isPassword && value && !readOnly && (
                     <button
                         type="button"
+                        tabIndex={-1}
                         onClick={() => setShowPassword((prev) => !prev)}
                         className="absolute inset-y-0 right-10 flex items-center text-gray-400 hover:text-gray-600"
                     >
@@ -89,6 +90,7 @@ const CustomCommonInput = forwardRef(
                 {value && closeBtnVisible && !readOnly && (
                     <button
                         type="button"
+                        tabIndex={-1}
                         onClick={() => onChange({ target: { value: "" } })}
                         className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
                     >
