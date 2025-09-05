@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchCategories } from "../../api/product/product.api";
 import { getRaffleList } from "../../api/raffleList/raffleList.api";
 
+// 배너 클릭 시 이동할 상품 ID는 주석의 숫자를 반영했습니다.
 const DUMMY_BANNERS = [
-  "https://image.msscdn.net/display/images/2025/09/01/ca6ea88399554a8494b7c6e1782166bf.jpg",
-  "https://image.msscdn.net/display/images/2025/09/01/18c20c1924bb4f24b6167fce66ac1abc.jpg",
-  "https://image.msscdn.net/display/images/2025/09/01/9c9eb13992574927881841f0be0ced38.jpg",
-  "https://image.msscdn.net/display/images/2025/08/29/f4ba6b9b90994dc5a35189b9dabff140.jpg",
-  "https://image.msscdn.net/display/images/2025/08/29/ad8f37650a6c4294a7a1e507abe43f9c.jpg",
+  { src: "https://image.thehyundai.com/static/8/5/9/26/A1/40A1269580_0_600.jpg", productId: 168 },
+  { src: "https://image.thehyundai.com/static/7/2/6/37/A1/40A1376277_0_600.jpg", productId: 82 },
+  { src: "https://image.thehyundai.com/static/1/8/1/67/A1/40A1671811_0_600.jpg", productId: 140 },
+  { src: "https://image.thehyundai.com/static/5/9/3/56/A1/60A1563953_0_600.jpg", productId: 45 },
 ];
 
 const currency = (n) => (n == null ? "" : Number(n).toLocaleString());
 
 
 const Home = () => {
+  const navigate = useNavigate();
   // 캐러셀
   const [slide, setSlide] = useState(0);
   const total = DUMMY_BANNERS.length;
@@ -71,15 +72,20 @@ const Home = () => {
       <section className="pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
           <div className="flex" style={sliderStyle}>
-            {DUMMY_BANNERS.map((src, idx) => (
+            {DUMMY_BANNERS.map((b, idx) => (
               <div
                 key={idx}
                 className="flex-shrink-0"
                 style={{ width: `${100 / total}%` }}
               >
-                <div className="w-full aspect-square">
-                  <img src={src} alt={`banner-${idx}`} className="w-full h-full object-cover" />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/shopping/detail?productId=${encodeURIComponent(b.productId)}`)}
+                  className="w-full aspect-square cursor-pointer"
+                  aria-label={`배너 ${idx + 1} 이동`}
+                >
+                  <img src={b.src} alt={`banner-${idx}`} className="w-full h-full object-cover" />
+                </button>
               </div>
             ))}
           </div>
