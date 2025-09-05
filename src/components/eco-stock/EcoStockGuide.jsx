@@ -85,11 +85,6 @@ const EcoStockGuide = () => {
                     <!-- 투자 팁 섹션 -->
                     <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-4 border-l-4 border-green-500">
                         <div class="flex items-start">
-                            <div class="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
                             <div>
                                 <h4 class="font-semibold text-gray-800 mb-2 text-lg">스마트 투자 팁</h4>
                                 <p class="text-sm text-gray-700 leading-relaxed">장기적 관점에서 ESG 가치를 고려하여 현명한 투자 결정을 내리세요. 환경을 생각하는 기업에 투자하며 수익과 가치를 동시에 추구하는 것이 에코스톡의 핵심입니다.</p>

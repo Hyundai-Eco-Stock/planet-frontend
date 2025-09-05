@@ -15,6 +15,7 @@ const RaffleDetailPage = () => {
   // 두 번째 방법 (추천)
   const location = useLocation();
   const winnerName = location.state?.winnerName;
+  const raffleItem = location.state?.raffleItem;
   const { loginStatus } = useAuthStore.getState();
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [raffle, setRaffle] = useState(null);
@@ -208,6 +209,7 @@ const RaffleDetailPage = () => {
       await handleConfirmEntry();
     }
   };
+  
   const handleConfirmEntry = async () => {
     console.log('handleConfirmEntry 시작');
 
@@ -229,8 +231,15 @@ const RaffleDetailPage = () => {
       // 성공 시 에코스톡 수량 업데이트
       if (result && result.result === 1 && result.remainingQuantity !== undefined && result.ecoStockId) {
         updatePersonalStockInfo(result.ecoStockId, result.remainingQuantity);
+        
+        // 응모 성공 시 entryStatus를 true로 설정
+        setEntryStatus(true);
+        
         await showSuccessPopup(result.remainingQuantity);
       } else {
+        // 응모 성공 시 entryStatus를 true로 설정 (fallback)
+        setEntryStatus(true);
+        
         await showSuccessPopup(currentQuantity - raffle.ecoStockAmount); // fallback
       }
 
@@ -293,11 +302,16 @@ const RaffleDetailPage = () => {
       <div className="bg-white">
         <div className="relative">
           <img
-            src={raffle.imageUrl}
+            src={raffleItem?.imageUrl || raffle.imageUrl}
             alt={raffle.productName}
             className="w-full h-96 object-cover"
             onError={(e) => {
-              e.target.src = '/placeholder-image.jpg';
+              // raffleItem.imageUrl 실패 시 raffle.imageUrl로 폴백
+              if (e.target.src === raffleItem?.imageUrl && raffle.imageUrl) {
+                e.target.src = raffle.imageUrl;
+              } else {
+                e.target.src = '/placeholder-image.jpg';
+              }
             }}
           />
         </div>
@@ -350,7 +364,7 @@ const RaffleDetailPage = () => {
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <span>❌ {raffle.ecoStockName} 부족</span>
+                    <span>❌ {raffle.ecoStockName} 에코스톡 부족</span>
                     <span className="text-xs">({currentQuantity}/{raffle.ecoStockAmount}개)</span>
                   </span>
                 )}
@@ -445,7 +459,7 @@ const RaffleDetailPage = () => {
                 ? '✅ 이미 참여한 래플입니다'
                 : hasEnoughStock
                   ? '🎯 응모하기'
-                  : `❌ ${raffle.ecoStockName} 부족`
+                  : `❌ ${raffle.ecoStockName} 에코스톡 부족`
           }
         </button>
       </div>

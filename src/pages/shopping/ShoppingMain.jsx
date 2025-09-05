@@ -114,9 +114,9 @@ export default function ShoppingMain() {
 
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="max-w-xl min-h-screen bg-white text-gray-900">
       {/* 고정된 카테고리 바 (헤더 높이 64px 아래) */}
-      <div className="fixed left-0 right-0 z-40 bg-white border-b border-gray-100 px-4" style={{ top: '64px' }}>
+      <div className="max-w-xl fixed left-1/2 -translate-x-1/2 z-40 bg-white border-b border-gray-100 px-4" style={{ top: '64px' }}>
         <CategoryBar
           categories={barCategories}
           active={activeCategoryId}

@@ -40,9 +40,9 @@ const TumblerCertificate = () => {
                     denyButtonText: "홈으로 가기"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // window.location.href = "/stock-chart";
+                        window.location.href = "/eco-stock/main";
                     } else if (result.isDenied) {
-                        // window.location.href = "/home";
+                        window.location.href = "/home/main";
                     }
                 });
             })

@@ -23,7 +23,7 @@ const Footer = () => {
     }
 
     return (
-        <div className="flex w-full justify-between h-full">
+        <div className=" flex w-full justify-between h-full">
             {
                 menus.map((menu) => {
                     const isActive = location.pathname.startsWith(menu.path);

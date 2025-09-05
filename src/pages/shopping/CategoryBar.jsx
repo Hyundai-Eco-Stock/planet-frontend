@@ -17,7 +17,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
         {/* 스크롤 영역 (스크롤바 숨김) */}
         <div
           ref={scrollerRef}
-          className="overflow-x-auto pr-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative z-10 overflow-x-auto pr-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
         >
           <div className="inline-flex gap-3 pb-2">
             {categories.map((c) => (
@@ -58,8 +58,8 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
           </div>
         </div>
 
-        {/* 오른쪽 그라데이션 */}
-        <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent" />
+        {/* 오른쪽 그라데이션 (이벤트 차단 방지: pointer-events-none, z-0) */}
+        <div className="pointer-events-none absolute z-0 top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent" />
       </div>
     </section>
   );

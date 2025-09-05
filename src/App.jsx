@@ -87,6 +87,7 @@ import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
+import MyAssetsPage from './pages/mypage/MyAssetsPage'
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -114,7 +115,6 @@ function App() {
 			<Route element={<LayoutShopping />}>
 				<Route path="/home/main" element={<HomeMain />} />
 				<Route path="/shopping/main" element={<ShoppingMain />} />
-				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 				<Route path='/eco-deal/main' element={<EcoDealMain />} />
 			</Route>
 
@@ -122,6 +122,7 @@ function App() {
 			<Route element={<LayoutLogoAndFooter />}>
 				<Route path="/my-page/main" element={<MyPageMain />} />
 				<Route path="/raffle" element={<RaffleListPage />} />
+				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
@@ -130,9 +131,8 @@ function App() {
 				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
 				<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 				<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
-				<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
 				<Route path="/my-page/profile" element={<MyProfile />} />
-				<Route path="/my-page/my-eco-stock" element={<MyEcoStockInfo />} />
+				<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/my-card" element={<MyCardInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
@@ -158,7 +158,6 @@ function App() {
 			{/* 로고만 있는 Layout (헤더만) */}
 			<Route element={<LayoutLogoOnly title="" />}>
 				<Route path="/signup/oauth" element={<OAuthSignUp />} />
-				<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
 			</Route>
 
 			{/* 푸터만 있는 Layout (푸터만) */}
@@ -185,7 +184,7 @@ function App() {
 				<Route path="/orders/pickup" element={<PickupOrderPage />} />
 			</Route>
 
-
+			{/* ADMIN */}
 			<Route element={<AdminLayout />}>
 				<Route path="/admin/test" element={<Test />} />
 				<Route path="/admin/dashboard/main" element={<EcoStockDashboard />} />
@@ -194,6 +193,8 @@ function App() {
 				<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
 				<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
+				<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
+				<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
 			</Route>
 		</Routes>
 	)

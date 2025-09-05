@@ -20,7 +20,8 @@ const RaffleListPage = () => {
       navigate(`/raffle/detail/${item.raffleId}`, {
         state: {
           personalStockInfoList,
-          winnerName: item.winnerName
+          winnerName: item.winnerName,
+          raffleItem: item
         },
       });
     },

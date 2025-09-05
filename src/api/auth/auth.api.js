@@ -47,6 +47,46 @@ export const signUpByKakao = async ({
 };
 
 /**
+ * 로컿 회원가입
+ * @param {String} email 
+ * @param {String} name 
+ * @param {String} password
+ * @param {String} sex
+ * @param {String} birth
+ * @param {String} address
+ * @param {String} detailAddress
+ * @param {*} profileImage 
+ */
+export const signUpByLocal = async ({
+	email,
+	name,
+	password,
+	profileFile,
+	sex,
+	birth,
+	address,
+	detailAddress,
+}) => {
+	const signUpData = { email, name, password, sex, birth, address, detailAddress, };
+
+	const multipartForm = new FormData();
+	multipartForm.append(
+		"signUp",
+		new Blob([JSON.stringify(signUpData)], { type: "application/json" })
+	);
+
+	if (profileFile) {
+		const filename = profileFile.name || "profile.jpg";
+		multipartForm.append("profileImage", profileFile, filename);
+	}
+
+	const response = await apiClient.post("/auth/signup/local", multipartForm, {
+		headers: { "Content-Type": "multipart/form-data" },
+	});
+	return response.data;
+};
+
+/**
  * 로그아웃
  * - 서버: Refresh 쿠키 만료 + Redis 블랙리스트 처리
  * - 클라이언트: 상태(Zustand 등) 초기화는 호출부에서 처리

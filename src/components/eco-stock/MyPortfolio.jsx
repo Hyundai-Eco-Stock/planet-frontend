@@ -3,13 +3,14 @@ import { usePersonalStockInfo, useStockCalculations, useStockSell, formatCurrenc
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
+import StockSellModal from './StockSellModal';
 
 const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
     const navigate = useNavigate();
     // 커스텀 훅들
     const { memberStockInfo, isLoading: dataLoading, refetch } = usePersonalStockInfo(stockInfo?.id);
     const stock = useStockCalculations(currentData, memberStockInfo, dataLoading);
-    const { isSelling, handleSell } = useStockSell(stockInfo, stock, onSell, refetch);
+const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = useStockSell(stockInfo, stock, onSell, refetch);
     const { loginStatus } = useAuthStore.getState();
     const isProfit = stock.profitLoss >= 0;
 
@@ -151,6 +152,7 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
                     </button>
                 </div>
 
+
                 {/* 수익률 메시지 */}
                 {stock.quantity > 0 && (
                     <div className="mt-3 text-center">
@@ -162,6 +164,15 @@ const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
                         </p>
                     </div>
                 )}
+                {/* 새 모달 추가 */}
+                <StockSellModal
+                    isOpen={isModalOpen}
+                    onClose={closeModal}
+                    stockInfo={stockInfo}
+                    stock={stock}
+                    onConfirm={handleConfirmSell}
+                    formatCurrency={formatCurrency}
+                />
             </div>
         </div>
     );
