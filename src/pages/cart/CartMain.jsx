@@ -13,7 +13,7 @@ const CartMain = () => {
   // 강제 리렌더링용 상태
   const [, forceUpdate] = useState({})
   
-  // Zustand store에서 모든 상태 구독하기
+  // Zustand store에서 모든 상태와 함수들을 구독
   const cartStore = useCartStore()
   const { deliveryCart, pickupCart } = cartStore
   
@@ -23,64 +23,79 @@ const CartMain = () => {
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
   
-  // cartStorageUpdate 이벤트로 강제 리렌더링
+  // 실시간 장바구니 상태 동기화
   useEffect(() => {
     const handleCartUpdate = () => {
+      // Zustand store 상태를 강제로 동기화
+      const currentState = useCartStore.getState()
+      
+      // 강제 리렌더링 (상태 객체 참조 변경)
       forceUpdate({})
       
-      // 한 번만 자동 새로고침 (개발 중에만)
-      if (window.location.pathname === '/cart/main' && !window.cartRefreshed) {
-        window.cartRefreshed = true
-        setTimeout(() => {
-          window.location.reload()
-        }, 100)
-      }
+      console.log('장바구니 업데이트 감지:', {
+        deliveryCount: currentState.deliveryCart.length,
+        pickupCount: currentState.pickupCart.length,
+        timestamp: new Date().toISOString()
+      })
     }
     
+    // 여러 이벤트 모두 감지
     window.addEventListener('cartStorageUpdate', handleCartUpdate)
+    window.addEventListener('storage', handleCartUpdate) // localStorage 직접 변경 감지
     
+    // cleanup
     return () => {
       window.removeEventListener('cartStorageUpdate', handleCartUpdate)
+      window.removeEventListener('storage', handleCartUpdate)
     }
   }, [])
   
-  // 하이드레이션 처리 - 단순화
+  // 페이지 포커스 시 상태 동기화 (다른 탭에서 추가했을 때)
   useEffect(() => {
-    // 페이지 진입 시 강제로 localStorage 동기화
-    const forceSync = () => {
+    const handleFocus = () => {
+      forceUpdate({})
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+  
+  // 하이드레이션 처리
+  useEffect(() => {
+    const initializeCart = () => {
       try {
+        // localStorage에서 직접 상태를 읽어와 Zustand와 동기화
         const cartData = localStorage.getItem('cart-storage')
         if (cartData) {
           const parsed = JSON.parse(cartData)
           const state = parsed.state || parsed
           
-          // 현재 store 상태와 localStorage 상태가 다르면 store 업데이트
-          if (state.deliveryCart && state.pickupCart) {
+          if (state.deliveryCart || state.pickupCart) {
             const currentState = useCartStore.getState()
+            
+            // 상태가 다르면 업데이트
             if (
-              state.deliveryCart.length !== currentState.deliveryCart.length ||
-              state.pickupCart.length !== currentState.pickupCart.length
+              JSON.stringify(currentState.deliveryCart) !== JSON.stringify(state.deliveryCart) ||
+              JSON.stringify(currentState.pickupCart) !== JSON.stringify(state.pickupCart)
             ) {
               useCartStore.setState({
-                deliveryCart: state.deliveryCart,
-                pickupCart: state.pickupCart
+                deliveryCart: state.deliveryCart || [],
+                pickupCart: state.pickupCart || []
               })
-              forceUpdate({}) // 리렌더링 강제
             }
           }
         }
       } catch (error) {
-        console.error('동기화 실패:', error)
+        console.error('장바구니 초기화 실패:', error)
       } finally {
         setIsHydrated(true)
       }
     }
     
-    forceSync()
+    initializeCart()
     
-    // 100ms 후 한 번 더 체크
-    const timer = setTimeout(forceSync, 100)
-    
+    // 추가 안전장치: 200ms 후 한 번 더 체크
+    const timer = setTimeout(initializeCart, 200)
     return () => clearTimeout(timer)
   }, [])
   
@@ -91,8 +106,7 @@ const CartMain = () => {
   
   // 현재 활성 탭의 장바구니 가져오기
   const getCurrentCart = () => {
-    const result = activeTab === 'delivery' ? deliveryCart : pickupCart
-    return result
+    return activeTab === 'delivery' ? deliveryCart : pickupCart
   }
   
   // 선택된 상품들만 필터링

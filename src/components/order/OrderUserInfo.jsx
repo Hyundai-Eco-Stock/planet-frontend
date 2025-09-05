@@ -11,7 +11,7 @@ const OrderUserInfo = ({ userInfo, onUpdate }) => {
     if (userInfo) {
       setFormData({
         name: userInfo.name || '',
-        emial: userInfo.email || '',
+        email: userInfo.email || '',
         phone: userInfo.phone || ''
       })
     }
