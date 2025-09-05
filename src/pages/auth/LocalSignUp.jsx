@@ -103,10 +103,7 @@ const LocalSignUp = () => {
     const handleSubmit = () => {
         if (isSubmitDisabled) return;
 
-        const birth = `${birthYear}-${birthMonth.padStart(
-            2,
-            "0"
-        )}-${birthDay.padStart(2, "0")}`;
+        const birth = `${birthYear}-${birthMonth.padStart(2,"0")}-${birthDay.padStart(2, "0")}`;
 
         signUpByLocal({
             email,
@@ -249,7 +246,7 @@ const LocalSignUp = () => {
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            className={`flex-1 py-2 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"
+                            className={`flex-1 py-3 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"
                                 }`}
                             onClick={() => setSex("M")}
                         >
@@ -257,7 +254,7 @@ const LocalSignUp = () => {
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"
+                            className={`flex-1 py-3 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"
                                 }`}
                             onClick={() => setSex("F")}
                         >
@@ -284,6 +281,7 @@ const LocalSignUp = () => {
                             ref={yearRef}
                             maxLength={4}
                         />
+                        <span className="m-auto">년</span>
                         <CustomCommonInput
                             type="number"
                             value={birthMonth}
@@ -298,6 +296,7 @@ const LocalSignUp = () => {
                             ref={monthRef}
                             maxLength={2}
                         />
+                        <span className="m-auto">월</span>
                         <CustomCommonInput
                             type="number"
                             value={birthDay}
@@ -309,6 +308,7 @@ const LocalSignUp = () => {
                             ref={dayRef}
                             maxLength={2}
                         />
+                        <span className="m-auto">일</span>
                     </div>
                 </section>
 
@@ -347,8 +347,7 @@ const LocalSignUp = () => {
                 </section>
             </main>
 
-            {/* Fixed CTA */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-8 px-4">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}

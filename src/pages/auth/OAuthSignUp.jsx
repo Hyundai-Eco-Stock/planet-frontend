@@ -250,14 +250,14 @@ const OAuthSignUp = () => {
                     <div className="flex gap-3">
                         <button
                             type="button"
-                            className={`flex-1 py-2 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                            className={`flex-1 py-3 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
                             onClick={() => setSex("M")}
                         >
                             남자
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                            className={`flex-1 py-3 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
                             onClick={() => setSex("F")}
                         >
                             여자
@@ -283,6 +283,7 @@ const OAuthSignUp = () => {
                             ref={yearRef}
                             maxLength={4}
                         />
+                        <span className="m-auto">년</span>
                         <CustomCommonInput
                             type="number"
                             value={birthMonth}
@@ -297,6 +298,7 @@ const OAuthSignUp = () => {
                             ref={monthRef}
                             maxLength={2}
                         />
+                        <span className="m-auto">월</span>
                         <CustomCommonInput
                             type="number"
                             value={birthDay}
@@ -306,6 +308,7 @@ const OAuthSignUp = () => {
                             ref={dayRef}
                             maxLength={2}
                         />
+                        <span className="m-auto">일</span>
                     </div>
                 </section>
 
@@ -345,7 +348,7 @@ const OAuthSignUp = () => {
             </main>
 
             {/* Fixed CTA */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-2 px-4">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-8 px-4">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
