@@ -3,26 +3,22 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { BarChart3, PieChart as PieChartIcon, TrendingUp, Users } from 'lucide-react';
 import { fetchEcoStockHoldingAmountDataGroupByMember, fetchEcoStockIssuePercentageData } from '@/api/admin/admin.api';
 
+
+// 고정 색상 팔레트
+const COLORS = [
+    '#10B981', // 제로컵(Zero Cup)
+    '#3B82F6', // 애상(Eco 상품)
+    '#8B5CF6', // 이브이(EV)
+    '#F59E0B', // 제로백(Bag)
+    '#EF4444', // 봉시활동
+    '#06B6D4', // 기부온(Give_On)
+];
+
 const EcoStockDashboard = () => {
     // 에코스톡 발급 비율 데이터 (mock data)
-    const [stockIssueData, setStockIssueData] = useState([
-        // { name: '제로컵(Zero Cup)', value: 35, count: 1250, color: '#10B981' },
-        // { name: '애상(Eco 상품)', value: 28, count: 980, color: '#3B82F6' },
-        // { name: '이브이(EV)', value: 15, count: 525, color: '#8B5CF6' },
-        // { name: '제로백(Bag)', value: 12, count: 420, color: '#F59E0B' },
-        // { name: '봉시활동', value: 7, count: 245, color: '#EF4444' },
-        // { name: '기부온(Give_On)', value: 3, count: 105, color: '#06B6D4' }
-    ]);
-
+    const [stockIssueData, setStockIssueData] = useState([]);
     // 사용자별 에코스톡 보유 현황 데이터 (mock data)
-    const [userDistributionData, setUserDistributionData] = useState([
-        // { range: '1-10개', userCount: 1250, percentage: 45.5 },
-        // { range: '11-50개', userCount: 890, percentage: 32.4 },
-        // { range: '51-150개', userCount: 420, percentage: 15.3 },
-        // { range: '151-500개', userCount: 140, percentage: 5.1 },
-        // { range: '501-1000개', userCount: 35, percentage: 1.3 },
-        // { range: '1000개 이상', userCount: 12, percentage: 0.4 }
-    ]);
+    const [userDistributionData, setUserDistributionData] = useState([]);
 
     // 통계 요약
     const [summary, setSummary] = useState({
@@ -35,7 +31,12 @@ const EcoStockDashboard = () => {
         // 발급 비율 데이터 호출
         fetchEcoStockIssuePercentageData()
             .then((res) => {
-                setStockIssueData(res.data.items); // [{name, value, count, color}, ...]
+                // index 순서대로 색상 부여
+                const itemsWithColor = res.data.items.map((item, idx) => ({
+                    ...item,
+                    color: COLORS[idx % COLORS.length],
+                }));
+                setStockIssueData(itemsWithColor);
                 setSummary((prev) => ({ ...prev, totalIssued: res.data.totalIssued }));
             })
 
