@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { getRaffleList } from "@/api/raffleList/raffleList.api";
 import { getMemberStockInfoAll } from "@/api/memberStockInfoAll/memberStockInfoAll.api";
 import RaffleCard from "@/components/raffle/RaffleCard";
+import useAuthStore from "@/store/authStore";
 
 const RaffleListPage = () => {
   const [raffleList, setRaffleList] = useState([]); // []로 시작
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // 문자열로 단순화
-
+  const { loginStatus } = useAuthStore.getState();
   const navigate = useNavigate();
 
   const handleButtonClick = useCallback(
@@ -32,24 +33,26 @@ const RaffleListPage = () => {
         setLoading(true);
         setError("");
 
-        // 두 API를 병렬 호출
-        const [raffleResponse, stockResponse] = await Promise.all([
-          getRaffleList(),
-          getMemberStockInfoAll(),
-        ]);
-
+        // 래플 목록은 항상 가져오고, 개인 스톡 정보는 로그인 시에만 가져옴
+        const raffleResponse = await getRaffleList();
         setRaffleList(raffleResponse || []);
-        setPersonalStockInfoList(stockResponse || []);
+
+        if (loginStatus) {
+          const stockResponse = await getMemberStockInfoAll();
+          setPersonalStockInfoList(stockResponse || []);
+        } else {
+          setPersonalStockInfoList([]); // 미로그인 시 빈 배열
+        }
       } catch (err) {
         console.error("데이터 조회 실패:", err);
-        setError("데이터 조회에 실패했어요 😢");
+        setError("데이터 조회에 실패했어요");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [loginStatus]); // loginStatus를 의존성으로 추가
 
   if (loading) return <div>불러오는 중...</div>;
   if (error) return <div>{error}</div>;

@@ -7,6 +7,7 @@ import { raffleParticipate } from "@/api/raffleParticipate/raffleParticipate.api
 import Swal from 'sweetalert2'; // SweetAlert2 추가
 import { getMemberStockInfoAll } from "@/api/memberStockInfoAll/memberStockInfoAll.api";
 import { getRaffleEntryStatus } from "@/api/raffleEntryStatus/raffleEntryStatus.api";
+import useAuthStore from "@/store/authStore";
 
 const RaffleDetailPage = () => {
   const { raffleId } = useParams();
@@ -14,6 +15,7 @@ const RaffleDetailPage = () => {
   // 두 번째 방법 (추천)
   const location = useLocation();
   const winnerName = location.state?.winnerName;
+  const { loginStatus } = useAuthStore.getState();
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [raffle, setRaffle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,10 @@ const RaffleDetailPage = () => {
   // personalStockInfoList를 API로 가져오는 useEffect 추가
   useEffect(() => {
     const fetchPersonalStockInfo = async () => {
+      if (!loginStatus) {
+        setPersonalStockInfoList([]);
+        return;
+      }
       try {
         const stockData = await getMemberStockInfoAll();
         setPersonalStockInfoList(stockData || []);
@@ -37,10 +43,14 @@ const RaffleDetailPage = () => {
     };
 
     fetchPersonalStockInfo();
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
+  }, [loginStatus]); // 컴포넌트 마운트 시 한 번만 실행
 
   useEffect(() => {
     const fetchRaffleEntryStatus = async () => {
+      if (!loginStatus) {
+        setEntryStatus(false);
+        return;
+      }
       try {
         const entryStatus = await getRaffleEntryStatus(raffleId);
         if (entryStatus.status === true) {

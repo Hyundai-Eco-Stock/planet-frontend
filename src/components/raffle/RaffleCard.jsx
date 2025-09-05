@@ -1,9 +1,10 @@
 import { memo, useMemo, useState } from "react";
 import CountdownTimer from "./CountdownTimer";
+import useAuthStore from "@/store/authStore";
 
 const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
     const [imgFailed, setImgFailed] = useState(false);
-
+    const { loginStatus } = useAuthStore.getState();
     // 바뀔 때만 다시 계산되도록 가볍게 메모
     const endDateObj = useMemo(() => new Date(item.endDate), [item.endDate]);
     const userStock = useMemo(
@@ -44,11 +45,10 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
             {/* 본문 */}
             <div className="p-6 space-y-6">
                 <div className="text-center">
-                    <div className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${
-                        hasWinner 
-                            ? 'bg-yellow-500 text-white' 
-                            : 'bg-green-600 text-white'
-                    }`}>
+                    <div className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${hasWinner
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-green-600 text-white'
+                        }`}>
                         {hasWinner ? '당첨자 발표' : '진행중'}
                     </div>
                     <div className="mb-4">
@@ -66,27 +66,36 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                     </div>
                 )}
 
+                {/* 로그인 상태에 따른 에코스톡 정보 표시 */}
                 <div className="text-center mb-4">
-                    <div
-                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium border-2 ${hasEnoughStock
-                            ? "bg-green-100 text-green-700 border-green-300"
-                            : "bg-red-100 text-red-700 border-red-300"
-                            }`}
-                    >
-                        {hasEnoughStock ? (
+                    {!loginStatus ? (
+                        <div className="inline-block px-4 py-2 rounded-full text-sm font-medium border-2 bg-blue-100 text-blue-700 border-blue-300">
                             <span className="flex items-center gap-2">
-                                <span>✅ 응모 가능</span>
-                                <span className="text-xs">({currentQuantity}개 보유)</span>
+                                <span>🔐 로그인 필요</span>
                             </span>
-                        ) : (
-                            <span className="flex items-center gap-2">
-                                <span>❌ {item.ecoStockName} 부족</span>
-                                <span className="text-xs">
-                                    ({currentQuantity}/{item.ecoStockAmount}개)
+                        </div>
+                    ) : (
+                        <div
+                            className={`inline-block px-4 py-2 rounded-full text-sm font-medium border-2 ${hasEnoughStock
+                                ? "bg-green-100 text-green-700 border-green-300"
+                                : "bg-red-100 text-red-700 border-red-300"
+                                }`}
+                        >
+                            {hasEnoughStock ? (
+                                <span className="flex items-center gap-2">
+                                    <span>✅ 응모 가능</span>
+                                    <span className="text-xs">({currentQuantity}개 보유)</span>
                                 </span>
-                            </span>
-                        )}
-                    </div>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <span>❌ {item.ecoStockName} 부족</span>
+                                    <span className="text-xs">
+                                        ({currentQuantity}/{item.ecoStockAmount}개)
+                                    </span>
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="text-center space-y-3">
