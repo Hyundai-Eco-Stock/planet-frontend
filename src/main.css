@@ -89,3 +89,6 @@ a[href*="tradingview.com"],
 a[title*="TradingView"] {
     display: none !important;
 }
+.swal2-shown {
+    overflow: hidden !important;
+}
