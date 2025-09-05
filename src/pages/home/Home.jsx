@@ -77,7 +77,7 @@ const Home = () => {
   }, [total]);
 
   return (
-    <div className="pb-20">
+    <div className="max-w-xl pb-20">
       {/* 상단 배너 캐러셀 */}
       <section className="pt-3">
         <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
