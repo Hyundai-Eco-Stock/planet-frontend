@@ -136,14 +136,18 @@ export default function EcoDealReservation() {
               <div>
                 {order.orderStatus === 'COMPLETED' ? null : (
                   order.ecoDealQrUrl ? (
-                    <button type="button" onClick={() => openQr(order.ecoDealQrUrl)} className="inline-block px-2 py-1 border border-gray-900 rounded-md text-xs text-gray-900">
-                      QR 보기
-                    </button>
-                  ) : (
-                    <span className="inline-block px-2 py-1 border border-gray-300 rounded-md text-xs text-gray-500 bg-gray-100">
-                      QR 미발급
-                    </span>
-                  )
+                    <button
+                      type="button"
+                      onClick={() => openQr(order.ecoDealQrUrl)}
+                      className="inline-flex items-center justify-center h-7 px-2 border border-gray-900 rounded-md text-[10px] leading-none text-gray-900 whitespace-nowrap"
+                    >
+                       QR 보기
+                     </button>
+                   ) : (
+                    <span className="inline-flex items-center justify-center h-7 px-2 border border-gray-300 rounded-md text-[10px] leading-none text-gray-500 bg-gray-100 whitespace-nowrap">
+                       QR 미발급
+                     </span>
+                   )
                 )}
               </div>
             </header>
