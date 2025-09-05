@@ -19,15 +19,6 @@ const Home = () => {
   // 캐러셀
   const [slide, setSlide] = useState(0);
   const total = DUMMY_BANNERS.length;
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    // 3초마다 다음 슬라이드
-    timerRef.current = setInterval(() => {
-      setSlide((s) => (s + 1) % total);
-    }, 3000);
-    return () => clearInterval(timerRef.current);
-  }, [total]);
 
   // 카테고리
   const [categories, setCategories] = useState([]);
@@ -72,17 +63,18 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // 3초마다 다음 슬라이드로 스크롤
+    // 3초마다 다음 슬라이드로 스크롤 (현재 스크롤 위치 기준)
     const el = bannerRef.current;
     if (!el) return;
     const id = setInterval(() => {
       const w = el.clientWidth || 0;
-      const next = (slide + 1) % total;
+      const idx = Math.round((el.scrollLeft || 0) / (w || 1));
+      const next = (idx + 1) % total;
       el.scrollTo({ left: w * next, behavior: 'smooth' });
       setSlide(next);
     }, 3000);
     return () => clearInterval(id);
-  }, [slide, total]);
+  }, [total]);
 
   return (
     <div className="pb-20">
