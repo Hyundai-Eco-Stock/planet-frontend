@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { fetchMyEcostocks, fetchEcostockPrices } from "@/api/member/member.api";
  
 
@@ -80,15 +81,8 @@ const MyEcoStockInfo = () => {
           className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold shadow-sm transition-colors ${loading ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-800'}`}
           aria-busy={loading}
         >
-          <svg
-            className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M10 2a8 8 0 106.32 12.906l-1.264-.948A6.5 6.5 0 1116.5 10H14l2.5 3L19 10h-2.5A8 8 0 0010 2z" />
-          </svg>
           {loading ? '동기화 중…' : '동기화'}
+          <ArrowPathIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
         </button>
       </div>
       {lastSyncAt && (
