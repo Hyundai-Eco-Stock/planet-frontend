@@ -17,18 +17,16 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
     const hasWinner = !!item.winnerName; // 당첨자가 있는지 확인
 
     return (
-        <div className={`relative backdrop-blur-sm rounded-3xl shadow-xl cursor-pointer transition-all duration-300 border ${
-            hasWinner 
-                ? 'bg-gray-200 border-gray-400 opacity-80' 
+        <div className={`relative backdrop-blur-sm rounded-3xl shadow-xl cursor-pointer transition-all duration-300 border ${hasWinner
+                ? 'bg-gray-200 border-gray-400 opacity-80'
                 : 'bg-white border-gray-300'
-        }`}>
+            }`}>
             {/* 이미지 */}
             <div className="relative p-6 pb-0">
-                <div className={`w-full h-64 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden ${
-                    hasWinner 
-                        ? 'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600' 
+                <div className={`w-full h-64 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden ${hasWinner
+                        ? 'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
                         : 'bg-gradient-to-br from-green-500 via-green-600 to-emerald-600'
-                }`}>
+                    }`}>
                     {!imgFailed && item.imageUrl ? (
                         <img
                             src={item.imageUrl}
@@ -45,9 +43,8 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                         </div>
                     )}
                 </div>
-                <div className={`absolute top-4 right-4 text-white px-3 py-1 rounded-full text-sm font-bold ${
-                    hasWinner ? 'bg-gray-500' : 'bg-green-500'
-                }`}>
+                <div className={`absolute top-4 right-4 text-white px-3 py-1 rounded-full text-sm font-bold ${hasWinner ? 'bg-gray-500' : 'bg-green-500'
+                    }`}>
                     1개 한정
                 </div>
             </div>
@@ -67,7 +64,7 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                 </div>
 
                 {/* 당첨자 정보 표시 */}
-                {hasWinner && (
+                {hasWinner && item.winnerName!=='NoWin' && item.winnerName!=='working' && (
                     <div className="text-center mb-4">
                         <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
                             <div className="text-yellow-800 font-bold text-lg mb-2">🎉 당첨자</div>
@@ -76,6 +73,23 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                     </div>
                 )}
 
+                {item.winnerName === 'NoWin' && (
+                    <div className="text-center mb-4">
+                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                            <div className="text-red-800 font-bold text-lg mb-2">😔 당첨자가 없습니다</div>
+                            <div className="text-red-700 text-sm">응모자가 없어 당첨자가 선정되지 않았습니다</div>
+                        </div>
+                    </div>
+                )}
+
+                {item.winnerName === 'working' && (
+                    <div className="text-center mb-4">
+                        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                            <div className="text-blue-800 font-bold text-lg mb-2">⏳ 진행중입니다</div>
+                            <div className="text-blue-700 text-sm">당첨자 선정 작업이 진행 중입니다</div>
+                        </div>
+                    </div>
+                )}
                 {/* 로그인 상태에 따른 에코스톡 정보 표시 - 당첨자가 있으면 숨김 */}
                 {!hasWinner && (
                     <div className="text-center mb-4">
@@ -122,9 +136,8 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                         </div>
                     )}
 
-                    <h3 className={`text-2xl font-bold leading-tight ${
-                        hasWinner ? 'text-gray-600' : 'text-gray-900'
-                    }`}>
+                    <h3 className={`text-2xl font-bold leading-tight ${hasWinner ? 'text-gray-600' : 'text-gray-900'
+                        }`}>
                         [{item.brandName}] {item.productName}
                     </h3>
 
@@ -151,11 +164,10 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
 
                     <button
                         onClick={onButtonClick}
-                        className={`mt-6 px-8 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg w-full ${
-                            hasWinner
+                        className={`mt-6 px-8 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg w-full ${hasWinner
                                 ? 'bg-gray-500 text-white cursor-not-allowed'
                                 : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                        }`}
+                            }`}
                         disabled={hasWinner}
                     >
                         {hasWinner ? '종료' : '응모하러 가기'}
