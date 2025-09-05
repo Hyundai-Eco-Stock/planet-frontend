@@ -35,6 +35,12 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
         return '—'; // 0% 아이콘
     };
 
+    const getStockImageUrl = (stockId) => {
+        const stock = stockList?.find(stock => stock.id === stockId);
+        return stock?.imageUrl;
+    };
+
+
     return (
         <div className="bg-white border-t border-gray-200 p-4 relative z-10">
             <div className="max-w-4xl mx-auto min-w-0">
@@ -52,9 +58,25 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
 
                 <div className="flex items-center justify-between w-full mb-4 pt-2 gap-2 sm:gap-4 min-w-0">
                     <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl 
-                            flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0">
-                            {getStockName(stockId).charAt(0)}
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-lg flex-shrink-0 overflow-hidden">
+                            {getStockImageUrl(stockId) ? (
+                                <img
+                                    src={getStockImageUrl(stockId)}
+                                    alt={getStockName(stockId)}
+                                    className="w-full h-full object-cover rounded-xl"
+                                    onError={(e) => {
+                                        // 이미지 로드 실패 시 기존 방식으로 폴백
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                            ) : null}
+                            <div
+                                className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg"
+                                style={{ display: getStockImageUrl(stockId) ? 'none' : 'flex' }}
+                            >
+                                {getStockName(stockId).charAt(0)}
+                            </div>
                         </div>
                         <div className="min-w-0 flex-1">
                             {stockList && stockList.length > 0 ? (
@@ -76,7 +98,7 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* 가격 정보 - 오버플로우 완전 방지 */}
                     <div className="text-right flex-shrink-0 min-w-0 max-w-32 sm:max-w-none">
                         {/* 현재가 */}
