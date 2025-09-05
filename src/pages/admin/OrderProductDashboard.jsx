@@ -6,25 +6,22 @@ import {
 import { TrendingUp, ShoppingBag, DollarSign, BarChart3 } from "lucide-react";
 import { fetchProductOrderDataGroupByDay, fetchProductOrderDataGroupByCategory } from "@/api/admin/admin.api";
 
+// 색상 팔레트
+const COLORS = [
+    "#3B82F6", // 옷
+    "#10B981", // 뷰티
+    "#F59E0B", // 비누
+    "#EF4444", // 향수
+    "#8B5CF6", // 헤어
+    "#06B6D4", // 식기류
+];
+
 const OrderProductDashboard = () => {
     // 일별 주문/매출 데이터
-    const [dailyData, setDailyData] = useState([
-        // { date: "2025-08-25", orders: 32, revenue: 450000 },
-        // { date: "2025-08-26", orders: 28, revenue: 390000 },
-        // { date: "2025-08-27", orders: 40, revenue: 560000 },
-        // { date: "2025-08-28", orders: 50, revenue: 720000 },
-        // { date: "2025-08-29", orders: 38, revenue: 480000 },
-    ]);
+    const [dailyData, setDailyData] = useState([]);
 
     // 카테고리별 판매 데이터
-    const [categoryData, setCategoryData] = useState([
-        // { category: "옷", value: 1200000, color: "#3B82F6" },
-        // { category: "뷰티", value: 800000, color: "#10B981" },
-        // { category: "비누", value: 350000, color: "#F59E0B" },
-        // { category: "향수", value: 250000, color: "#EF4444" },
-        // { category: "헤어", value: 150000, color: "#8B5CF6" },
-        // { category: "식기류", value: 100000, color: "#06B6D4" },
-    ]);
+    const [categoryData, setCategoryData] = useState([]);
 
     // 요약 통계
     const [summary, setSummary] = useState({
@@ -46,7 +43,11 @@ const OrderProductDashboard = () => {
         });
 
         fetchProductOrderDataGroupByCategory().then((res) => {
-            setCategoryData(res.items);
+            const itemsWithColor = res.items.map((item, idx) => ({
+                ...item,
+                color: COLORS[idx % COLORS.length], // 고정 팔레트 순환 적용
+            }));
+            setCategoryData(itemsWithColor);
             setSummary((prev) => ({
                 ...prev,
                 topCategory: res.topCategory
@@ -55,16 +56,16 @@ const OrderProductDashboard = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="">
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
-                <div className="mb-8">
+                <div className="mt-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">주문/상품 통계</h1>
                     <p className="text-gray-600">일별 주문 현황과 카테고리별 판매 비율을 확인하세요</p>
                 </div>
 
                 {/* 요약 카드 */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <SummaryCard title="총 주문 건수" value={`${summary.totalOrders}건`} icon={<ShoppingBag className="w-6 h-6 text-blue-600" />} bg="bg-blue-100" />
                     <SummaryCard title="총 매출액" value={`${summary.totalRevenue.toLocaleString()}원`} icon={<DollarSign className="w-6 h-6 text-green-600" />} bg="bg-green-100" />
                     <SummaryCard title="평균 주문 금액" value={`${summary.avgOrderValue.toLocaleString()}원`} icon={<TrendingUp className="w-6 h-6 text-purple-600" />} bg="bg-purple-100" />

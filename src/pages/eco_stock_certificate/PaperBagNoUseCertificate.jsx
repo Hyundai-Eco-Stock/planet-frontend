@@ -30,15 +30,15 @@ const PaperBagNoUseCertificate = () => {
                 Swal.fire({
                     icon: "success",
                     title: "인증 성공",
-                    text: "종이백 미사용 주식 1개 발급 성공",
+                    text: "제로잭 에코스톡 1개 발급 성공!",
                     showDenyButton: true,
-                    confirmButtonText: "주식 차트 바로 가기",
+                    confirmButtonText: "에코스톡 차트 바로 가기",
                     denyButtonText: "홈으로 가기",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // window.location.href = "/stock-chart";
+                        window.location.href = "/eco-stock/main";
                     } else if (result.isDenied) {
-                        // window.location.href = "/home";
+                        window.location.href = "/home/main";
                     }
                 });
             })

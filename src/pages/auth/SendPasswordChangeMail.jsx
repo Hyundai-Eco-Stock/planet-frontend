@@ -78,8 +78,7 @@ const SendPasswordChangeMail = () => {
                 />
             </label>
 
-            {/* Fixed CTA */}
-            <footer className="fixed bottom-28 left-0 right-0 bg-white pt-1 pb-2 px-4">
+            <footer className="fixed bottom-28 left-0 right-0 bg-white pt-1 pb-8 px-4">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     // disabled={isSubmitDisabled}

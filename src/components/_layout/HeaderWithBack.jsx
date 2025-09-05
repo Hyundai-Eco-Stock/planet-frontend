@@ -27,7 +27,7 @@ const HeaderWithBack = ({ title = "" }) => {
                     </button>
                 </div>
 
-                <h1 className="flex-1 text-center font-bold text-xl">{title}</h1>
+                <h1 className="flex-2 text-center font-bold text-xl">{title}</h1>
 
                 {/* 오른쪽 비워둠 */}
                 <div className="flex-1 items-center justify-end"></div>

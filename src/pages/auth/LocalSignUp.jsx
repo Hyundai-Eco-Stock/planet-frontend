@@ -1,195 +1,363 @@
-// src/pages/Signup.tsx
-import React, { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInput";
+import DaumPostcode from "@/components/address/DaumPostcode";
+import { signUpByLocal } from "@/api/auth/auth.api";
 
-const LocalSignup = () => {
-    const nav = useNavigate();
+const LocalSignUp = () => {
+    const navigate = useNavigate();
 
-    // 입력 상태
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const [profileUrl, setProfileUrl] = useState(null);
+    const [profileFile, setProfileFile] = useState(null);
     const [password, setPassword] = useState("");
-    const [passwordAgain, setPasswordAgain] = useState("");
-    const [sex, setSex] = useState("F");
-    const [yyyy, setYYYY] = useState("");
-    const [mm, setMM] = useState("");
-    const [dd, setDD] = useState("");
+    const [passwordCheck, setPasswordCheck] = useState("");
+    const [passwordMatch, setPasswordMatch] = useState(true);
+    const [passwordValid, setPasswordValid] = useState(true);
 
-    // 간단한 유효성
-    const pwMatch = password.length > 0 && password === passwordAgain;
-    const birthValid =
-        /^\d{4}$/.test(yyyy) &&
-        /^(0?[1-9]|1[0-2])$/.test(mm) &&
-        /^(0?[1-9]|[12]\d|3[01])$/.test(dd);
+    const [sex, setSex] = useState(""); // 'M' or 'F'
+    const [birthYear, setBirthYear] = useState("");
+    const [birthMonth, setBirthMonth] = useState("");
+    const [birthDay, setBirthDay] = useState("");
+    const [zonecode, setZonecode] = useState("");
+    const [address, setAddress] = useState("");
+    const [detailAddress, setDetailAddress] = useState("");
 
-    const canSubmit = pwMatch && birthValid;
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
-        if (!canSubmit) return;
+    const yearRef = useRef(null);
+    const monthRef = useRef(null);
+    const dayRef = useRef(null);
 
-        // TODO: API 엔드포인트에 맞게 수정
-        // 예) POST /api/members
-        // body: { email, name, pwd, sex, birth: `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}` }
-        try {
-            // await api.signup({ ... })
-            nav("/login", { replace: true });
-        } catch (err) {
-            console.error(err);
-            alert("회원가입 중 오류가 발생했어요.");
+    // ✅ 비밀번호 규칙 정규식
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
+
+    // ✅ 비밀번호 확인
+    useEffect(() => {
+        if (password && passwordCheck) {
+            setPasswordMatch(password === passwordCheck);
+        } else {
+            setPasswordMatch(true);
+        }
+    }, [password, passwordCheck]);
+
+    // ✅ 비밀번호 규칙
+    useEffect(() => {
+        if (password) {
+            setPasswordValid(passwordRegex.test(password));
+        } else {
+            setPasswordValid(true);
+        }
+    }, [password]);
+
+    // ✅ 실시간 버튼 활성/비활성
+    useEffect(() => {
+        const disabled =
+            !email.trim() ||
+            !name.trim() ||
+            !passwordValid ||
+            !passwordMatch ||
+            !password ||
+            !passwordCheck ||
+            !sex ||
+            !birthYear ||
+            birthYear.length !== 4 ||
+            !birthMonth ||
+            birthMonth.length > 2 ||
+            !birthDay ||
+            birthDay.length > 2 ||
+            !address.trim() ||
+            !detailAddress.trim();
+
+        setIsSubmitDisabled(disabled);
+    }, [
+        email,
+        name,
+        passwordValid,
+        passwordMatch,
+        password,
+        passwordCheck,
+        sex,
+        birthYear,
+        birthMonth,
+        birthDay,
+        address,
+        detailAddress,
+    ]);
+
+    const handleProfileChange = (file) => {
+        if (file) {
+            setProfileUrl(URL.createObjectURL(file));
+            setProfileFile(file);
+        } else {
+            setProfileUrl(null);
+            setProfileFile(null);
         }
     };
 
-    return (
-        <div className="mx-auto max-w-[640px] px-6 pt-6 pb-28">
-            {/* 상단 제목 */}
-            <h1 className="text-center text-2xl font-extrabold tracking-tight mb-8">회원가입</h1>
+    const handleSubmit = () => {
+        if (isSubmitDisabled) return;
 
-            <form onSubmit={onSubmit} className="space-y-5">
-                {/* 이메일 (읽기 전용) */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">이메일</label>
+        const birth = `${birthYear}-${birthMonth.padStart(2,"0")}-${birthDay.padStart(2, "0")}`;
+
+        signUpByLocal({
+            email,
+            name,
+            password,
+            profileFile,
+            sex,
+            birth,
+            address,
+            detailAddress,
+        })
+            .then(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "회원가입 완료!",
+                    html: `
+                        <p style="font-size:16px; color:#374151;">
+                            Planet의 여정에 함께해 주셔서 감사합니다. <br/>
+                            지금부터 <b>친환경 혜택</b>을 즐겨보세요! 🌱
+                        </p>
+                    `,
+                    confirmButtonText: "지금 시작하기 🚀",
+                    confirmButtonColor: "#10B981",
+                    customClass: {
+                        popup: "rounded-2xl shadow-xl",
+                    },
+                }).then(() => {
+                    navigate("/login", { replace: true });
+                });
+            })
+            .catch((err) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "회원가입 실패",
+                    text: err.response?.data.message || "알 수 없는 오류",
+                    confirmButtonText: "확인",
+                });
+            });
+    };
+
+    return (
+        <div className="min-h-dvh flex flex-col gap-3 pb-24 pt-2">
+            {/* Header */}
+            <header className="pt-1 pb-5 text-center">
+                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">
+                    회원가입
+                </h1>
+                <p className="mt-1 text-[13px] text-gray-500">
+                    필수 정보를 입력하고 계정을 만들어주세요.
+                </p>
+            </header>
+
+            {/* Card */}
+            <main className="flex flex-col gap-3">
+                {/* 프로필 */}
+                <section className="flex flex-col gap-2">
+                    <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
+                    <CustomProfileImageInput
+                        value={profileFile}
+                        onChange={handleProfileChange}
+                        previewUrl={profileUrl}
+                    />
+                </section>
+
+                {/* 이메일 */}
+                <section>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1">
+                        이메일
+                    </label>
                     <CustomCommonInput
                         type="email"
                         value={email}
+                        placeholder="이메일을 입력해주세요"
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="이메일을 입력해주세요."
                     />
-                </div>
+                </section>
 
-                {/* 이름 (읽기 전용) */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">이름</label>
+                {/* 이름 */}
+                <section>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1">
+                        이름
+                    </label>
                     <CustomCommonInput
                         type="text"
                         value={name}
+                        placeholder="이름을 입력해주세요"
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="이름을 입력해주세요."
                     />
-                </div>
+                </section>
 
                 {/* 비밀번호 */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">비밀번호</label>
+                <section>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1">
+                        비밀번호
+                    </label>
                     <CustomCommonInput
                         type="password"
                         value={password}
+                        placeholder="비밀번호를 입력해주세요"
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="사용할 비밀번호를 입력해주세요."
-                        aria-label="비밀번호"
-                        className="w-full px-4 py-4 rounded-xl outline-none"
                     />
-                </div>
+                    {!passwordValid && (
+                        <p className="mt-1 text-xs text-red-500">
+                            영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.
+                        </p>
+                    )}
+                    {passwordValid && password && (
+                        <p className="mt-1 text-xs text-green-600">
+                            사용 가능한 비밀번호입니다.
+                        </p>
+                    )}
+                </section>
 
                 {/* 비밀번호 재입력 */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">비밀번호 재입력</label>
+                <section>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1">
+                        비밀번호 재입력
+                    </label>
                     <CustomCommonInput
                         type="password"
-                        value={passwordAgain}
-                        onChange={(e) => setPasswordAgain(e.target.value)}
-                        placeholder="비밀번호를 다시 한번 입력해주세요."
+                        value={passwordCheck}
+                        placeholder="비밀번호를 다시 입력해주세요"
+                        onChange={(e) => setPasswordCheck(e.target.value)}
                     />
-                    {!pwMatch && passwordAgain.length > 0 && (
-                        <p className="mt-1 text-sm text-red-500">비밀번호가 일치하지 않습니다.</p>
-                    )}
-                </div>
+                    {passwordCheck &&
+                        (passwordMatch ? (
+                            <div className="mt-1 text-xs text-green-600">
+                                비밀번호가 일치합니다.
+                            </div>
+                        ) : (
+                            <div className="mt-1 text-xs text-red-500">
+                                비밀번호가 일치하지 않습니다.
+                            </div>
+                        ))}
+                </section>
 
                 {/* 성별 */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">성별</label>
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">성별</label>
                     <div className="flex gap-3">
                         <button
                             type="button"
+                            className={`flex-1 py-3 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"
+                                }`}
                             onClick={() => setSex("M")}
-                            className={[
-                                "flex-1 px-4 py-3 rounded-xl border text-center font-medium transition",
-                                sex === "M"
-                                    ? "bg-emerald-500 text-white border-emerald-500"
-                                    : "bg-white text-black border-black/20"
-                            ].join(" ")}
                         >
                             남자
                         </button>
                         <button
                             type="button"
+                            className={`flex-1 py-3 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"
+                                }`}
                             onClick={() => setSex("F")}
-                            className={[
-                                "flex-1 px-4 py-3 rounded-xl border text-center font-medium transition",
-                                sex === "F"
-                                    ? "bg-emerald-500 text-white border-emerald-500"
-                                    : "bg-white text-black border-black/20"
-                            ].join(" ")}
                         >
                             여자
                         </button>
                     </div>
-                </div>
+                </section>
 
                 {/* 생년월일 */}
-                <div>
-                    <label className="block mb-2 text-sm text-black/70">생년월일</label>
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-xl border border-black/20 focus-within:border-emerald-500 transition-colors">
-                            <input
-                                inputMode="numeric"
-                                maxLength={4}
-                                value={yyyy}
-                                onChange={(e) => setYYYY(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                                placeholder="YYYY"
-                                aria-label="연도"
-                                className="w-[90px] px-4 py-3 rounded-xl outline-none text-center"
-                            />
-                        </div>
-                        <span className="text-black/60 text-sm">년</span>
-
-                        <div className="rounded-xl border border-black/20 focus-within:border-emerald-500 transition-colors">
-                            <input
-                                inputMode="numeric"
-                                maxLength={2}
-                                value={mm}
-                                onChange={(e) => setMM(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                                placeholder="MM"
-                                aria-label="월"
-                                className="w-[70px] px-4 py-3 rounded-xl outline-none text-center"
-                            />
-                        </div>
-                        <span className="text-black/60 text-sm">월</span>
-
-                        <div className="rounded-xl border border-black/20 focus-within:border-emerald-500 transition-colors">
-                            <input
-                                inputMode="numeric"
-                                maxLength={2}
-                                value={dd}
-                                onChange={(e) => setDD(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                                placeholder="dd"
-                                aria-label="일"
-                                className="w-[70px] px-4 py-3 rounded-xl outline-none text-center"
-                            />
-                        </div>
-                        <span className="text-black/60 text-sm">일</span>
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">생년월일</label>
+                    <div className="flex gap-2">
+                        <CustomCommonInput
+                            type="number"
+                            value={birthYear}
+                            placeholder="YYYY"
+                            closeBtnVisible={false}
+                            onChange={(e) => {
+                                setBirthYear(e.target.value);
+                                if (e.target.value.length === 4) {
+                                    monthRef.current?.focus();
+                                }
+                            }}
+                            ref={yearRef}
+                            maxLength={4}
+                        />
+                        <span className="m-auto">년</span>
+                        <CustomCommonInput
+                            type="number"
+                            value={birthMonth}
+                            placeholder="MM"
+                            closeBtnVisible={false}
+                            onChange={(e) => {
+                                setBirthMonth(e.target.value);
+                                if (e.target.value.length === 2) {
+                                    dayRef.current?.focus();
+                                }
+                            }}
+                            ref={monthRef}
+                            maxLength={2}
+                        />
+                        <span className="m-auto">월</span>
+                        <CustomCommonInput
+                            type="number"
+                            value={birthDay}
+                            placeholder="DD"
+                            closeBtnVisible={false}
+                            onChange={(e) => {
+                                setBirthDay(e.target.value);
+                            }}
+                            ref={dayRef}
+                            maxLength={2}
+                        />
+                        <span className="m-auto">일</span>
                     </div>
-                    {!birthValid && (yyyy || mm || dd) && (
-                        <p className="mt-1 text-sm text-red-500">생년월일을 정확히 입력하세요.</p>
-                    )}
-                </div>
+                </section>
 
-                {/* 제출 버튼 */}
-                <div className="pt-6">
-                    <CustomCommonButton
-                        type="submit"
-                        disabled={!canSubmit}
-                        className="w-full py-4 rounded-xl text-white text-lg font-extrabold bg-emerald-500 disabled:opacity-50 hover:bg-emerald-600 transition"
-                    >
-                        회원가입
-                    </CustomCommonButton>
-                </div>
-            </form>
+                {/* 주소 */}
+                <section className="flex flex-col gap-2 mt-3">
+                    <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
+                    <div className="flex gap-2">
+                        <CustomCommonInput
+                            type="text"
+                            value={zonecode}
+                            placeholder="우편번호"
+                            readOnly
+                            className="flex-1"
+                        />
+                        <DaumPostcode
+                            onComplete={({ zonecode, address }) => {
+                                setZonecode(zonecode);
+                                setAddress(address);
+                            }}
+                        />
+                    </div>
+
+                    <CustomCommonInput
+                        type="text"
+                        value={address}
+                        placeholder="기본 주소"
+                        readOnly
+                    />
+
+                    <CustomCommonInput
+                        type="text"
+                        value={detailAddress}
+                        placeholder="상세 주소 입력"
+                        onChange={(e) => setDetailAddress(e.target.value)}
+                    />
+                </section>
+            </main>
+
+            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-8 px-4">
+                <CustomCommonButton
+                    onClick={handleSubmit}
+                    disabled={isSubmitDisabled}
+                    className="btn-primary w-full"
+                >
+                    회원 가입
+                </CustomCommonButton>
+            </footer>
         </div>
     );
 };
 
-export default LocalSignup;
+export default LocalSignUp;

@@ -84,7 +84,7 @@ const HeaderWithShopping = () => {
 
                 {/* 오른쪽: 검색/장바구니 아이콘 */}
                 <div className="flex items-center gap-6">
-                    <button
+                    {/* <button
                         type="button"
                         onClick={onSearchClick}
                         aria-label="검색 열기"
@@ -92,7 +92,7 @@ const HeaderWithShopping = () => {
                     >
                         <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
                         <span className="sr-only">검색</span>
-                    </button>
+                    </button> */}
 
                     <button
                         type="button"
