@@ -73,7 +73,7 @@ const StatusChip = ({ status }) => {
   const raw = String(status || "").toUpperCase();
   const norm = {
     PAID: "PAID",
-    DONE: "DONE", 
+    DONE: "DONE",
     COMPLETED: "COMPLETED",
     ALL_CANCELLED: "ALL_CANCELLED",
     ALL_CANCELED: "ALL_CANCELLED",
@@ -84,7 +84,7 @@ const StatusChip = ({ status }) => {
   const labelMap = {
     PAID: "결제완료",
     DONE: "구매확정",
-    COMPLETED: "픽업완료", 
+    COMPLETED: "픽업완료",
     ALL_CANCELLED: "전체취소",
     PARTIAL_CANCELLED: "부분취소",
     PENDING: "처리중",
@@ -94,7 +94,7 @@ const StatusChip = ({ status }) => {
     DONE: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     COMPLETED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     ALL_CANCELLED: "bg-red-50 text-red-700 border border-red-200",
-    PARTIAL_CANCELLED: "bg-amber-50 text-amber-700 border border-amber-200", 
+    PARTIAL_CANCELLED: "bg-amber-50 text-amber-700 border border-amber-200",
     PENDING: "bg-gray-50 text-gray-700 border border-gray-200",
   };
   return <Chip className={colorMap[norm]}>{labelMap[norm]}</Chip>;
@@ -117,10 +117,10 @@ export default function MyBuyHistory() {
   const navigate = useNavigate();
 
   const [selectedByOrder, setSelectedByOrder] = useState({});
-  const [cancelModal, setCancelModal] = useState({ 
-    open: false, 
-    orderId: null, 
-    items: [], 
+  const [cancelModal, setCancelModal] = useState({
+    open: false,
+    orderId: null,
+    items: [],
     reason: "",
     isPartial: false,
     refundDonation: false,
@@ -146,6 +146,7 @@ export default function MyBuyHistory() {
   const refreshOrders = async () => {
     try {
       const res = await fetchMyOrders();
+      console.log('새로고침된 주문 데이터:', res); // 이 로그 추가
       setRows(Array.isArray(res) ? res : []);
     } catch (e) {
       console.error('주문 목록 새로고침 실패:', e);
@@ -159,7 +160,7 @@ export default function MyBuyHistory() {
     setActionLoading(true);
     try {
       const { orderId, items, reason, isPartial, refundDonation } = cancelModal;
-      
+
       if (isPartial) {
         await cancelPartialOrder(orderId, items, reason, refundDonation);
         alert('부분 취소가 완료되었습니다.');
@@ -170,7 +171,7 @@ export default function MyBuyHistory() {
 
       await refreshOrders();
       setSelectedByOrder(prev => ({ ...prev, [orderId]: new Set() }));
-      
+
     } catch (error) {
       console.error('취소 처리 실패:', error);
       alert(`취소 처리 중 오류가 발생했습니다: ${error.message}`);
@@ -187,7 +188,7 @@ export default function MyBuyHistory() {
     setActionLoading(true);
     try {
       const { orderId, items, isPartial } = confirmModal;
-      
+
       if (isPartial && items.length > 0) {
         await confirmOrder(orderId, items);
         alert('선택한 상품의 구매 확정이 완료되었습니다.');
@@ -198,7 +199,7 @@ export default function MyBuyHistory() {
 
       await refreshOrders();
       setSelectedByOrder(prev => ({ ...prev, [orderId]: new Set() }));
-      
+
     } catch (error) {
       console.error('확정 처리 실패:', error);
       alert(`구매 확정 중 오류가 발생했습니다: ${error.message}`);
@@ -227,12 +228,12 @@ export default function MyBuyHistory() {
       {groups.map((order) => {
         const orderStatusUpper = String(order.orderStatus).toUpperCase();
         const paymentStatusUpper = String(order.paymentStatus).toUpperCase();
-        
+
         const isCompleted = orderStatusUpper === "DONE" || orderStatusUpper === "COMPLETED";
         const isAllCancelled = orderStatusUpper === "ALL_CANCELLED";
         const isPartialCancelled = orderStatusUpper === "PARTIAL_CANCELLED";
         const isPaid = orderStatusUpper === "PAID" && paymentStatusUpper === "DONE";
-        
+
         const showActionButtons = (isPaid || isPartialCancelled) && !isCompleted && !isAllCancelled;
         const availableItems = order.items.filter(item => item.cancelStatus !== "Y");
         const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
@@ -267,8 +268,44 @@ export default function MyBuyHistory() {
               </div>
             </div>
 
+            {/* 전체 선택 체크박스 - 상품 목록 위에 */}
+            {showActionButtons && (
+              <div className="px-4 pt-4 pb-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id={`selectAll-${order.orderHistoryId}`}
+                    className="w-4 h-4 accent-emerald-600"
+                    checked={selectedItems.length === availableItems.length && availableItems.length > 0}
+                    onChange={(e) => {
+                      const allProductIds = availableItems.map(item => item.orderProductId);
+                      if (e.target.checked) {
+                        // 전체 선택
+                        setSelectedByOrder(prev => ({
+                          ...prev,
+                          [order.orderHistoryId]: new Set(allProductIds)
+                        }));
+                      } else {
+                        // 전체 해제
+                        setSelectedByOrder(prev => ({
+                          ...prev,
+                          [order.orderHistoryId]: new Set()
+                        }));
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor={`selectAll-${order.orderHistoryId}`}
+                    className="text-sm text-gray-700 cursor-pointer font-medium"
+                  >
+                    전체 선택 ({availableItems.length}개)
+                  </label>
+                </div>
+              </div>
+            )}
+
             {/* 상품 목록 */}
-            <div className="p-4 space-y-3">
+            <div className="px-4 pb-4 space-y-3">
               {order.items.map((it) => {
                 const unitPrice = Number(
                   it.finalProductPrice != null
@@ -279,7 +316,7 @@ export default function MyBuyHistory() {
                 const eco = it.ecoDealStatus === "Y";
                 const isCancelled = it.cancelStatus === "Y";
                 const canSelect = showActionButtons && !isCancelled;
-                
+
                 return (
                   <div
                     key={it.orderProductId}
@@ -321,7 +358,7 @@ export default function MyBuyHistory() {
                       <div className="font-medium text-gray-900 text-sm truncate mb-1">
                         {it.productName}
                       </div>
-                      
+
                       <div className="flex items-center gap-2 mb-1">
                         <EcoChip eco={eco} />
                         {isPartialCancelled && (
@@ -332,7 +369,7 @@ export default function MyBuyHistory() {
                           )
                         )}
                       </div>
-                      
+
                       <div className="text-xs text-gray-500">
                         수량 {it.quantity} · {currency(unitPrice)}
                         {Number(it.salePercent || 0) > 0 && (
@@ -344,11 +381,11 @@ export default function MyBuyHistory() {
                     {/* 가격 & 배지 */}
                     <div className="text-right">
                       <div className="font-bold text-gray-900 text-sm mb-1">{currency(lineTotal)}</div>
-                      
+
                       {isCompleted && it.cancelStatus !== "Y" && (
                         <Chip className="bg-emerald-600 text-white">확정</Chip>
                       )}
-                      
+
                       {it.cancelStatus === "Y" && (
                         <Chip className="bg-gray-500 text-white">취소</Chip>
                       )}
@@ -368,16 +405,42 @@ export default function MyBuyHistory() {
                   <button
                     type="button"
                     onClick={() => {
+                      console.log('=== 취소 버튼 클릭 디버깅 ===');
+                      console.log('order.donationPrice:', order.donationPrice);
+                      console.log('order.refundDonationPrice:', order.refundDonationPrice);
+
                       const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
-                      const isPartialCancel = selectedItems.length > 0 && selectedItems.length < availableItems.length;
-                      setCancelModal({ 
-                        open: true, 
-                        orderId: order.orderHistoryId, 
-                        items: selectedItems, 
+                      const availableItems = order.items.filter(item => item.cancelStatus !== "Y");
+
+                      const isEntireCancel = selectedItems.length === availableItems.length &&
+                        availableItems.length === order.items.length;
+
+                      console.log('isEntireCancel:', isEntireCancel);
+
+                      let showDonationOption = false;
+                      let remainingDonation = 0;
+
+                      if (isEntireCancel) {
+                        remainingDonation = (order.donationPrice || 0) - (order.refundDonationPrice || 0);
+                        showDonationOption = remainingDonation > 0;
+                      } else {
+                        showDonationOption = (order.refundDonationPrice || 0) === 0 && (order.donationPrice || 0) > 0;
+                        if (showDonationOption) {
+                          remainingDonation = order.donationPrice || 0;
+                        }
+                      }
+
+                      console.log('showDonationOption:', showDonationOption);
+                      console.log('remainingDonation:', remainingDonation);
+
+                      setCancelModal({
+                        open: true,
+                        orderId: order.orderHistoryId,
+                        items: selectedItems,
                         reason: "",
-                        isPartial: isPartialCancel,
+                        isPartial: !isEntireCancel,
                         refundDonation: false,
-                        donationAmount: order.donationPrice || 0
+                        donationAmount: showDonationOption ? remainingDonation : 0
                       });
                     }}
                     disabled={selectedItems.length === 0 || actionLoading}
@@ -392,19 +455,31 @@ export default function MyBuyHistory() {
                     type="button"
                     onClick={() => {
                       const selectedItems = Array.from(selectedByOrder[order.orderHistoryId] || []);
-                      const isPartialConfirm = selectedItems.length > 0 && selectedItems.length < totalItems;
+                      const availableItems = order.items.filter(item => item.cancelStatus !== "Y");
+
+                      // 전체 선택 여부 확인
+                      const isAllSelected = selectedItems.length === availableItems.length && availableItems.length > 0;
+
+                      if (!isAllSelected) {
+                        // 전체 선택이 안된 경우 경고 메시지
+                        alert(`구매 확정을 위해서는 모든 상품(${availableItems.length}개)을 선택해주세요.`);
+                        return;
+                      }
+
                       setConfirmModal({
                         open: true,
                         orderId: order.orderHistoryId,
-                        items: selectedItems,
-                        isPartial: isPartialConfirm
+                        items: [], // 빈 배열 = 전체 확정
+                        isPartial: false // 항상 전체 확정
                       });
                     }}
-                    disabled={actionLoading}
+                    disabled={actionLoading || availableItems.length === 0}
                     className={`px-4 py-2 rounded-lg text-sm font-medium
-                      ${!actionLoading ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-400"}`}
+                      ${!actionLoading && availableItems.length > 0
+                        ? "bg-emerald-600 text-white"
+                        : "bg-gray-100 text-gray-400"}`}
                   >
-                    확정
+                    구매 확정
                   </button>
                 </div>
               </div>
@@ -421,7 +496,7 @@ export default function MyBuyHistory() {
                   <span className="text-gray-500">포인트 사용</span>
                   <span className="text-red-600">-{currency(order.usedPoint)}</span>
                 </div>
-                
+
                 {/* 기부금 표시 - 환불 정보 포함 */}
                 <div className="flex justify-between">
                   <span className="text-gray-500">기부</span>
@@ -434,7 +509,7 @@ export default function MyBuyHistory() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between font-bold">
                   <span>결제금액</span>
                   <span>{currency(order.finalPayPrice)}</span>
@@ -456,7 +531,7 @@ export default function MyBuyHistory() {
               value={cancelModal.reason}
               onChange={(e) => setCancelModal((m) => ({ ...m, reason: e.target.value }))}
             />
-            
+
             {cancelModal.isPartial && cancelModal.donationAmount > 0 && (
               <div className="mt-3 p-3 bg-amber-50 rounded-lg">
                 <label className="flex items-center gap-2">
@@ -470,7 +545,7 @@ export default function MyBuyHistory() {
                 </label>
               </div>
             )}
-            
+
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setCancelModal({ open: false, orderId: null, items: [], reason: "", isPartial: false, refundDonation: false, donationAmount: 0 })}
@@ -495,14 +570,17 @@ export default function MyBuyHistory() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-sm bg-white rounded-lg p-4">
             <h3 className="text-lg font-bold mb-3">구매 확정</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              {confirmModal.isPartial 
-                ? `${confirmModal.items.length}개 상품을 확정하시겠습니까?`
-                : '전체 상품을 확정하시겠습니까?'
-              }
+            <p className="text-sm text-gray-600 mb-2">
+              전체 상품을 확정하시겠습니까?
             </p>
-            <p className="text-xs text-amber-600 mb-4">확정 후 취소가 불가능합니다.</p>
-            
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+              <p className="text-xs text-amber-700 font-medium">⚠️ 주의사항</p>
+              <p className="text-xs text-amber-600 mt-1">
+                • 확정 후에는 취소가 불가능합니다<br />
+                • 취소하고 싶은 상품이 있다면 먼저 취소 후 확정해주세요
+              </p>
+            </div>
+
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmModal({ open: false, orderId: null, items: [], isPartial: false })}
