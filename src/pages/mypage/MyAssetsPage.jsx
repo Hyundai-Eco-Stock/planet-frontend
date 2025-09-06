@@ -6,7 +6,7 @@ const MyAssetsPage = () => {
     const [activeTab, setActiveTab] = useState("stock"); // stock | point
 
     return (
-        <div className="p-4 md:p-6">
+        <div className="px-2">
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-4">
                 <nav className="flex gap-6 -mb-px">
@@ -26,7 +26,7 @@ const MyAssetsPage = () => {
                                 : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        포인트 기록
+                        내 포인트
                     </button>
                 </nav>
             </div>
