@@ -24,10 +24,10 @@ const PaymentSuccessPage = () => {
   // 주문번호 정리 함수
   const formatOrderNumber = (orderNumber) => {
     if (!orderNumber) return 'N/A'
-    
+
     // draft_ 제거하고 언더스코어로 분리된 부분들 처리
     let cleanNumber = orderNumber.replace(/^draft_/, '') // "draft_" 접두사 제거
-    
+
     // 타임스탬프_랜덤문자열 형태에서 뒤의 랜덤 문자열만 사용
     if (cleanNumber.includes('_')) {
       const parts = cleanNumber.split('_')
@@ -36,8 +36,17 @@ const PaymentSuccessPage = () => {
         cleanNumber = parts[parts.length - 1].toUpperCase()
       }
     }
-    
+
     return cleanNumber
+  }
+
+  const handleGoBack = () => {
+    if (orderResult?.qrCodeData) {
+      navigate('/eco-deal/main')  // 픽업
+    } else {
+      // 일반 배송이면 쇼핑 메인으로
+      navigate('/shopping/main')
+    }
   }
 
   useEffect(() => {
@@ -250,7 +259,7 @@ const PaymentSuccessPage = () => {
         {/* 버튼 */}
         <div className="space-y-3">
           <button
-            onClick={() => navigate('/home/main')}
+            onClick={handleGoBack}
             className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
           >
             쇼핑 계속하기
