@@ -44,7 +44,7 @@ const PhtiMain = () => {
     }, []);
 
     return (
-        <div className="pb-24 max-w-3xl mx-auto p-6 space-y-8">
+        <div className="pb-24 max-w-xl mx-auto space-y-8">
             {/* <h1 className="text-2xl font-bold text-emerald-600 text-center">
                 🌱 PHTI 검사
             </h1> */}
@@ -64,11 +64,50 @@ const PhtiMain = () => {
                             {result.primaryPhtiCustomDescription}
                         </p>
 
-                        <div className="space-y-2 text-sm">
-                            <p>📊 에코 성향: {result.ecoChoiceRatio}%</p>
-                            <p>📊 가치 소비: {result.valueChoiceRatio}%</p>
-                            <p>📊 도전 성향: {result.raffleChoiceRatio}%</p>
-                            <p>📊 포인트 사용: {result.pointChoiceRatio}%</p>
+                        <div className="space-y-3 text-sm">
+                            <div>
+                                <p className="mb-1">📊 에코 성향</p>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-emerald-500 h-3 rounded-full"
+                                        style={{ width: `${result.ecoChoiceRatio}%` }}
+                                    />
+                                </div>
+                                <p className="text-right text-xs text-gray-500">{result.ecoChoiceRatio}%</p>
+                            </div>
+
+                            <div>
+                                <p className="mb-1">📊 가치 소비</p>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-blue-500 h-3 rounded-full"
+                                        style={{ width: `${result.valueChoiceRatio}%` }}
+                                    />
+                                </div>
+                                <p className="text-right text-xs text-gray-500">{result.valueChoiceRatio}%</p>
+                            </div>
+
+                            <div>
+                                <p className="mb-1">📊 도전 성향</p>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-yellow-500 h-3 rounded-full"
+                                        style={{ width: `${result.raffleChoiceRatio}%` }}
+                                    />
+                                </div>
+                                <p className="text-right text-xs text-gray-500">{result.raffleChoiceRatio}%</p>
+                            </div>
+
+                            <div>
+                                <p className="mb-1">📊 포인트 사용</p>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-purple-500 h-3 rounded-full"
+                                        style={{ width: `${result.pointChoiceRatio}%` }}
+                                    />
+                                </div>
+                                <p className="text-right text-xs text-gray-500">{result.pointChoiceRatio}%</p>
+                            </div>
                         </div>
 
                         <hr className="my-4" />
@@ -143,7 +182,7 @@ const PhtiMain = () => {
                     onClick={() => navigate("/phti/survey")}
                 >
                     {result ? '다시 설문하러 가기' : '설문하러 가기'}
-                    
+
                 </CustomCommonButton>
             </div>
         </div>
