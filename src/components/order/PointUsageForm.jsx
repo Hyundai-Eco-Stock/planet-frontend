@@ -8,28 +8,24 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
   const MIN_PAYMENT_AMOUNT = 100 // 최소 결제 금액
 
-  // 최대 사용 가능 포인트
-  const rawMaxUsable = Math.max(
-    0,
-    Math.min(
-      Number.isFinite(availablePoint) ? availablePoint : 0,
-      Number.isFinite(maxUsage) ? maxUsage : availablePoint ?? 0
-    )
-  )
-
-  const maxUsablePoint = Math.max(0, rawMaxUsable - MIN_PAYMENT_AMOUNT)
+  // 최대 사용 가능 포인트 계산 - 3가지 케이스 처리
+  const availablePointSafe = Number.isFinite(availablePoint) ? availablePoint : 0
+  const maxUsageSafe = Number.isFinite(maxUsage) ? maxUsage : availablePointSafe
+  
+  const maxUsablePoint = (() => {
+    // 케이스 3: 포인트 보유량이 결제 금액보다 적은 경우 -> 보유 포인트 모두 사용
+    if (availablePointSafe <= maxUsageSafe) {
+      return availablePointSafe
+    }
+    
+    // 케이스 1, 2: 포인트 보유량이 결제 금액과 같거나 많은 경우 -> 최소 100원 남기기
+    return Math.max(0, maxUsageSafe - MIN_PAYMENT_AMOUNT)
+  })()
 
   // 공통 클램프 함수
   const clamp = (n) => {
     const v = Number.isFinite(n) ? n : 0
-    const max = Math.max(0, Math.min(v, maxUsablePoint))
-    // finalAmount = productTotal + donationAmount - pointUsage
-    // 이게 MIN_PAYMENT_AMOUNT 이상 되도록 보정
-    const finalAmount = maxUsage - max
-    if (finalAmount < MIN_PAYMENT_AMOUNT) {
-      return maxUsage - MIN_PAYMENT_AMOUNT
-    }
-    return max
+    return Math.max(0, Math.min(v, maxUsablePoint))
   }
 
   // 포맷 제어용: blur 시 콤마, focus 시 생 숫자
@@ -140,7 +136,9 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
 
         <div className="text-xs text-orange-600">
           최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능
-          <span className="text-gray-400 ml-1">(최소 {MIN_PAYMENT_AMOUNT}원 결제 필요)</span>
+          {availablePointSafe > maxUsageSafe && (
+            <span className="text-gray-400 ml-1">(최소 {MIN_PAYMENT_AMOUNT}원 결제 필요)</span>
+          )}
         </div>
       </div>
 
@@ -206,7 +204,7 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
         <div className="text-xs text-gray-500 space-y-1">
           <p>• 포인트는 1P = 1원으로 사용됩니다.</p>
           <p>• 결제 완료 후 사용된 포인트는 차감됩니다.</p>
-          <p>• 최대 주문 금액까지만 사용 가능합니다.</p>
+          <p>• 보유 포인트가 주문 금액보다 적으면 전액 사용 가능합니다.</p>
         </div>
       </div>
     </div>
