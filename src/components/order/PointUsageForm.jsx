@@ -74,9 +74,11 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
   }
 
   const handleInputChange = (value) => {
-    setInputValue(value)
+    // 숫자가 아닌 문자는 모두 제거 (연락처 입력 방식과 동일)
+    const numbersOnly = value.replace(/[^0-9]/g, '')
+    setInputValue(numbersOnly)
 
-    const numeric = toNumber(value)
+    const numeric = toNumber(numbersOnly)
     const fixed = clamp(numeric)
 
     setPointAmount(fixed)
@@ -149,6 +151,8 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
           <div className="flex-1 relative">
             <input
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}
               onFocus={handleInputFocus}
