@@ -12,7 +12,7 @@ const MyAssetsPage = () => {
                 <nav className="flex gap-6 -mb-px">
                     <button
                         onClick={() => setActiveTab("stock")}
-                        className={`pb-2 text-sm font-semibold ${activeTab === "stock"
+                        className={`flex-1 pb-2 text-sm font-semibold ${activeTab === "stock"
                                 ? "border-b-2 border-emerald-500 text-emerald-600"
                                 : "text-gray-500 hover:text-gray-700"
                             }`}
@@ -21,7 +21,7 @@ const MyAssetsPage = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab("point")}
-                        className={`pb-2 text-sm font-semibold ${activeTab === "point"
+                        className={`flex-1 pb-2 text-sm font-semibold ${activeTab === "point"
                                 ? "border-b-2 border-amber-500 text-amber-600"
                                 : "text-gray-500 hover:text-gray-700"
                             }`}
