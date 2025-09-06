@@ -2,6 +2,9 @@ import './App.css'
 
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
+// 로그인 유저만 접근 가능한 Route
+import PrivateRoute from '@/PrivateRoute'
+
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
 import LayoutLogoAndFooter from '@/components/_layout/LayoutLogoAndFooter' // 헤더 + 푸터
@@ -39,8 +42,8 @@ import MyPageMain from '@/pages/mypage/MyPageMain'
 import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyCardInfo from '@/pages/mypage/MyCardInfo'
-import MyEcoStockInfo from '@/pages/mypage/MyEcoStockInfo'
 import Settings from '@/pages/mypage/Settings'
+import MyAssetsPage from '@/pages/mypage/MyAssetsPage'
 import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
 import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
@@ -75,10 +78,11 @@ import EcoDealMain from '@/pages/eco_deal/EcoDealMain';
 import EcoDealDetail from '@/pages/eco_deal/EcoDealDetail';
 
 //래플 
-import RaffleDetailPage from './pages/raffle/RaffleDetailPage'
-import RaffleListPage from './pages/raffle/RaffleListPage'
+import RaffleDetailPage from '@/pages/raffle/RaffleDetailPage'
+import RaffleListPage from '@/pages/raffle/RaffleListPage'
 
 // PHTI
+import PhtiMain from '@/pages/phti/PhtiMain'
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
 import PhtiResult from "@/pages/phti/PhtiResult";
 
@@ -88,8 +92,7 @@ import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
-import MyAssetsPage from './pages/mypage/MyAssetsPage'
-import PrivateRoute from './PrivateRoute'
+
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -109,8 +112,12 @@ function App() {
 	return (
 		<Routes>
 			{/* 리다이렉트 path */}
+			<Route path="/" element={<Navigate to="/home/main" />} />
 			<Route path="/home" element={<Navigate to="/home/main" />} />
-			<Route path="/" element={<Navigate to="/home" />} />
+
+			<Route path="/phti" element={<Navigate to="/phti/main" />} />
+
+			<Route path="/admin" element={<Navigate to="/admin/dashboard/main" />} />
 			<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />} />
 
 			{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
@@ -148,6 +155,7 @@ function App() {
 					<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 					<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
 					<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
+					<Route path="/phti/main" element={<PhtiMain />} />
 				</Route>
 			</Route>
 
@@ -157,7 +165,7 @@ function App() {
 				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
 			</Route>
 
-			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
+			{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndClose />}>
 				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
 				<Route element={<PrivateRoute />}>
