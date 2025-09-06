@@ -176,6 +176,7 @@ const LocalSignUp = () => {
                         value={email}
                         placeholder="이메일을 입력해주세요"
                         onChange={(e) => setEmail(e.target.value)}
+                        autoFocus={true}
                     />
                 </section>
 

@@ -75,6 +75,7 @@ const SendPasswordChangeMail = () => {
                     value={email}
                     placeholder="회원가입시 사용했던 이메일을 입력해주세요"
                     onChange={handleEmail}
+                    autoFocus={true}
                 />
             </label>
 
