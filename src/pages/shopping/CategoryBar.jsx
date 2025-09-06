@@ -17,9 +17,10 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
         {/* 스크롤 영역 (스크롤바 숨김) */}
         <div
           ref={scrollerRef}
-          className="relative z-10 overflow-x-auto pr-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
+          className="relative z-10 w-full overflow-x-auto overflow-y-hidden pl-2 pr-4 touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [scroll-padding-left:3rem]"
         >
-          <div className="inline-flex gap-3 pb-2">
+          <div className="inline-flex gap-3 pb-2 min-w-max">
+            <div aria-hidden className="shrink-0 w-12" />
             {categories.map((c) => (
               <button
                 key={c.key}
@@ -27,25 +28,23 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                 onClick={() => onSelect(c.key)}
                 role="tab"
                 aria-selected={active === c.key}
-                className="relative w-[72px] flex flex-col items-center"
+                className="relative w-[72px] flex flex-col items-center touch-pan-x select-none"
               >
                 <div
-                  className={`flex items-center justify-center w-12 h-12 rounded-xl border text-[22px]
-                  ${active === c.key ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"}`}
+                  className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 hover:ring-2 hover:ring-gray-200 transition"
                 >
                   {(c.imageUrl || c.image) ? (
                     <img
                       src={c.imageUrl || c.image}
                       alt={c.name || "카테고리 이미지"}
-                      className="w-10 h-10 object-contain"
+                      className="w-full h-full object-cover"
                       loading="lazy"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   ) : (
-                    <span aria-hidden>{c.emoji || "🏷️"}</span>
+                    <span className="text-xs text-gray-400">전체</span>
                   )}
                 </div>
-                <div className="mt-1 text-xs whitespace-nowrap">{c.name}</div>
+                <div className="mt-1 text-xs text-gray-800 whitespace-nowrap">{c.name}</div>
                 {active === c.key && (
                   <motion.div
                     layoutId="category-underline"
@@ -55,6 +54,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                 )}
               </button>
             ))}
+            <div aria-hidden className="shrink-0 w-4" />
           </div>
         </div>
 
