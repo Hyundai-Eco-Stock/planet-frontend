@@ -48,13 +48,13 @@ const DeliveryOrderPage = () => {
       // deliveryType이 DELIVERY가 아니면 잘못된 접근
       if (deliveryType !== 'DELIVERY') {
         alert('잘못된 접근입니다.')
-        navigate('/cart/main')
+        navigate('/cart/main?tab=delivery')
         return
       }
 
       if (selectedProducts.length === 0) {
         alert('주문할 상품이 없습니다.')
-        navigate('/cart/main')
+        navigate('/cart/main?tab=delivery')
         return
       }
 
@@ -152,7 +152,7 @@ const DeliveryOrderPage = () => {
   const handleGoBack = () => {
     if (confirm('주문서 작성을 취소하고 장바구니로 돌아가시겠습니까?')) {
       clearOrderDraft()
-      navigate('/cart/main')
+      navigate('/cart/main?tab=delivery')
     }
   }
 

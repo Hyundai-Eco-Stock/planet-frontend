@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import useCartStore from '@/store/cartStore'
 import CartSection from '@/components/cart/CartSection'
 import EmptyCart from '@/components/cart/EmptyCart'
@@ -17,11 +17,19 @@ const CartMain = () => {
   const cartStore = useCartStore()
   const { deliveryCart, pickupCart } = cartStore
   
-  // 현재 선택된 탭
-  const [activeTab, setActiveTab] = useState('delivery')
+  const [sp, setSp] = useSearchParams()
+  const initialTab = sp.get('tab') === 'pickup' ? 'pickup' : 'delivery'
+  const [activeTab, setActiveTab] = useState(initialTab)
   
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
+
+  useEffect(() => {
+   const next = new URLSearchParams(sp)
+   next.set('tab', activeTab)
+   setSp(next, { replace: true }) // 히스토리 오염 방지
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, [activeTab])
   
   // 실시간 장바구니 상태 동기화
   useEffect(() => {
