@@ -227,13 +227,12 @@ const Home = () => {
       {/* Scrim for FAB open */}
       <div
         onClick={() => setFabOpen(false)}
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 z-[60] bg-black/30 transition-opacity duration-200 ${fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
       />
 
 
       {/* Floating Actions: 푸드딜 / 래플 (컨테이너는 pointer-events-none로 두고, 실제 요소에만 auto) */}
-      <div className="fixed right-4 bottom-28 z-50 pointer-events-none">
+      <div className="fixed right-4 bottom-28 z-[70] pointer-events-none">
         <div className="flex flex-col items-end gap-2">
           <div
             className={`flex flex-col items-end gap-2 transition-all duration-200 ${
