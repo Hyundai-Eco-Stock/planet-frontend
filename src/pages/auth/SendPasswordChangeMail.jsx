@@ -70,7 +70,7 @@ const SendPasswordChangeMail = () => {
     return (
         <div className="w-full pt-5">
             <label className="w-full flex flex-col gap-1">
-                <span className="text-sm font-semibold text-gray-900">이메일 입력</span>
+                <span className="text-sm font-semibold text-gray-900">이메일</span>
                 <CustomCommonInput
                     value={email}
                     placeholder="회원가입시 사용했던 이메일을 입력해주세요"
@@ -78,7 +78,7 @@ const SendPasswordChangeMail = () => {
                 />
             </label>
 
-            <footer className="fixed bottom-28 left-0 right-0 bg-white pt-1 pb-8 px-4">
+            <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     // disabled={isSubmitDisabled}
@@ -86,7 +86,7 @@ const SendPasswordChangeMail = () => {
                 >
                     비밀번호 변경 메일 발송
                 </CustomCommonButton>
-            </footer>
+            </div>
         </div>
     )
 }

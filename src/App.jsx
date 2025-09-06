@@ -5,7 +5,8 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
 import LayoutLogoAndFooter from '@/components/_layout/LayoutLogoAndFooter' // 헤더 + 푸터
-import LayoutBack from '@/components/_layout/LayoutBack' // 헤더만
+import LayoutBack from '@/components/_layout/LayoutBack' // 헤더 + 푸터
+import LayoutBackOnly from '@/components/_layout/LayoutBackOnly' // 헤더만
 import LayoutLogoOnly from '@/components/_layout/LayoutLogoOnly' // 헤더만
 import LayoutLogoAndClose from '@/components/_layout/LayoutLogoAndClose' // 헤더만
 import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터만
@@ -127,18 +128,23 @@ function App() {
 
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutBack />}>
-				<Route path="/send/password-change-mail" element={<SendPasswordChangeMail />} />
 				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
-				<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
-				<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+			</Route>
+
+			{/* 뒤로가기 Layout (헤더만) */}
+			<Route element={<LayoutBackOnly />}>
+				<Route path="/signup/local" element={<LocalSignUp />} />
+				<Route path="/send/password-change-mail" element={<SendPasswordChangeMail />} />
 				<Route path="/my-page/profile" element={<MyProfile />} />
-				<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
 				<Route path="/my-page/my-car" element={<MyCarInfo />} />
 				<Route path="/my-page/my-card" element={<MyCardInfo />} />
 				<Route path="/my-page/settings" element={<Settings />} />
+				<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
+				<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
+				<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+				<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 				<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
 				<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
-				<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 			</Route>
 
 			{/* 뒤로 가기 + 장바구니 레이아웃 */}
@@ -148,15 +154,14 @@ function App() {
 			</Route>
 
 			{/* 로고,닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
-			<Route element={<LayoutLogoAndClose title="" />}>
-				<Route path="/signup/local" element={<LocalSignUp />} />
+			<Route element={<LayoutLogoAndClose />}>
 				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
 				<Route path="/phti/survey" element={<PhtiSurvey />} />
 				<Route path="/phti/result" element={<PhtiResult />} />
 			</Route>
 
 			{/* 로고만 있는 Layout (헤더만) */}
-			<Route element={<LayoutLogoOnly title="" />}>
+			<Route element={<LayoutLogoOnly />}>
 				<Route path="/signup/oauth" element={<OAuthSignUp />} />
 			</Route>
 

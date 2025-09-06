@@ -8,17 +8,16 @@ export const SimpleSelect = ({
     options = [],
     placeholder = "선택하세요",
     className = "",
+    iconVisible = true
 }) => {
     return (
-        <div
-            className={`relative w-full border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors ${className}`}
-        >
+        <div className={`relative w-full border rounded-xl border-black/20 focus-within:border-emerald-500 transition-colors ${className}`}>
             <select
-                className="w-full px-4 py-4 pr-10 rounded-xl outline-none appearance-none bg-white placeholder:text-black/40"
+                className={`w-full px-4 py-4 ${iconVisible && 'pr-10'} rounded-xl outline-none appearance-none bg-white placeholder:text-black/40 text-center`}
                 value={value}
                 onChange={onChange}
             >
-                <option value="">{placeholder}</option>
+                <option value="" disabled>{placeholder}</option>
 
                 {options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -28,9 +27,13 @@ export const SimpleSelect = ({
             </select>
 
             {/* ▼ 아이콘 */}
-            <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-                <FontAwesomeIcon icon={faChevronDown} />
-            </div>
+            {
+                iconVisible &&
+                <div className="pointer-events-none absolute inset-y-0 right-[10%] flex items-center text-gray-400">
+                    <FontAwesomeIcon icon={faChevronDown} />
+                </div>
+            }
+
         </div>
     );
 };

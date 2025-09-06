@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
@@ -7,8 +7,16 @@ import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInput";
 import DaumPostcode from "@/components/address/DaumPostcode";
 import { signUpByLocal } from "@/api/auth/auth.api";
+import { SimpleSelect } from "@/components/_custom/CustomSelect";
 
 const LocalSignUp = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("회원가입");
+    }, [setTitle]);
+
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -103,7 +111,7 @@ const LocalSignUp = () => {
     const handleSubmit = () => {
         if (isSubmitDisabled) return;
 
-        const birth = `${birthYear}-${birthMonth.padStart(2,"0")}-${birthDay.padStart(2, "0")}`;
+        const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
         signUpByLocal({
             email,
@@ -146,16 +154,6 @@ const LocalSignUp = () => {
 
     return (
         <div className="min-h-dvh flex flex-col gap-3 pb-24 pt-2">
-            {/* Header */}
-            <header className="pt-1 pb-5 text-center">
-                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">
-                    회원가입
-                </h1>
-                <p className="mt-1 text-[13px] text-gray-500">
-                    필수 정보를 입력하고 계정을 만들어주세요.
-                </p>
-            </header>
-
             {/* Card */}
             <main className="flex flex-col gap-3">
                 {/* 프로필 */}
@@ -267,46 +265,45 @@ const LocalSignUp = () => {
                 <section className="flex flex-col gap-2 mt-3">
                     <label className="text-sm font-semibold text-gray-900">생년월일</label>
                     <div className="flex gap-2">
-                        <CustomCommonInput
-                            type="number"
+                        {/* 연도 */}
+                        <SimpleSelect
                             value={birthYear}
+                            onChange={(e) => setBirthYear(e.target.value)}
+                            options={Array.from({ length: 100 }, (_, i) => {
+                                const year = new Date().getFullYear() - i;
+                                return { value: year, label: year };
+                            })}
                             placeholder="YYYY"
-                            closeBtnVisible={false}
-                            onChange={(e) => {
-                                setBirthYear(e.target.value);
-                                if (e.target.value.length === 4) {
-                                    monthRef.current?.focus();
-                                }
-                            }}
-                            ref={yearRef}
-                            maxLength={4}
+                            className="flex-1"
+                            iconVisible={false}
                         />
                         <span className="m-auto">년</span>
-                        <CustomCommonInput
-                            type="number"
+
+                        {/* 월 */}
+                        <SimpleSelect
                             value={birthMonth}
+                            onChange={(e) => setBirthMonth(e.target.value)}
+                            options={Array.from({ length: 12 }, (_, i) => {
+                                const month = String(i + 1).padStart(2, "0");
+                                return { value: month, label: month };
+                            })}
                             placeholder="MM"
-                            closeBtnVisible={false}
-                            onChange={(e) => {
-                                setBirthMonth(e.target.value);
-                                if (e.target.value.length === 2) {
-                                    dayRef.current?.focus();
-                                }
-                            }}
-                            ref={monthRef}
-                            maxLength={2}
+                            className="flex-1"
+                            iconVisible={false}
                         />
                         <span className="m-auto">월</span>
-                        <CustomCommonInput
-                            type="number"
+
+                        {/* 일 */}
+                        <SimpleSelect
                             value={birthDay}
+                            onChange={(e) => setBirthDay(e.target.value)}
+                            options={Array.from({ length: 31 }, (_, i) => {
+                                const day = String(i + 1).padStart(2, "0");
+                                return { value: day, label: day };
+                            })}
                             placeholder="DD"
-                            closeBtnVisible={false}
-                            onChange={(e) => {
-                                setBirthDay(e.target.value);
-                            }}
-                            ref={dayRef}
-                            maxLength={2}
+                            className="flex-1"
+                            iconVisible={false}
                         />
                         <span className="m-auto">일</span>
                     </div>
@@ -347,7 +344,7 @@ const LocalSignUp = () => {
                 </section>
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-8 px-4">
+            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
@@ -355,7 +352,7 @@ const LocalSignUp = () => {
                 >
                     회원 가입
                 </CustomCommonButton>
-            </footer>
+            </div>
         </div>
     );
 };

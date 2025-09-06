@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Trash2, PlusCircle } from "lucide-react";
 
 import { CardNumberInput } from "@/components/_custom/CustomInputs";
+import { SimpleSelect } from "@/components/_custom/CustomSelect";
 
 import { searchAllCardCompanies } from "@/api_department_core_backend/card/cardCompany.api";
 import { deleteMyCardInfo, fetchMyCardInfo, registerMyCardInfo } from "@/api/member_card/memberCard.api";
@@ -75,13 +76,17 @@ const MyCardInfo = () => {
     };
 
     return (
-        <div className="max-w-md space-y-6">
+        <>
             {/* 등록된 카드 리스트 */}
-            <div className="space-y-4">
+            <div className="space-y-4 px-2">
                 {myCards.map((card) => (
                     <div
                         key={card.memberCardId}
-                        className="relative w-full h-48 rounded-2xl shadow-lg text-white p-5 bg-gradient-to-r from-emerald-500 to-teal-400"
+                        className="w-full p-5 
+                            relative aspect-[1.585/1]
+                            rounded-2xl shadow-lg text-white 
+                            bg-gradient-to-r from-emerald-500 to-teal-400
+                            "
                     >
                         {/* 카드사 */}
                         <div className="flex justify-between items-start">
@@ -109,7 +114,7 @@ const MyCardInfo = () => {
 
             {/* 카드 등록 버튼 */}
             {!showForm && (
-                <div className="fixed bottom-0 left-0 right-0 w-full pt-1 pb-28 px-4">
+                <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
                     <CustomCommonButton
                         onClick={() => setShowForm(true)}
                         children="+ 새 카드 등록"
@@ -122,18 +127,15 @@ const MyCardInfo = () => {
                 <form onSubmit={handleSubmit} className="space-y-6 border-t pt-6">
                     <div>
                         <label className="block mb-2 font-medium text-gray-700">카드사</label>
-                        <select
-                            className="w-full border rounded-xl px-4 py-3 focus:border-emerald-500 outline-none"
+                        <SimpleSelect
                             value={cardCompanyId}
                             onChange={(e) => setCardCompanyId(e.target.value)}
-                        >
-                            <option value="">-- 카드사를 선택하세요 --</option>
-                            {cardCompanies.map((c) => (
-                                <option key={c.cardCompanyId} value={c.cardCompanyId}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={cardCompanies.map((c) => ({
+                                value: c.cardCompanyId,
+                                label: c.name,
+                            }))}
+                            placeholder="-- 카드사를 선택하세요 --"
+                        />
                     </div>
 
                     <div>
@@ -155,7 +157,7 @@ const MyCardInfo = () => {
                     </div>
                 </form>
             )}
-        </div>
+        </>
     );
 };
 
