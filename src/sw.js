@@ -95,19 +95,19 @@ self.addEventListener('activate', (e) => {
 });
 self.addEventListener('notificationclick', event => {
     event.notification.close();
-    const targetPath = event.notification.data?.targetUrl || '/';
+    const path = event.notification.data?.path || '/';
 
     event.waitUntil(
         clients.matchAll({ type: 'window' }).then(windowClients => {
             // 이미 열려 있는 탭이 있으면 포커스
             for (const client of windowClients) {
-                if (client.url.includes(targetPath)) {
+                if (client.url.includes(path)) {
                     return client.focus();
                 }
             }
             // 없으면 새 탭으로 열기, 도메인 기반 URL 생성
             const origin = self.location.origin;
-            return clients.openWindow(origin + targetPath);
+            return clients.openWindow(origin + path);
         })
     );
 });
