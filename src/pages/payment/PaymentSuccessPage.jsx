@@ -21,6 +21,25 @@ const PaymentSuccessPage = () => {
   const amount = searchParams.get('amount');
   const processedRef = useRef(null);
 
+  // 주문번호 정리 함수
+  const formatOrderNumber = (orderNumber) => {
+    if (!orderNumber) return 'N/A'
+    
+    // draft_ 제거하고 언더스코어로 분리된 부분들 처리
+    let cleanNumber = orderNumber.replace(/^draft_/, '') // "draft_" 접두사 제거
+    
+    // 타임스탬프_랜덤문자열 형태에서 뒤의 랜덤 문자열만 사용
+    if (cleanNumber.includes('_')) {
+      const parts = cleanNumber.split('_')
+      if (parts.length >= 2) {
+        // 마지막 부분(랜덤 문자열)만 사용하고 대문자로 변환
+        cleanNumber = parts[parts.length - 1].toUpperCase()
+      }
+    }
+    
+    return cleanNumber
+  }
+
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
       alert('결제 정보가 올바르지 않습니다.');
@@ -179,8 +198,8 @@ const PaymentSuccessPage = () => {
               {/* 주문번호 - 별도 영역 */}
               <div className="bg-white rounded-lg p-4 border">
                 <span className="text-gray-600 text-sm font-medium block mb-2">주문번호</span>
-                <div className="font-mono text-sm font-bold text-gray-900 break-all leading-relaxed bg-gray-50 p-3 rounded">
-                  {orderResult.orderNumber ?? orderResult.orderId}
+                <div className="font-mono text-lg font-bold text-gray-900 break-all leading-relaxed bg-gray-50 p-3 rounded text-center">
+                  {formatOrderNumber(orderResult.orderNumber ?? orderResult.orderId)}
                 </div>
               </div>
 
