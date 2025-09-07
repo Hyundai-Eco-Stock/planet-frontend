@@ -141,6 +141,7 @@ function App() {
 			{/* 뒤로가기 Layout (헤더만) */}
 			<Route element={<LayoutBackOnly />}>
 				<Route path="/signup/local" element={<LocalSignUp />} />
+				<Route path="/signup/oauth" element={<OAuthSignUp />} />
 				<Route path="/send/password-change-mail" element={<SendPasswordChangeMail />} />
 
 				<Route element={<PrivateRoute />}>
@@ -172,7 +173,7 @@ function App() {
 
 			{/* 로고만 있는 Layout (헤더만) */}
 			<Route element={<LayoutLogoOnly />}>
-				<Route path="/signup/oauth" element={<OAuthSignUp />} />
+				
 			</Route>
 
 			{/* 푸터만 있는 Layout (푸터만) */}
