@@ -17,7 +17,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
         {/* 스크롤 영역 (스크롤바 숨김) */}
         <div
           ref={scrollerRef}
-          className="relative z-10 w-full overflow-x-auto overflow-y-hidden pl-2 pr-4 touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [scroll-padding-left:3rem]"
+          className="relative z-10 w-full overflow-x-auto overflow-y-hidden pl-2 pr-8 touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [scroll-padding-left:3rem] [scroll-padding-right:3rem]"
         >
           <div className="inline-flex gap-3 pb-2 min-w-max">
             <div aria-hidden className="shrink-0 w-12" />
@@ -54,7 +54,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                 )}
               </button>
             ))}
-            <div aria-hidden className="shrink-0 w-4" />
+            <div aria-hidden className="shrink-0 w-12" />
           </div>
         </div>
 
