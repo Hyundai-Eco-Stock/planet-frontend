@@ -7,13 +7,14 @@ const useOrderStore = create((set, get) => ({
   orderDraft: null,
   isLoading: false,
   error: null,
+  needLogin: false, // 로그인 필요 플래그 추가
 
   // 사용자 정보 
   userInfo: null,
 
   // 사용자 정보 로드
   loadUserInfo: async () => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, needLogin: false })
 
     try {
       const { loginStatus, accessToken } = useAuthStore.getState()
@@ -35,12 +36,30 @@ const useOrderStore = create((set, get) => ({
         point: profileData.point || 0
       }
 
-      set({ userInfo, isLoading: false, error: null })
+      set({ userInfo, isLoading: false, error: null, needLogin: false })
       return userInfo
 
     } catch (error) {
       console.error('사용자 정보 로드 실패: ', error)
-      set({ userInfo: null, isLoading: false, error: error.message })
+      
+      // 로그인 관련 에러 처리
+      if (error.message.includes('로그인이 필요합니다') || 
+          error.response?.status === 401 || 
+          error.response?.status === 403) {
+        set({ 
+          userInfo: null, 
+          isLoading: false, 
+          error: '로그인이 필요한 서비스입니다.',
+          needLogin: true 
+        })
+      } else {
+        set({ 
+          userInfo: null, 
+          isLoading: false, 
+          error: error.message,
+          needLogin: false 
+        })
+      }
       throw error
     }
   },
@@ -67,16 +86,31 @@ const useOrderStore = create((set, get) => ({
 
   // 주문서 생성
   createOrderDraft: async (cartData, orderType) => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, needLogin: false })
 
     try {
       const { selectedProducts, orderInfo, pickupInfo } = cartData
 
-      // 사용자 정보 로드
+      // 사용자 정보 로드 - 에러 처리 추가
       let userInfo = get().userInfo
 
       if (!userInfo) {
-        userInfo = await get().loadUserInfo()
+        try {
+          userInfo = await get().loadUserInfo()
+        } catch (error) {
+          // 로그인 필요 에러인 경우 더 이상 진행하지 않음
+          if (error.message.includes('로그인이 필요합니다') || 
+              error.response?.status === 401 || 
+              error.response?.status === 403) {
+            set({ 
+              isLoading: false, 
+              error: '로그인이 필요한 서비스입니다.',
+              needLogin: true 
+            })
+            return false // 주문서 생성 실패 반환
+          }
+          throw error // 다른 에러는 그대로 던지기
+        }
       }
 
       // 주문서 생성
@@ -148,12 +182,16 @@ const useOrderStore = create((set, get) => ({
         createdAt: new Date().toISOString()
       }
 
-      set({ orderDraft, isLoading: false, error: null })
+      set({ orderDraft, isLoading: false, error: null, needLogin: false })
       return orderDraft
       
     } catch (error) {
       console.log('주문서 생성 실패: ', error)
-      set({ isLoading: false, error: error.message })
+      set({ 
+        isLoading: false, 
+        error: error.message,
+        needLogin: false 
+      })
       throw error
     }
   },
@@ -231,8 +269,11 @@ const useOrderStore = create((set, get) => ({
 
   // 주문서 초기화
   clearOrderDraft: () => {
-    set({ orderDraft: null, isLoading: false, error: null })
+    set({ orderDraft: null, isLoading: false, error: null, needLogin: false })
   },
+
+  // 로그인 필요 상태 리셋
+  resetLoginRequired: () => set({ needLogin: false, error: null }),
 
   // API 호출 상태 관리
   setLoading: (loading) => set({ isLoading: loading }),

@@ -37,7 +37,7 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
     if (onSelectedChange) {
       onSelectedChange(selectedProducts)
     }
-  }, [selectedProducts, onSelectedChange]) // onSelectedChange 제거
+  }, [selectedProducts, onSelectedChange])
   
   // 전체 선택/해제
   const handleSelectAll = () => {
@@ -115,8 +115,8 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
   return (
     <div className="bg-white">
       
-      {/* 전체 선택 및 삭제 컨트롤 */}
-      <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200">
+      {/* 전체 선택 및 삭제 컨트롤 - 고정 */}
+      <div className="fixed top-30 left-0 right-0 max-w-xl mx-auto flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-white z-30">
         <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
@@ -145,6 +145,9 @@ const CartSection = ({ cartType, products, onSelectedChange }) => {
           </button>
         </div>
       </div>
+      
+      {/* 전체선택 컨트롤 높이만큼 여백 */}
+      <div className="h-16"></div>
       
       {/* 상품 목록 */}
       <div className="divide-y divide-gray-200">

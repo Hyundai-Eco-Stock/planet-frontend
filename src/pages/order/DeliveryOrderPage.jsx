@@ -24,7 +24,10 @@ const DeliveryOrderPage = () => {
     updateDonationAmount,
     updateOrderDraft,
     clearOrderDraft,
-    isLoading
+    isLoading,
+    error,
+    needLogin,
+    resetLoginRequired
   } = useOrderStore()
 
   const { deliveryCart } = useCartStore()
@@ -48,13 +51,13 @@ const DeliveryOrderPage = () => {
       // deliveryType이 DELIVERY가 아니면 잘못된 접근
       if (deliveryType !== 'DELIVERY') {
         alert('잘못된 접근입니다.')
-        navigate('/cart/main')
+        navigate('/cart/main?tab=delivery')
         return
       }
 
       if (selectedProducts.length === 0) {
         alert('주문할 상품이 없습니다.')
-        navigate('/cart/main')
+        navigate('/cart/main?tab=delivery')
         return
       }
 
@@ -65,18 +68,18 @@ const DeliveryOrderPage = () => {
         salePercent: product.salePercent || 0
       }))
 
-      // 원가 총액
+      // 원가 이액
       const originalTotal = convertedProducts.reduce((total, product) => {
         return total + (product.price * product.quantity)
       }, 0)
 
-      // 할인 적용 총액 
+      // 할인 적용 이액 
       const productTotal = convertedProducts.reduce((total, product) => {
         const discountedPrice = product.price * (1 - product.salePercent / 100)
         return total + (discountedPrice * product.quantity)
       }, 0)
 
-      // 총 할인 금액
+      // 이 할인 금액
       const discountAmount = originalTotal - productTotal
 
       // 주문서 생성
@@ -92,19 +95,38 @@ const DeliveryOrderPage = () => {
           paidPrice: product.price * (1 - product.salePercent / 100)
         })),
         orderInfo: {
-          totalPrice: productTotal,        // 할인 적용된 총액
-          discountAmount: discountAmount   // 총 할인 금액
+          totalPrice: productTotal,        // 할인 적용된 이액
+          discountAmount: discountAmount   // 이 할인 금액
         }
       }
 
-      await createOrderDraft(cartData, 'DELIVERY')
+      // 주문서 생성 시도
+      const success = await createOrderDraft(cartData, 'DELIVERY')
 
-      updatePointUsage(0)
-      updateDonationAmount(0)
+      // 로그인이 필요한 경우 주문서 생성하지 않음
+      if (!success && needLogin) {
+        return
+      }
+
+      if (success) {
+        updatePointUsage(0)
+        updateDonationAmount(0)
+      }
     }
 
     initializeOrder()
-  }, [location.state, deliveryCart, navigate, createOrderDraft, updatePointUsage, updateDonationAmount])
+  }, [location.state, deliveryCart, navigate, createOrderDraft, updatePointUsage, updateDonationAmount, needLogin])
+
+  // needLogin 상태는 별도 useEffect 불필요 (이미 초기화에서 처리됨)
+
+  const handleLoginRedirect = () => {
+    navigate('/login', {
+      state: {
+        from: location.pathname,
+        message: '주문을 계속하려면 로그인해주세요.'
+      }
+    })
+  }
 
   // 결제위젯 렌더링
   useEffect(() => {
@@ -152,7 +174,7 @@ const DeliveryOrderPage = () => {
   const handleGoBack = () => {
     if (confirm('주문서 작성을 취소하고 장바구니로 돌아가시겠습니까?')) {
       clearOrderDraft()
-      navigate('/cart/main')
+      navigate('/cart/main?tab=delivery')
     }
   }
 
@@ -302,7 +324,60 @@ const DeliveryOrderPage = () => {
     return { isValid: true }
   }
 
-  if (isLoading || !orderDraft) {
+  // 로그인 필요 상태인 경우
+  if (needLogin) {
+    return (
+      <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+        {/* 헤더 */}
+        <div className="bg-white border-b flex-shrink-0">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center">
+              <button
+                onClick={handleGoBack}
+                className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-xl font-bold">주문서</h1>
+                <span className="text-sm text-gray-500">일반 배송</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 로그인 필요 메시지 */}
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm w-full">
+            <div className="bg-white rounded-lg shadow-sm p-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h2>
+              <p className="text-gray-600 mb-6">주문을 진행하려면 먼저 로그인해주세요.</p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={handleLoginRedirect}
+                  className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  로그인하러 가기
+                </button>
+                <button
+                  onClick={() => navigate('/cart/main?tab=delivery')}
+                  className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  장바구니로 돌아가기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 로딩 중인 경우
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -311,6 +386,29 @@ const DeliveryOrderPage = () => {
         </div>
       </div>
     )
+  }
+
+  // 에러가 있는 경우 에러 처리
+  if (error && !orderDraft) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">주문서를 불러올 수 없습니다.</p>
+          <p className="text-gray-600 mb-4 text-sm">{error}</p>
+          <button
+            onClick={() => navigate('/cart/main?tab=delivery')}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            장바구니로 돌아가기
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // needLogin이 true이거나 orderDraft가 없으면 렌더링하지 않음
+  if (!orderDraft) {
+    return null
   }
 
   return (
@@ -354,19 +452,19 @@ const DeliveryOrderPage = () => {
           onUpdate={updateDeliveryInfo}
         />
 
+        {/* 기부 옵션 */}
+        <DonationForm
+          recommendedAmount={calculateRecommendedDonation()}
+          currentAmount={orderDraft.payment.donationAmount}
+          onUpdate={updateDonationAmount}
+        />
+
         {/* 포인트 사용 */}
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
           maxUsage={(orderDraft.payment.productTotal || 0) + (orderDraft.payment.donationAmount || 0)}
           onUpdate={updatePointUsage}
-        />
-
-        {/* 기부 옵션 */}
-        <DonationForm
-          recommendedAmount={calculateRecommendedDonation()}
-          currentAmount={orderDraft.payment.donationAmount}
-          onUpdate={updateDonationAmount}
         />
 
         {/* 결제 위젯 */}

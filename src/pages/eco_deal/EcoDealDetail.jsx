@@ -53,7 +53,7 @@ export default function ShoppingDetail() {
   const dec = () => setQty((q) => clampQty(q - 1));
   const onQtyChange = (e) => setQty(clampQty(parseInt(e.target.value, 10)));
 
-  // 구매/장바구니 핸들러
+  // 구매하기
   const handleBuyNow = () => {
     if (!main) return;
     if (!selectedStoreId) {
@@ -61,15 +61,12 @@ export default function ShoppingDetail() {
       return;
     }
 
-    // 선택된 매장 정보 찾기
     const selectedStore = rows.find(r => String(r.departmentStoreId) === String(selectedStoreId));
-
     if (!selectedStore) {
       alert('선택된 매장 정보를 찾을 수 없습니다.');
       return;
     }
 
-    // 상품 정보를 주문서 형식으로 변환
     const orderProduct = {
       id: main.productId,
       name: main.productName,
@@ -92,12 +89,12 @@ export default function ShoppingDetail() {
       state: { 
         products: [orderProduct], 
         deliveryType: 'PICKUP',
-        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+        fromDirectPurchase: true
       } 
     });
   };
 
-  // 장바구니 담기 (매장 충돌 처리 포함)
+  // 장바구니 담기 (매장 충돌 시 모달)
   const handleAddToCart = () => {
     if (!main) return;
     if (!selectedStoreId) {
@@ -115,7 +112,10 @@ export default function ShoppingDetail() {
     const conflictCheck = checkStoreConflict(main.productId, selectedStore.departmentStoreId);
     
     if (conflictCheck.hasConflict) {
-      // 충돌 발생 시 모달 표시
+      const canKeepExisting = rows.some(
+        r => String(r.departmentStoreId) === String(conflictCheck.existingStore?.id)
+      );
+
       setConflictData({
         productId: main.productId,
         productName: main.productName,
@@ -126,7 +126,8 @@ export default function ShoppingDetail() {
         },
         existingQuantity: conflictCheck.existingQuantity,
         newQuantity: qty,
-        selectedStore: selectedStore
+        selectedStore: selectedStore,
+        canKeepExisting,
       });
       setShowConflictModal(true);
       return;
@@ -136,7 +137,7 @@ export default function ShoppingDetail() {
     addToCartInternal();
   };
 
-  // 실제 장바구니 추가 함수
+  // 실제 장바구니 추가
   const addToCartInternal = (options = {}) => {
     if (!main || !selectedStoreId) return;
 
@@ -167,22 +168,23 @@ export default function ShoppingDetail() {
     }
   };
 
-  // 충돌 모달 핸들러들
+  // 모달: 기존 매장 유지(수량만 증가)
   const handleKeepExisting = () => {
-    // 기존 매장 유지하고 수량만 증가
+    if (!conflictData?.canKeepExisting) return;
     if (!conflictData) return;
     
-    // 기존 매장 정보로 상품 추가 (force: true로 충돌 검사 우회)
-    const existingStoreData = rows.find(r => String(r.departmentStoreId) === String(conflictData.existingStore.id));
+    const existingStoreData = rows.find(
+      r => String(r.departmentStoreId) === String(conflictData.existingStore.id)
+    );
     
     const item = {
-      id: main.productId,
-      name: main.productName,
-      price: Number(main.price ?? 0),
-      imageUrl: main.imageUrl || '',
+      id: conflictData.productId,
+      name: conflictData.productName,
+      price: Number(main?.price ?? 0),
+      imageUrl: main?.imageUrl || '',
       isEcoDeal: true,
-      quantity: Number(qty || 1),
-      salePercent: Number(main.salePercent ?? 0),
+      quantity: Number(conflictData.newQuantity || 1),
+      salePercent: Number(main?.salePercent ?? 0),
       selectedStore: {
         id: conflictData.existingStore.id,
         name: conflictData.existingStore.name,
@@ -192,7 +194,8 @@ export default function ShoppingDetail() {
     };
 
     try {
-      addToCart(item, item.quantity, { force: true }); // 기존 매장으로 수량 증가
+      // 기존 매장으로 수량 증가 (충돌 우회)
+      addToCart(item, item.quantity, { force: true });
       setShowToast(true);
     } catch (error) {
       console.error('장바구니 추가 실패:', error);
@@ -203,10 +206,9 @@ export default function ShoppingDetail() {
     setConflictData(null);
   };
 
+  // 모달: 새 매장으로 교체
   const handleReplaceWithNew = () => {
-    // 새 매장으로 교체
     if (!conflictData) return;
-    
     addToCartInternal({ force: true, action: 'replace' });
     setShowConflictModal(false);
     setConflictData(null);
@@ -366,6 +368,7 @@ export default function ShoppingDetail() {
         newQuantity={conflictData?.newQuantity}
         onKeepExisting={handleKeepExisting}
         onReplaceWithNew={handleReplaceWithNew}
+        canKeepExisting={conflictData?.canKeepExisting}
       />
     </main>
   );
