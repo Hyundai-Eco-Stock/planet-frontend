@@ -213,8 +213,8 @@ const CartMain = () => {
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       
-      {/* 상단 탭 헤더 */}
-      <div className="flex border-b border-gray-200 bg-white sticky top-0 z-10">
+      {/* 상단 탭 헤더 - 헤더 아래에 고정 */}
+      <div className="flex border-b border-gray-200 bg-white sticky top-16 z-40 shadow-sm">
         <button 
           className={`flex-1 py-4 text-center font-medium transition-colors ${
             activeTab === 'delivery' 
@@ -237,7 +237,7 @@ const CartMain = () => {
         </button>
       </div>
       
-      {/* 장바구니 내용 영역 */}
+      {/* 장바구니 내용 영역 - 탭 헤더 높이만큼 상단 마진 추가 */}
       <div className="flex-1 pb-40">
         <CartSection 
           cartType={activeTab}

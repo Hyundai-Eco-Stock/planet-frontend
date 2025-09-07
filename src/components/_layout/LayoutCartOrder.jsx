@@ -6,7 +6,7 @@ const LayoutCartOrder = () => {
     return (
         <div className="m-auto max-w-xl min-h-screen flex flex-col">
             <HeaderWithShopping />
-            <main className="pb-24 overflow-y-auto scrollbar-hide flex-1">
+            <main className="pb-24 flex-1">
                 <Outlet />
             </main>
         </div>
