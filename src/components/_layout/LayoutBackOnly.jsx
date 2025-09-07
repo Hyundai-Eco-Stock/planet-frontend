@@ -1,12 +1,15 @@
-import HeaderWithLogoAndClose from "@/components/_layout/HeaderWithLogoAndClose";
+import HeaderWithBack from "@/components/_layout/HeaderWithBack";
+import { Outlet, useOutletContext } from "react-router-dom";
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
 
-const LayoutLogoAndClose = () => {
+const LayoutBack = () => {
     const [title, setTitle] = useState("");
+
     return (
         <div className="m-auto max-w-xl min-h-screen flex flex-col">
-            <HeaderWithLogoAndClose title={title} />
+            
+            <HeaderWithBack title={title} />
+
             <main className="px-4 overflow-y-auto scrollbar-hide flex-1">
                 <Outlet context={{ setTitle }} />
             </main>
@@ -14,4 +17,4 @@ const LayoutLogoAndClose = () => {
     );
 };
 
-export default LayoutLogoAndClose;
+export default LayoutBack;

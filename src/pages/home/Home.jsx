@@ -254,10 +254,10 @@ const Home = () => {
                 래플
               </Link>
               <Link
-                to="/phti/survey"
+                to="/phti/main"
                 className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
               >
-                PHTI설문
+                PHTI
               </Link>
             </div>
           </div>

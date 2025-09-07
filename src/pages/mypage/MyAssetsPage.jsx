@@ -1,32 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MyEcoStockInfo from "@/pages/mypage/MyEcoStockInfo";
 import MyPointHistory from "@/pages/mypage/MyPointHistory";
+import { useOutletContext } from "react-router-dom";
 
 const MyAssetsPage = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("보유 에코스톡 & 포인트");
+    }, [setTitle]);
+
     const [activeTab, setActiveTab] = useState("stock"); // stock | point
 
     return (
-        <div className="p-4 md:p-6">
+        <div className="px-2 pb-4">
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-4">
                 <nav className="flex gap-6 -mb-px">
                     <button
                         onClick={() => setActiveTab("stock")}
-                        className={`pb-2 text-sm font-semibold ${activeTab === "stock"
-                                ? "border-b-2 border-emerald-500 text-emerald-600"
-                                : "text-gray-500 hover:text-gray-700"
+                        className={`flex-1 pb-2 text-sm font-semibold ${activeTab === "stock"
+                            ? "border-b-2 border-emerald-500 text-emerald-600"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         내 에코스톡
                     </button>
                     <button
                         onClick={() => setActiveTab("point")}
-                        className={`pb-2 text-sm font-semibold ${activeTab === "point"
-                                ? "border-b-2 border-amber-500 text-amber-600"
-                                : "text-gray-500 hover:text-gray-700"
+                        className={`flex-1 pb-2 text-sm font-semibold ${activeTab === "point"
+                            ? "border-b-2 border-amber-500 text-amber-600"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        포인트 기록
+                        내 포인트
                     </button>
                 </nav>
             </div>

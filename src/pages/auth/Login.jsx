@@ -100,9 +100,10 @@ const Login = () => {
                         비밀번호 재설정
                     </button>
                 </div>
+                
 
                 {/* 3초 회원가입 말풍선 버튼 */}
-                <div className="mt-5 flex justify-center">
+                <div className="mt-16 flex justify-center">
                     <SpeechBubble />
                 </div>
 

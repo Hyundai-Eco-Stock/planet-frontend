@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { fetchMyEcoDeals } from "@/api/member/member.api";
 
 export default function EcoDealReservation() {
+  const { setTitle } = useOutletContext();
+
+  useEffect(() => {
+      setTitle("푸드딜 주문내역");
+  }, [setTitle]);
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,7 +94,7 @@ export default function EcoDealReservation() {
   if (loading) {
     return (
       <div className="max-w-[960px] mx-auto my-8 px-4">
-        <h1 className="text-lg font-bold mb-4">에코딜 주문내역</h1>
+        {/* <h1 className="text-lg font-bold mb-4">푸드딜 주문내역</h1> */}
         <div className="border border-dashed rounded-lg p-4 text-gray-500">불러오는 중…</div>
       </div>
     );
@@ -96,7 +102,7 @@ export default function EcoDealReservation() {
   if (error) {
     return (
       <div className="max-w-[960px] mx-auto my-8 px-4">
-        <h1 className="text-lg font-bold mb-4">에코딜 주문내역</h1>
+        {/* <h1 className="text-lg font-bold mb-4">푸드딜 주문내역</h1> */}
         <div className="border border-rose-300 bg-rose-100 text-rose-800 rounded-lg p-4">주문내역을 불러오지 못했습니다.</div>
       </div>
     );
@@ -104,7 +110,7 @@ export default function EcoDealReservation() {
   if (!grouped.length) {
     return (
       <div className="max-w-[960px] mx-auto my-8 px-4">
-        <h1 className="text-lg font-bold mb-4">에코딜 주문내역</h1>
+        {/* <h1 className="text-lg font-bold mb-4">푸드딜 주문내역</h1> */}
         <div className="border border-gray-300 bg-gray-50 text-gray-500 rounded-lg p-4">주문내역이 없습니다.</div>
       </div>
     );
@@ -112,7 +118,7 @@ export default function EcoDealReservation() {
 
   return (
     <div className="max-w-[960px] mx-auto my-8 px-4">
-      <h1 className="text-lg font-bold mb-4">에코딜 주문내역</h1>
+      {/* <h1 className="text-lg font-bold mb-4">푸드딜 주문내역</h1> */}
 
       <div className="grid gap-4">
         {grouped.map((order) => (
