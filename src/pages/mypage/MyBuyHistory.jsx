@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { fetchMyOrders } from "@/api/member/member.api";
 import { cancelEntireOrder, cancelPartialOrder } from "@/api/payment/payment.api";
 import { confirmOrder } from "@/api/order/order.api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 /** utils */
 const currency = (v) => (v == null ? "-" : `${Number(v).toLocaleString("ko-KR")}원`);
@@ -110,6 +110,13 @@ const EcoChip = ({ eco }) => (
 
 /** main */
 export default function MyBuyHistory() {
+
+  const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("상품 구매 내역");
+    }, [setTitle]);
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchMyRaffles } from "@/api/member/member.api";
+import { useOutletContext } from "react-router-dom";
 
 const statusStyles = {
   Y: {
@@ -15,6 +16,12 @@ const statusStyles = {
 };
 
 const MyRaffleHistory = () => {
+  const { setTitle } = useOutletContext();
+
+  useEffect(() => {
+      setTitle("래플 응모 내역");
+  }, [setTitle]);
+
   const [raffles, setRaffles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,7 +43,7 @@ const MyRaffleHistory = () => {
   if (loading) {
     return (
       <div style={{ padding: 24 }}>
-        <h1 style={{ margin: 0 }}>내 래플 응모내역</h1>
+        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
         <p style={{ marginTop: 12, color: "#666" }}>불러오는 중…</p>
       </div>
     );
@@ -45,7 +52,7 @@ const MyRaffleHistory = () => {
   if (error) {
     return (
       <div style={{ padding: 24 }}>
-        <h1 style={{ margin: 0 }}>내 래플 응모내역</h1>
+        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
         <p style={{ marginTop: 12, color: "#d93025" }}>{error}</p>
       </div>
     );
@@ -54,7 +61,7 @@ const MyRaffleHistory = () => {
   if (!raffles.length) {
     return (
       <div style={{ padding: 24 }}>
-        <h1 style={{ margin: 0 }}>내 래플 응모내역</h1>
+        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
         <div style={{
           marginTop: 24,
           padding: 24,
@@ -71,7 +78,7 @@ const MyRaffleHistory = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ margin: 0 }}>내 래플 응모내역</h1>
+      {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
 
       <div
         style={{

@@ -6,15 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { requestForToken, VAPID_KEY } from "@/firebase-init";
 import { getMessaging, deleteToken, getToken } from "firebase/messaging";
 
-import useAuthStore from '@/store/authStore'
 import useNotificationStore from "@/store/notificationStore";
 
 export const useNotifications = () => {
 	const navigate = useNavigate();
 	const messaging = getMessaging();
 
-	const { loginStatus } = useAuthStore.getState();
-	const { setNotification, pushEnabled, setPushEnabled } = useNotificationStore();
+	const { pushEnabled, setPushEnabled } = useNotificationStore();
 
 	// 앱 로드 시 실제 권한 및 토큰 존재 여부를 확인하여 상태 동기화
 	const syncPushEnabledState = useCallback(async () => {
@@ -39,20 +37,13 @@ export const useNotifications = () => {
 
 
 	const requestToPermitPushNotification = async () => {
-		// console.log("loginStatus: ", loginStatus);
-		// if (!loginStatus) return;
 		if (pushEnabled) return;
 		
 		// 아직 브라우저 알림 권한 요청한 적 없을 때 허용 요청하기
 		if (Notification.permission === 'default') {
-			await Notification.requestPermission()
-				.then((permission) => {
-					console.log("1", permission); // "granted" | "denied" | "default"
-				});
+			await Notification.requestPermission();
 		}
 
-		// 브라우저 알림 권한이 허용일 때 푸시 알림 허용을 위해 앱 세팅 페이지로 보내는 것 추천
-		console.log("2: ", Notification.permission)
 		if (Notification.permission === 'granted') {
 			Swal.fire({
 				title: '알림 설정',
@@ -68,9 +59,6 @@ export const useNotifications = () => {
 			});
 		}
 	}
-
-
-
 
 	// 권한 요청 및 토큰 발급
 	const requestPermission = async () => {

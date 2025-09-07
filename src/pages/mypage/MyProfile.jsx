@@ -9,6 +9,12 @@ import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInpu
 import useAuthStore from "@/store/authStore";
 import DaumPostcode from "@/components/address/DaumPostcode";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { SimpleSelect } from "@/components/_custom/CustomSelect";
+
+const sexInfo = [
+    { value: "M", label: "남자" },
+    { value: "F", label: "여자" },
+];
 
 const MyProfile = () => {
     const { setTitle } = useOutletContext();
@@ -156,6 +162,7 @@ const MyProfile = () => {
                 />
             </section>
 
+            {/* 이름 */}
             <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이름</span>
                 <CustomCommonInput
@@ -166,6 +173,7 @@ const MyProfile = () => {
                 />
             </label>
 
+            {/* 이메일 */}
             <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">이메일</span>
                 <CustomCommonInput
@@ -179,20 +187,16 @@ const MyProfile = () => {
             <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">성별</span>
                 <div className="flex gap-3">
-                    <button
-                        type="button"
-                        className={`px-4 py-4 flex-1 rounded-xl border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
-                        onClick={() => setSex("M")}
-                    >
-                        남자
-                    </button>
-                    <button
-                        type="button"
-                        className={`px-4 py-4 flex-1 rounded-xl border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
-                        onClick={() => setSex("F")}
-                    >
-                        여자
-                    </button>
+                    {sexInfo.map(({ value, label }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            className={`px-4 py-4 flex-1 rounded-xl border ${sex === value ? "bg-emerald-500 text-white" : "bg-white"}`}
+                            onClick={() => setSex(value)}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
             </label>
 
@@ -200,41 +204,45 @@ const MyProfile = () => {
             <label className="flex flex-col gap-2">
                 <span className="text-sm font-semibold">생년월일</span>
                 <div className="flex gap-2">
-                    <CustomCommonInput
-                        type="number"
+                    {/* 연도 */}
+                    <SimpleSelect
                         value={birthYear}
+                        onChange={(e) => setBirthYear(e.target.value)}
+                        options={Array.from({ length: 100 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return { value: year, label: year };
+                        })}
                         placeholder="YYYY"
-                        closeBtnVisible={false}
-                        onChange={(e) => {
-                            setBirthYear(e.target.value);
-                            if (e.target.value.length === 4) {
-                                monthRef.current?.focus();
-                            }
-                        }}
-                        ref={yearRef}
+                        className="flex-1"
+                        iconVisible={false}
                     />
                     <span className="m-auto">년</span>
-                    <CustomCommonInput
-                        type="number"
+
+                    {/* 월 */}
+                    <SimpleSelect
                         value={birthMonth}
+                        onChange={(e) => setBirthMonth(e.target.value)}
+                        options={Array.from({ length: 12 }, (_, i) => {
+                            const month = String(i + 1).padStart(2, "0");
+                            return { value: month, label: month };
+                        })}
                         placeholder="MM"
-                        closeBtnVisible={false}
-                        onChange={(e) => {
-                            setBirthMonth(e.target.value);
-                            if (e.target.value.length === 2) {
-                                dayRef.current?.focus();
-                            }
-                        }}
-                        ref={monthRef}
+                        className="flex-1"
+                        iconVisible={false}
                     />
                     <span className="m-auto">월</span>
-                    <CustomCommonInput
-                        type="number"
+
+                    {/* 일 */}
+                    <SimpleSelect
                         value={birthDay}
-                        closeBtnVisible={false}
-                        placeholder="DD"
                         onChange={(e) => setBirthDay(e.target.value)}
-                        ref={dayRef}
+                        options={Array.from({ length: 31 }, (_, i) => {
+                            const day = String(i + 1).padStart(2, "0");
+                            return { value: day, label: day };
+                        })}
+                        placeholder="DD"
+                        className="flex-1"
+                        iconVisible={false}
                     />
                     <span className="m-auto">일</span>
                 </div>
@@ -293,7 +301,7 @@ const MyProfile = () => {
                 />
             </label> */}
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-24 px-4">
+            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
                 <CustomCommonButton
                     onClick={handleSubmitWithPassword}
                     disabled={isSubmitDisabled}
@@ -301,7 +309,7 @@ const MyProfile = () => {
                 >
                     수정
                 </CustomCommonButton>
-            </footer>
+            </div>
         </div>
     );
 };

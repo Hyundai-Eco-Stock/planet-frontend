@@ -9,3 +9,14 @@
     display: none;
     /* Chrome, Safari */
 }
+
+/* 모든 텍스트 요소에서 캐럿 숨기기 */
+* {
+    caret-color: transparent;
+}
+
+/* input, textarea는 기본적으로 caret이 필요하니 제외 */
+input,
+textarea {
+    caret-color: auto;
+}

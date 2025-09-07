@@ -86,7 +86,7 @@ const PhtiSurvey = () => {
             setLoading(true);
             const data = await submitPhtiSurvey(payload);
             console.log(data);
-            navigate("/phti/result", { state: { result: data } });
+            navigate("/phti/main", { state: { result: data } });
         } finally {
             setLoading(false);
         }
@@ -180,7 +180,7 @@ const PhtiSurvey = () => {
                 </div>
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 px-4 pb-4 flex justify-center">
+            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
                 {loading ? (
                     <ClipLoader size={32} color="#10B981" />
                 ) : (

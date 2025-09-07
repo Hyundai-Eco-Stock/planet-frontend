@@ -81,3 +81,8 @@ export const fetchMemberPointHistory = async () => {
 	const response = await apiClient.get("/members/me/point-histories");
 	return response.data;
 };
+
+export const fetchMemberPhtiResult = async () => {
+	const response = await apiClient.get("/members/me/phti-result");
+	return response.data;
+};

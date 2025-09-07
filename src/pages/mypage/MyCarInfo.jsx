@@ -157,25 +157,23 @@ const MyCarInfo = () => {
                     />
                 </div>
             </div>
-            <footer className="fixed bottom-0 left-0 right-0 pb-28 px-4 flex flex-col gap-2">
+            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
 
                 {!carInfoExist ?
                     <CustomCommonButton
                         onClick={handleRegisterCarInfo}
-                    // disabled={carInfoExist}
                     >
                         차량 정보 등록
                     </CustomCommonButton>
                     :
                     <CustomCommonButton
                         onClick={handleDeleteCarInfo}
-                        className="bg-red-600 hover:bg-red-600"
-                    // disabled={!carInfoExist}
+                        className="bg-red-500"
                     >
                         차량 정보 삭제
                     </CustomCommonButton>
                 }
-            </footer>
+            </div>
         </div>
     );
 }

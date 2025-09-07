@@ -9,15 +9,20 @@ import ReceiptBarcodeScanner from "@/components/barcode/ReceiptBarcodeScanner";
 import ReceiptBarcodeFromImage from "@/components/barcode/ReceiptBarcodeFromImage";
 import CustomImageInput from "@/components/_custom/CustomImageInput";
 import { certificateTumbler } from "@/api/eco_stock_certificate/ecoStockCertificate.api";
+import { useOutletContext } from 'react-router-dom';
 
 const TumblerCertificate = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("텀블러 사용 인증");
+    }, [setTitle]);
+
     // 바코드
     const [code, setCode] = useState("");
     const [mode, setMode] = useState("scan"); // 'scan' | 'upload' | 'personal'
 
-    // useEffect(() => {
-    //     setCode("")
-    // }, [mode])
 
     const handleSubmit = () => {
         if (!code) {
@@ -57,18 +62,14 @@ const TumblerCertificate = () => {
     };
 
     return (
-        <div className="text-center">
-            <div className="text-2xl mt-10 mb-10">텀블러 사용 인증 페이지</div>
-
-            <div className="flex flex-col gap-6 items-center">
-                {/* 바코드 입력 방식 선택 */}
-                <div className="w-full max-w-md">
-                    <div className="mb-3 text-left text-sm font-medium">영수증 바코드 입력 방식</div>
-                    <div className="w-full inline-flex rounded-lg border overflow-hidden">
+        <div className="max-w-xl w-full pt-2 text-center">
+            <div className="space-y-6">
+                <div>
+                    <div className="flex w-full rounded-lg border overflow-hidden">
                         <button
                             type="button"
                             onClick={() => setMode("scan")}
-                            className={`flex-1 px-4 py-2 text-sm ${mode === "scan" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm ${mode === "scan" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             카메라 스캔
@@ -76,7 +77,7 @@ const TumblerCertificate = () => {
                         <button
                             type="button"
                             onClick={() => setMode("upload")}
-                            className={`flex-1 px-4 py-2 text-sm border-l ${mode === "upload" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm border-l ${mode === "upload" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             이미지 업로드
@@ -84,7 +85,7 @@ const TumblerCertificate = () => {
                         <button
                             type="button"
                             onClick={() => setMode("personal")}
-                            className={`flex-1 px-4 py-2 text-sm border-l ${mode === "personal" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm border-l ${mode === "personal" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             직접 입력
@@ -92,7 +93,7 @@ const TumblerCertificate = () => {
                     </div>
 
                     {/* 선택된 방식 렌더 */}
-                    <div className="mt-4">
+                    <div className="w-full mt-4">
                         {mode === "scan" ? (
                             <>
                                 <ReceiptBarcodeScanner onDetected={(text) => setCode(text)} />
@@ -121,10 +122,9 @@ const TumblerCertificate = () => {
                     />
                 </div>
 
-                {/* 제출 */}
-                <CustomCommonButton
-                    onClick={handleSubmit}
-                    children="인증" />
+                <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
+                    <CustomCommonButton onClick={handleSubmit} children="인증" />
+                </div>
             </div>
         </div>
     );

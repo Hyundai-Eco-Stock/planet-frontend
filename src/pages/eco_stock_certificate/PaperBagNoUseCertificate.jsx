@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 
@@ -9,8 +9,16 @@ import ReceiptBarcodeFromImage from "@/components/barcode/ReceiptBarcodeFromImag
 
 // API (종이백 미사용 인증)
 import { certificatePaperBagNoUse } from "@/api/eco_stock_certificate/ecoStockCertificate.api";
+import { useOutletContext } from "react-router-dom";
 
 const PaperBagNoUseCertificate = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("종이백 미사용 인증");
+    }, [setTitle]);
+
     const [code, setCode] = useState("");
     const [mode, setMode] = useState("scan");
 
@@ -53,18 +61,14 @@ const PaperBagNoUseCertificate = () => {
     };
 
     return (
-        <div className="text-center">
-            <div className="text-2xl mt-10 mb-10">종이백 미사용 인증 페이지</div>
-
-            <div className="flex flex-col gap-6 items-center">
-                {/* 바코드 입력 방식 선택 */}
-                <div className="w-full max-w-md">
-                    <div className="mb-3 text-left text-sm font-medium">영수증 바코드 입력 방식</div>
-                    <div className="w-full inline-flex rounded-lg border overflow-hidden">
+        <div className="max-w-xl w-full pt-2 text-center">
+            <div className="space-y-6">
+                <div>
+                    <div className="w-full flex rounded-lg border overflow-hidden">
                         <button
                             type="button"
                             onClick={() => setMode("scan")}
-                            className={`flex-1 px-4 py-2 text-sm ${mode === "scan" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm ${mode === "scan" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             카메라 스캔
@@ -72,7 +76,7 @@ const PaperBagNoUseCertificate = () => {
                         <button
                             type="button"
                             onClick={() => setMode("upload")}
-                            className={`flex-1 px-4 py-2 text-sm border-l ${mode === "upload" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm border-l ${mode === "upload" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             이미지 업로드
@@ -80,7 +84,7 @@ const PaperBagNoUseCertificate = () => {
                         <button
                             type="button"
                             onClick={() => setMode("personal")}
-                            className={`flex-1 px-4 py-2 text-sm border-l ${mode === "personal" ? "bg-gray-900 text-white" : "bg-white"
+                            className={`flex-1 px-4 py-3 text-sm border-l ${mode === "personal" ? "bg-gray-900 text-white" : "bg-white"
                                 }`}
                         >
                             직접 입력
@@ -111,7 +115,9 @@ const PaperBagNoUseCertificate = () => {
                     />
                 </div>
 
-                <CustomCommonButton onClick={handleSubmit}>인증</CustomCommonButton>
+                <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
+                    <CustomCommonButton onClick={handleSubmit}>인증</CustomCommonButton>
+                </div>
             </div>
         </div>
     );
