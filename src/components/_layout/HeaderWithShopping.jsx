@@ -90,7 +90,7 @@ const HeaderWithShopping = () => {
                         <span className="sr-only">장바구니</span>
 
                         {totalCartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                            <span className="absolute -top-0.5 -right-0.5 bg-emerald-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                                 {totalCartCount > 99 ? "99+" : totalCartCount}
                             </span>
                         )}
