@@ -14,3 +14,8 @@ export const fetchCarHistories = async () => {
 	const response = await apiClient.get('/cars/access');
 	return response.data;
 }
+
+export const fetchCarHistoriesByCarNumber = async (carNumber) => {
+	const response = await apiClient.get('/cars/access', { params: { carNumber } });
+	return response.data;
+}
