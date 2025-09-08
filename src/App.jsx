@@ -12,6 +12,7 @@ import LayoutBack from '@/components/_layout/LayoutBack' // 헤더 + 푸터
 import LayoutBackOnly from '@/components/_layout/LayoutBackOnly' // 헤더만
 import LayoutLogoOnly from '@/components/_layout/LayoutLogoOnly' // 헤더만
 import LayoutLogoAndClose from '@/components/_layout/LayoutLogoAndClose' // 헤더만
+import LayoutLogoAndSetting from '@/components/_layout/LayoutLogoAndSetting' // 헤더만
 import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터만
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
 import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
@@ -49,7 +50,7 @@ import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 
 // 에코스톡 인증
-import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
+// import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
 import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
@@ -128,14 +129,18 @@ function App() {
 
 			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutLogoAndFooter />}>
-				<Route path="/my-page/main" element={<MyPageMain />} />
 				<Route path="/raffle" element={<RaffleListPage />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
 			</Route>
 
+			{/* 로고 + 설정 */}
+			<Route element={<LayoutLogoAndSetting />}>
+				<Route path="/my-page/main" element={<MyPageMain />} />
+			</Route>
+
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutBack />}>
-				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
+				{/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더만) */}
