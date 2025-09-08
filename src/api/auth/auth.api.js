@@ -7,7 +7,7 @@ export const regenerateAccessToken = async () => {
 
 export const localLogin = async (email, password) => {
 	const response = await apiClient.post('/auth/login', { email, password });
-	return response;
+	return response.data;
 }
 
 /**
@@ -26,8 +26,9 @@ export const signUpByKakao = async ({
 	birth,
 	address,
 	detailAddress,
+	zipCode,
 }) => {
-	const signUpData = { email, name, password, sex, birth, address, detailAddress, };
+	const signUpData = { email, name, password, sex, birth, address, detailAddress, zipCode, };
 
 	const multipartForm = new FormData();
 	multipartForm.append(
@@ -92,21 +93,21 @@ export const signUpByLocal = async ({
  * - 클라이언트: 상태(Zustand 등) 초기화는 호출부에서 처리
  */
 export const logout = async () => {
-	const res = await apiClient.post("/auth/logout");
-	return res.status;
+	const response = await apiClient.post("/auth/logout");
+	return response.status;
 };
 
 export const postPasswordChangeMail = async ({ email }) => {
-	const res = await apiClient.post("/auth/password-change-mail", { email });
-	return res.status;
+	const response = await apiClient.post("/auth/password-change-mail", { email });
+	return rresponsees.status;
 };
 
 export const validatePasswordChangeToken = async ({ token }) => {
-	const res = await apiClient.post("/auth/password-change-token/valid", { token });
-	return res.status;
+	const response = await apiClient.post("/auth/password-change-token/valid", { token });
+	return response.status;
 };
 
 export const changePassword = async ({ token, password }) => {
-	const res = await apiClient.post("/auth/change-password", { token, password });
-	return res.status;
+	const response = await apiClient.post("/auth/change-password", { token, password });
+	return response.status;
 };

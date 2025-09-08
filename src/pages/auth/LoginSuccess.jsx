@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from '@/store/authStore';
 import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
 
-export default function LoginSuccess() {
+const LoginSuccess = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { requestToPermitPushNotification } = useNotifications();
@@ -15,25 +15,33 @@ export default function LoginSuccess() {
     const email = queryParams.get("email");
     const name = queryParams.get("name");
     const profileUrl = queryParams.get("profileUrl");
+    const signUpStatus = queryParams.get("signUpStatus") === "true";
+    const role = queryParams.get("role");
 
     useEffect(() => {
-        if (accessToken && email && name) {
-            console.log(`accessToken: ${accessToken}`)
-
-            // Zustand에 저장
+        if (accessToken && email && name && role) {
+            // 저장
             useAuthStore.getState().setLoginStatus(true);
-            useAuthStore.getState().setAccessToken(accessToken);
+            useAuthStore.getState().setSignUpStatus(signUpStatus);
+            useAuthStore.getState().setProfile(profileUrl);
             useAuthStore.getState().setEmail(email);
             useAuthStore.getState().setName(name);
-            useAuthStore.getState().setProfile(profileUrl);
-            
+            useAuthStore.getState().setAccessToken(accessToken);
+            useAuthStore.getState().setRole(role);
+            // 푸시 알림 허용 요청
             requestToPermitPushNotification();
-
             // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/login/success");
-
-            // 뒤로 가기 눌러도 다시 성공 페이지로 안 돌아옴
-            navigate("/my-page/main", { replace: true });
+            // signUpStatus에 따라 페이지 이동
+            if (signUpStatus) {
+                if (role === 'ADMIN') {
+                    navigate("/admin/home", { replace: true }); // 뒤로 가기 눌러도 다시 성공 페이지로 안 돌아옴
+                } else if (role === 'USER') {
+                    navigate("/my-page/main", { replace: true }); // 뒤로 가기 눌러도 다시 성공 페이지로 안 돌아옴
+                }
+            } else {
+                navigate("/signup/oauth", { replace: true });
+            }
         }
     }, [accessToken, navigate]);
 
@@ -45,3 +53,5 @@ export default function LoginSuccess() {
         </div>
     );
 }
+
+export default LoginSuccess;
