@@ -7,16 +7,16 @@ import RaffleCard from "@/components/raffle/RaffleCard";
 import useAuthStore from "@/store/authStore";
 
 const RaffleListPage = () => {
-  const [raffleList, setRaffleList] = useState([]); // []로 시작
+  const [raffleList, setRaffleList] = useState([]);
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // 문자열로 단순화
+  const [error, setError] = useState("");
   const { loginStatus } = useAuthStore.getState();
   const navigate = useNavigate();
 
   const handleButtonClick = useCallback(
     (item, e) => {
-      e.stopPropagation(); // 카드 클릭 막기
+      e.stopPropagation();
       navigate(`/raffle/detail/${item.raffleId}`, {
         state: {
           personalStockInfoList,
@@ -34,7 +34,6 @@ const RaffleListPage = () => {
         setLoading(true);
         setError("");
 
-        // 래플 목록은 항상 가져오고, 개인 스톡 정보는 로그인 시에만 가져옴
         const raffleResponse = await getRaffleList();
         setRaffleList(raffleResponse || []);
 
@@ -42,7 +41,7 @@ const RaffleListPage = () => {
           const stockResponse = await getMemberStockInfoAll();
           setPersonalStockInfoList(stockResponse || []);
         } else {
-          setPersonalStockInfoList([]); // 미로그인 시 빈 배열
+          setPersonalStockInfoList([]);
         }
       } catch (err) {
         console.error("데이터 조회 실패:", err);
@@ -53,33 +52,49 @@ const RaffleListPage = () => {
     };
 
     fetchData();
-  }, [loginStatus]); // loginStatus를 의존성으로 추가
+  }, [loginStatus]);
 
-  if (loading) return <div>불러오는 중...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="text-gray-500">불러오는 중...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="text-red-500">{error}</div>
+    </div>
+  );
+
   if (raffleList.length === 0) {
-    return <div>현재 래플 중인 데이터가 없습니다</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="text-gray-400 text-center">
+          <div className="text-lg mb-2">진행중인 래플이 없습니다</div>
+          <div className="text-sm">새로운 래플을 기다려주세요</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <main className="flex-1 px-4 py-6">
+    <div className="min-h-screen bg-white">
+      <main className="pb-20">
         {/* 상단 헤더 */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg">🎁</span>
-            </div>
-            <h1 className="text-3xl font-bold text-green-600">래플 이벤트</h1>
+        <div className="px-4 pt-6 pb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">래플 응모하기</h2>
+            <p className="text-sm text-gray-500">
+              진행중 {raffleList.filter(r => !r.winnerName).length}개
+            </p>
           </div>
-          <p className="text-gray-600 text-lg">
-            ✨ 친환경 제품을 무료로 받아보세요! ✨
-          </p>
-          <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mt-3"></div>
         </div>
+        
+        {/* 구분선 */}
+        <div className="-mx-4 border-b border-gray-200"></div>
 
         {/* 래플 목록 */}
-        <div className="grid grid-cols-1 gap-6">
+        <div className="-mx-4 space-y-6">
           {raffleList.map((item) => (
             <RaffleCard
               key={item.raffleId}

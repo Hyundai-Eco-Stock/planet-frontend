@@ -264,8 +264,13 @@ const Home = () => {
                         <div>
                           <div className="text-gray-400 line-through text-sm">{currency(r.price)}원</div>
                           {r.ecoStockName && (
-                            <div className="text-eco font-semibold text-lg">
-                              {r.ecoStockName} {r.ecoStockAmount || 1}개
+                            <div className="inline-flex items-center gap-1 mt-2">
+                              <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                {r.ecoStockName}
+                              </span>
+                              <span className="text-sm text-gray-600 font-medium">
+                                스톡 {r.ecoStockAmount || 1}개 필요
+                              </span>
                             </div>
                           )}
                         </div>

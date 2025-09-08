@@ -15,8 +15,8 @@ const CountdownTimer = ({ endDate, large = false }) => {
   if (Object.keys(timeLeft).length === 0) {
     return (
       <div className="flex items-center justify-center gap-2">
-        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-        <span className={`text-red-600 font-bold ${large ? 'text-4xl' : 'text-sm'}`}>마감</span>
+        <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
+        <span className={`text-gray-600 font-bold ${large ? 'text-4xl' : 'text-sm'}`}>마감</span>
       </div>
     );
   }
@@ -44,7 +44,7 @@ const CountdownTimer = ({ endDate, large = false }) => {
             </div>
             <div className="text-2xl md:text-4xl text-gray-400">:</div>
             <div className="text-center">
-              <div className="text-2xl md:text-4xl font-bold text-green-600 animate-pulse">{String(timeLeft.seconds).padStart(2, '0')}</div>
+              <div className="text-2xl md:text-4xl font-bold text-emerald-600 animate-pulse">{String(timeLeft.seconds).padStart(2, '0')}</div>
               <div className="text-xs md:text-sm text-gray-600">초</div>
             </div>
           </div>
@@ -55,8 +55,8 @@ const CountdownTimer = ({ endDate, large = false }) => {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full animate-pulse"></div>
-      <span className="text-orange-600 font-bold text-sm">
+      <div className="w-3 h-3 bg-emerald-600 rounded-full animate-pulse"></div>
+      <span className="text-emerald-600 font-bold text-sm">
         {timeLeft.days}일 {String(timeLeft.hours).padStart(2, '0')}:
         {String(timeLeft.minutes).padStart(2, '0')}:
         {String(timeLeft.seconds).padStart(2, '0')}
