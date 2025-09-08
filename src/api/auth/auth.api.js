@@ -67,8 +67,9 @@ export const signUpByLocal = async ({
 	birth,
 	address,
 	detailAddress,
+	zipCode,
 }) => {
-	const signUpData = { email, name, password, sex, birth, address, detailAddress, };
+	const signUpData = { email, name, password, sex, birth, address, detailAddress, zipCode, };
 
 	const multipartForm = new FormData();
 	multipartForm.append(
@@ -99,7 +100,7 @@ export const logout = async () => {
 
 export const postPasswordChangeMail = async ({ email }) => {
 	const response = await apiClient.post("/auth/password-change-mail", { email });
-	return rresponsees.status;
+	return response.status;
 };
 
 export const validatePasswordChangeToken = async ({ token }) => {

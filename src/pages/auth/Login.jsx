@@ -26,14 +26,18 @@ const Login = () => {
         e.preventDefault();
         localLogin(id, pw)
             .then(({ accessToken, email, name, profileUrl, role }) => {
-                console.log(accessToken, email, name, profileUrl, role)
+                console.log(accessToken, email, name, profileUrl, role);
+                
                 useAuthStore.getState().setLoginStatus(true);
+                useAuthStore.getState().setSignUpStatus(true);
                 useAuthStore.getState().setAccessToken(accessToken);
                 useAuthStore.getState().setEmail(email);
                 useAuthStore.getState().setName(name);
                 useAuthStore.getState().setProfile(profileUrl);
                 useAuthStore.getState().setRole(role);
+
                 requestToPermitPushNotification();
+
                 if (role == "ADMIN") navigate("/admin/home");
                 else navigate("/my-page/main");
             }).catch((error) => {
