@@ -36,9 +36,8 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                 )}
 
                 {/* 1개 한정 배지 */}
-                <div className={`absolute top-3 right-3 text-white px-2 py-1 rounded text-xs font-medium ${
-                    hasWinner || isExpired ? 'bg-gray-500' : 'bg-gray-800'
-                }`}>
+                <div className={`absolute top-3 right-3 text-white px-2 py-1 rounded text-xs font-medium ${hasWinner || isExpired ? 'bg-gray-500' : 'bg-gray-800'
+                    }`}>
                     1개 한정
                 </div>
 
@@ -76,9 +75,8 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
             <div className="px-6 py-4">
                 {/* 상품명과 로그인 필요 배지 */}
                 <div className="flex items-start justify-between mb-2">
-                    <h3 className={`text-lg font-bold leading-tight flex-1 ${
-                        hasWinner || isExpired ? 'text-gray-500' : 'text-gray-900'
-                    }`}>
+                    <h3 className={`text-lg font-bold leading-tight flex-1 ${hasWinner || isExpired ? 'text-gray-500' : 'text-gray-900'
+                        }`}>
                         {item.productName}
                     </h3>
 
@@ -135,11 +133,10 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                 {/* 응모 버튼 */}
                 <button
                     onClick={onButtonClick}
-                    className={`w-full py-3 rounded-md font-bold text-base transition-all duration-200 ${
-                        hasWinner || isExpired
+                    className={`w-full py-3 rounded-lg font-bold text-base transition-all duration-200 ${hasWinner || isExpired
                             ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : 'bg-black text-white hover:bg-gray-800'
-                    }`}
+                            : 'bg-gradient-to-r from-gray-900 to-black text-white hover:from-black hover:to-gray-900'
+                        }`}
                     disabled={hasWinner || isExpired}
                 >
                     {hasWinner ? '종료' : isExpired ? '마감' : '응모하러 가기'}

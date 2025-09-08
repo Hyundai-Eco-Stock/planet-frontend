@@ -52,7 +52,7 @@ const ModernStockSelector = ({ stockList, selectedStockId, onStockChange, disabl
             
             {/* 드롭다운 목록 */}
             {isOpen && !disabled && (
-                <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="absolute z-20 w-full mt-1 bg-white rounded-lg shadow-lg overflow-hidden">
                     {stockList && stockList.length > 0 ? (
                         stockList.map((stock) => (
                             <button
