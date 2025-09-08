@@ -200,7 +200,7 @@ const Home = () => {
       </section>
 
       {/* 래플 섹션 */}
-      <section className="mt-6 mb-6 px-4">
+      <section className="mt-6 mb-6">
         <div className="text-center mb-6">
           <h3 className="text-xl font-bold text-gray-900">래플 응모하기</h3>
           <span className="text-sm text-gray-500">{raffles.filter(r => !r.winnerName).length}개 진행중</span>
@@ -229,6 +229,8 @@ const Home = () => {
                         이미지 없음
                       </div>
                     )}
+
+                    <div className="border-t border-gray-200"></div>
 
                     {/* 당첨자 오버레이 */}
                     {r.winnerName && (
