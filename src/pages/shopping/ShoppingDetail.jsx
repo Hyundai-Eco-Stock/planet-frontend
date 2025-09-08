@@ -212,19 +212,13 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
             </div>
           </div>
 
-      {/* 탭 바 */}
-      <div className="mt-6 border-b grid grid-cols-2 w-full">
+      {/* 탭 바 (리뷰 탭 제거) */}
+      <div className="mt-6 border-b grid grid-cols-1 w-full">
         <button
           className={`w-full pb-3 text-base text-center ${activeTab === 'info' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'}`}
           onClick={() => setActiveTab('info')}
         >
           상품 정보
-        </button>
-        <button
-          className={`w-full pb-3 text-base text-center ${activeTab === 'review' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('review')}
-        >
-          리뷰
         </button>
       </div>
 
@@ -278,9 +272,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
           )}
         </section>
       )}
-      {activeTab === 'review' && (
-        <section className="mt-4" />
-      )}
+      {false && <section className="mt-4" />} {/* 리뷰 탭 제거 */}
       </div>
     </div>
       {/* 유사상품추천 */}
