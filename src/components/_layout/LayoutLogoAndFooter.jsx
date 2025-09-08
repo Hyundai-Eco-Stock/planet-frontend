@@ -14,6 +14,8 @@ const LayoutLogoAndFooter = () => {
                 return '에코스톡';
             case '/my-page/main':
                 return '마이페이지';
+            case '/eco-stock/certificate':
+                return '오프라인 활동 인증'
             default:
                 return '';
         }

@@ -131,11 +131,11 @@ function App() {
 				<Route path="/my-page/main" element={<MyPageMain />} />
 				<Route path="/raffle" element={<RaffleListPage />} />
 				<Route path="/eco-stock/main" element={<EcoStockMain />} />
+				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더 + 푸터) */}
 			<Route element={<LayoutBack />}>
-				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
 			</Route>
 
 			{/* 뒤로가기 Layout (헤더만) */}
