@@ -6,11 +6,15 @@ import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 
 import useAuthStore from "@/store/authStore";
 
+
+
 /**
  * @components 헤더에 사용하는 프로필 이미지
  * @returns 
  */
 const ProfileButton = () => {
+
+    const size = '80px';
 
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
@@ -23,12 +27,13 @@ const ProfileButton = () => {
                     src={profile}
                     alt={name ?? email ?? "profile"}
                     referrerPolicy="no-referrer"
-                    className="w-[80px] h-[80px] rounded-full object-cover"
+                    className={`w-[${size}] h-[${size}] rounded-full object-cover`}
                 />
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
-                    style={{ fontSize: "50px", width: "50px", height: "50px", color: "#ccc" }}
+                    style={{ color: "#ccc" }}
+                    className={`w-[${size}] h-[${size}]`}
                 />
             )}
         </>
@@ -41,6 +46,8 @@ const ProfileButton = () => {
  */
 const AdminProfileButton = () => {
 
+    const size = '50px';
+
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
     const profile = useAuthStore((s) => s.profile);
@@ -52,12 +59,13 @@ const AdminProfileButton = () => {
                     src={profile}
                     alt={name ?? email ?? "profile"}
                     referrerPolicy="no-referrer"
-                    className="w-[50px] h-[50px] rounded-full object-cover"
+                    className={`w-[${size}] h-[${size}] rounded-full object-cover`}
                 />
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
-                    style={{ fontSize: "50px", width: "50px", height: "50px", color: "#ccc" }}
+                    style={{ color: "#ccc" }}
+                    className={`w-[${size}] h-[${size}]`}
                 />
             )}
         </>
