@@ -28,7 +28,36 @@ const ProfileButton = () => {
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
-                    style={{ fontSize: "50px",  width: "50px", height: "50px", color: "#ccc" }}
+                    style={{ fontSize: "50px", width: "50px", height: "50px", color: "#ccc" }}
+                />
+            )}
+        </>
+    );
+}
+
+/**
+ * @components 헤더에 사용하는 프로필 이미지
+ * @returns 
+ */
+const AdminProfileButton = () => {
+
+    const name = useAuthStore((s) => s.name);
+    const email = useAuthStore((s) => s.email);
+    const profile = useAuthStore((s) => s.profile);
+
+    return (
+        <>
+            {profile ? (
+                <img
+                    src={profile}
+                    alt={name ?? email ?? "profile"}
+                    referrerPolicy="no-referrer"
+                    className="w-[50px] h-[50px] rounded-full object-cover"
+                />
+            ) : (
+                <FontAwesomeIcon
+                    icon={faUserCircle}
+                    style={{ fontSize: "50px", width: "50px", height: "50px", color: "#ccc" }}
                 />
             )}
         </>
@@ -36,4 +65,4 @@ const ProfileButton = () => {
 }
 
 
-export default ProfileButton;
+export { ProfileButton, AdminProfileButton };
