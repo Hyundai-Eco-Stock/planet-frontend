@@ -3,7 +3,7 @@ import useAuthStore from "@/store/authStore";
 import Swal from "sweetalert2";
 
 const PrivateRoute = () => {
-    const { loginStatus } = useAuthStore();  // 예시: store에 isLoggedIn 값 있다고 가정
+    const { loginStatus } = useAuthStore();
     const location = useLocation();
     const context = useOutletContext();
 
@@ -22,7 +22,7 @@ const PrivateRoute = () => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    return <Outlet context={context} />; // 인증된 경우 children routes 렌더링
+    return <Outlet context={context} />;
 };
 
 export default PrivateRoute;
