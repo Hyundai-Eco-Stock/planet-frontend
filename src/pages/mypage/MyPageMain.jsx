@@ -54,8 +54,8 @@ const MyPageMain = () => {
     ]
 
     return (
-        <div className="w-full pt-3 px-2">
-            <div className="w-full flex justify-between items-center pb-[1rem] border-gray-200">
+        <div className="pt-3 px-2 pb-24">
+            <div className="flex justify-between items-center pb-[1rem] border-gray-200">
                 {/* 왼쪽 */}
                 <div className="flex items-center gap-3">
                     <ProfileButton />
