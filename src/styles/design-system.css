@@ -1,0 +1,374 @@
+/* =================================
+   에코스톡 디자인 시스템
+   프리미엄 뉴트럴 테마
+================================= */
+
+/* 컬러 시스템 */
+:root {
+    /* === 메인 컬러 === */
+    --cream-50: #FEFEFE;        /* 순백 배경 */
+    --cream-100: #F7F5F3;       /* 카드 배경 */
+    --warm-gray-100: #F3F4F6;   /* 연한 배경 */
+    --warm-gray-200: #E5E7EB;   /* 테두리, 구분선 */
+    --warm-gray-300: #D1D5DB;   /* 비활성 요소 */
+    --warm-gray-400: #9CA3AF;   /* 서브 텍스트 */
+    --warm-gray-500: #6B7280;   /* 보조 텍스트 */
+    --warm-gray-600: #4B5563;   /* 일반 텍스트 */
+    --warm-gray-700: #374151;   /* 메인 텍스트 */
+    --warm-gray-900: #111827;   /* 강조 텍스트 */
+    
+    /* === 포인트 컬러 === */
+    --gold-50: #FFFBEB;         /* 연한 골드 배경 */
+    --gold-100: #FEF3C7;       /* 골드 배경 */
+    --gold-500: #F59E0B;       /* 메인 골드 (할인, 특가) */
+    --gold-600: #D97706;       /* 진한 골드 (호버) */
+    --gold-700: #B45309;       /* 더 진한 골드 */
+    
+    /* === 에코 컬러 === */
+    --eco-50: #ECFDF5;         /* 연한 에코 배경 */
+    --eco-100: #D1FAE5;       /* 에코 배경 */
+    --eco-emerald: #10B981;    /* 에코딜 포인트만 */
+    --eco-600: #059669;        /* 진한 에코 */
+    
+    /* === 기능 컬러 === */
+    --blue-500: #3B82F6;       /* 링크, 정보 */
+    --blue-600: #2563EB;       /* 진한 블루 */
+    --orange-500: #F97316;     /* CTA, 중요 알림 */
+    --orange-600: #EA580C;     /* 진한 오렌지 */
+    --red-500: #EF4444;        /* 에러, 삭제 */
+    --red-600: #DC2626;        /* 진한 빨강 */
+    --green-500: #22C55E;      /* 성공 */
+    --green-600: #16A34A;      /* 진한 초록 */
+    
+    /* === 그림자 시스템 === */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+    
+    /* === 간격 시스템 === */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-2xl: 24px;
+    --spacing-3xl: 32px;
+    
+    /* === 테두리 반경 === */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    
+    /* === 폰트 크기 === */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 30px;
+    
+    /* === 폰트 굵기 === */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+}
+
+/* =================================
+   기본 컴포넌트 스타일
+================================= */
+
+/* 버튼 기본 스타일 */
+.btn-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-semibold);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    text-decoration: none;
+}
+
+.btn-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-base:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+/* 버튼 크기 */
+.btn-sm {
+    padding: 8px 16px;
+    font-size: var(--text-sm);
+    min-height: 36px;
+}
+
+.btn-md {
+    padding: 12px 24px;
+    font-size: var(--text-base);
+    min-height: 44px;
+}
+
+.btn-lg {
+    padding: 16px 32px;
+    font-size: var(--text-lg);
+    min-height: 52px;
+}
+
+/* 버튼 변형 */
+.btn-primary {
+    background-color: var(--gold-500);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--gold-600);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background-color: var(--warm-gray-200);
+    color: var(--warm-gray-700);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--warm-gray-300);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--warm-gray-600);
+    border: 1px solid var(--warm-gray-300);
+}
+
+.btn-outline:hover:not(:disabled) {
+    background-color: var(--warm-gray-100);
+    border-color: var(--warm-gray-400);
+}
+
+.btn-eco {
+    background-color: var(--eco-emerald);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-eco:hover:not(:disabled) {
+    background-color: var(--eco-600);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger {
+    background-color: var(--red-500);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: var(--red-600);
+}
+
+/* =================================
+   카드 컴포넌트
+================================= */
+
+.card-base {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--warm-gray-200);
+    transition: all 0.2s ease;
+}
+
+.card-base:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--warm-gray-300);
+}
+
+.card-product {
+    padding: var(--spacing-lg);
+    background-color: white;
+}
+
+.card-order {
+    padding: var(--spacing-xl);
+    background-color: var(--cream-100);
+}
+
+.card-stats {
+    padding: var(--spacing-2xl);
+    background: linear-gradient(135deg, white 0%, var(--cream-100) 100%);
+}
+
+/* =================================
+   배지 컴포넌트
+================================= */
+
+.badge-base {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    line-height: 1;
+}
+
+.badge-eco {
+    background-color: var(--eco-100);
+    color: var(--eco-600);
+    border: 1px solid var(--eco-emerald);
+}
+
+.badge-discount {
+    background-color: var(--gold-100);
+    color: var(--gold-700);
+    border: 1px solid var(--gold-500);
+}
+
+.badge-status {
+    background-color: var(--warm-gray-100);
+    color: var(--warm-gray-600);
+    border: 1px solid var(--warm-gray-300);
+}
+
+.badge-success {
+    background-color: #DCFCE7;
+    color: var(--green-600);
+    border: 1px solid var(--green-500);
+}
+
+.badge-warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid var(--gold-500);
+}
+
+.badge-error {
+    background-color: #FEE2E2;
+    color: var(--red-600);
+    border: 1px solid var(--red-500);
+}
+
+/* =================================
+   입력 요소
+================================= */
+
+.input-base {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--warm-gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.input-base:focus {
+    outline: none;
+    border-color: var(--gold-500);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.input-base::placeholder {
+    color: var(--warm-gray-400);
+}
+
+.input-error {
+    border-color: var(--red-500);
+}
+
+.input-error:focus {
+    border-color: var(--red-500);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* =================================
+   유틸리티 클래스
+================================= */
+
+/* 텍스트 컬러 */
+.text-primary { color: var(--warm-gray-900); }
+.text-secondary { color: var(--warm-gray-600); }
+.text-muted { color: var(--warm-gray-400); }
+.text-gold { color: var(--gold-600); }
+.text-eco { color: var(--eco-emerald); }
+.text-error { color: var(--red-500); }
+.text-success { color: var(--green-500); }
+
+/* 배경 컬러 */
+.bg-cream { background-color: var(--cream-100); }
+.bg-gold-light { background-color: var(--gold-50); }
+.bg-eco-light { background-color: var(--eco-50); }
+
+/* 그림자 */
+.shadow-xs { box-shadow: var(--shadow-xs); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+
+/* 호버 효과 */
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.animate-pulse-scale {
+    animation: pulse 2s infinite;
+}
+
+/* 레이아웃 */
+.container-padding {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+}
+
+.section-spacing {
+    margin-top: var(--spacing-3xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+/* 반응형 */
+@media (min-width: 768px) {
+    .container-padding {
+        padding-left: var(--spacing-2xl);
+        padding-right: var(--spacing-2xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .container-padding {
+        padding-left: var(--spacing-3xl);
+        padding-right: var(--spacing-3xl);
+    }
+}

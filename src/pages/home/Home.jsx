@@ -5,14 +5,41 @@ import { getRaffleList } from "../../api/raffleList/raffleList.api";
 
 // 배너 클릭 시 이동할 상품 ID는 주석의 숫자를 반영했습니다.
 const DUMMY_BANNERS = [
-  { src: "https://image.thehyundai.com/static/8/5/9/26/A1/40A1269580_0_600.jpg", productId: 168 },
-  { src: "https://image.thehyundai.com/static/7/2/6/37/A1/40A1376277_0_600.jpg", productId: 82 },
-  { src: "https://image.thehyundai.com/static/1/8/1/67/A1/40A1671811_0_600.jpg", productId: 140 },
-  { src: "https://image.thehyundai.com/static/5/9/3/56/A1/60A1563953_0_600.jpg", productId: 45 },
+  {
+    src: "https://image.thehyundai.com/static/7/2/6/37/A1/40A1376277_0_600.jpg",
+    productId: 82,
+    title: "자연 그대로의 헤어케어",
+    subtitle: "수퍼 밀크 컨디셔닝 프라이머",
+    brand: "LUSH",
+    tag: "천연 성분"
+  },
+  {
+    src: "https://image.thehyundai.com/static/1/6/0/40/A1/40A1400613_0_600.jpg",
+    productId: 28,
+    title: "지속가능한 뷰티",
+    subtitle: "서멀 프로텍션 스프레이",
+    brand: "BALMAIN",
+    tag: "열 보호"
+  },
+  {
+    src: "https://image.thehyundai.com/static/1/7/3/94/A0/40A0943713_0_600.jpg",
+    productId: 93,
+    title: "자연에서 찾은 빛",
+    subtitle: "루미네센트 아이섀도 NEW",
+    brand: "CHANTECAILLE",
+    tag: "지속가능"
+  },
+  {
+    src: "https://image.thehyundai.com/static/3/6/5/56/A1/40A1565634_0_600.jpg",
+    productId: 112,
+    title: "깨끗한 클렌징의 시작",
+    subtitle: "토탈 클렌징 오일",
+    brand: "CLARINS",
+    tag: "친환경"
+  },
 ];
 
 const currency = (n) => (n == null ? "" : Number(n).toLocaleString());
-
 
 const Home = () => {
   const navigate = useNavigate();
@@ -77,10 +104,11 @@ const Home = () => {
   }, [total]);
 
   return (
-    <div className="max-w-xl pb-20">
+    <div className="max-w-xl pb-4">
+
       {/* 상단 배너 캐러셀 */}
-      <section className="pt-3">
-        <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
+      <section className="relative -mx-4">
+        <div className="relative overflow-hidden">
           <div
             ref={bannerRef}
             className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide"
@@ -90,184 +118,245 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => navigate(`/shopping/detail?productId=${encodeURIComponent(b.productId)}`)}
-                  className="block w-full cursor-pointer"
+                  className="block w-full cursor-pointer group"
                   aria-label={`배너 ${idx + 1} 이동`}
                 >
-                  <div className="relative w-full pt-[100%]">
-                    <img src={b.src} alt={`banner-${idx}`} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="relative w-full h-[530px]">
+                    <img
+                      src={b.src}
+                      alt={`banner-${idx}`}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                    {/* 텍스트 오버레이 - 하단 중앙 */}
+                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white text-center">
+                      <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs mb-3">
+                        {b.tag}
+                      </div>
+                      <h2 className="text-2xl font-bold mb-2">{b.title}</h2>
+                      <p className="text-lg font-bold mb-1">{b.subtitle}</p>
+                      <p className="text-sm opacity-90">{b.brand}</p>
+                    </div>
                   </div>
                 </button>
               </div>
             ))}
           </div>
-          {/* 인디케이터 */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/30 px-2 py-1 rounded-full">
-            {DUMMY_BANNERS.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all ${
-                  slide === i ? "w-4 bg-white" : "w-2 bg-white/70"
-                  }`}
-              />
-            ))}
+
+          {/* 숫자 인디케이터 */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
+            <span className="text-white text-sm font-medium">{slide + 1}</span>
+            <span className="text-white/60 text-sm">|</span>
+            <span className="text-white/60 text-sm">{total}</span>
           </div>
         </div>
       </section>
 
-      {/* 카테고리 그리드 */}
-      <section className="mt-4">
-        <div className="grid grid-cols-4 gap-y-4">
-          {categories.map((c, idx) => {
-            const to = c?.categoryId != null ? `/shopping/main?category=${encodeURIComponent(c.categoryId)}` : "/shopping/main";
-            return (
-              <Link
-                key={`${c.categoryId ?? "all"}-${idx}`}
-                to={to}
-                className="flex flex-col items-center"
-                aria-label={`${c.name}로 이동`}
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 hover:ring-2 hover:ring-gray-200 transition">
-                  {c?.imageUrl ? (
-                    <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xs text-gray-400">전체</span>
-                  )}
-                </div>
-                <div className="mt-1 text-xs text-gray-800">{c.name}</div>
-              </Link>
-            );
-          })}
+      {/* 카테고리 가로 스크롤 */}
+      <section className="py-4">
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex gap-4 px-4 pb-2">
+            {categories.map((c, idx) => {
+              const isAll = !c?.categoryId;
+              const to = c?.categoryId != null ? `/shopping/main?category=${encodeURIComponent(c.categoryId)}` : "/shopping/main";
+              return (
+                <Link
+                  key={`${c.categoryId ?? "all"}-${idx}`}
+                  to={to}
+                  className="flex-shrink-0 flex flex-col items-center group"
+                  aria-label={`${c.name}로 이동`}
+                >
+                  <div className={`w-16 h-16 rounded-full overflow-hidden border transition-all duration-200 ${isAll
+                    ? 'bg-black text-white border-black'
+                    : 'bg-gray-100 border-gray-200 group-hover:border-gray-300'
+                    }`}>
+                    {isAll ? (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-lg font-bold">All</span>
+                      </div>
+                    ) : c?.imageUrl ? (
+                      <img
+                        src={c.imageUrl}
+                        alt={c.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-800 text-center whitespace-nowrap">
+                    {c.name}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* 래플 섹션 */}
-      <section className="mt-6 mb-6">
-        <div className="rounded-xl bg-gray-50 border border-gray-200 p-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold">래플 응모하기</h3>
-            <span className="text-xs text-gray-500">{raffles.length}개 진행중</span>
-          </div>
-
-<div className="space-y-3">
-  {raffles.map((r) => {
-    const content = (
-      <article className={`flex gap-3 rounded-lg border border-gray-200 p-3 transition-colors ${
-        r.winnerName
-          ? 'bg-gray-100 opacity-70 cursor-default'
-          : 'bg-white hover:bg-gray-50 cursor-pointer'
-      }`}>
-        <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-          {r.imageUrl ? (
-            <img
-              src={r.imageUrl}
-              alt={r.productName}
-              className={`w-full h-full object-cover ${r.winnerName ? 'grayscale' : ''}`}
-            />
-          ) : null}
+      <section className="mt-6 mb-6 px-4">
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold text-gray-900">래플 응모하기</h3>
+          <span className="text-sm text-gray-500">{raffles.filter(r => !r.winnerName).length}개 진행중</span>
         </div>
-        <div className="flex-1 min-w-0">
-          {r.winnerName ? (
-            // 당첨자가 있을 때 - 간단하게 당첨자만 표시
-            <>
-              <div className="text-sm font-medium text-gray-500 truncate mb-2">
-                {r.productName}
-              </div>
-              <div className="flex items-center gap-2">
-                <div>
-                  <div className="text-xs text-yellow-600 font-medium">당첨자</div>
-                  <div className="text-sm font-semibold text-gray-700">{r.winnerName}</div>
-                </div>
-              </div>
-            </>
+
+        <div className="space-y-6">
+          {raffles.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-400">진행중인 래플이 없습니다</p>
+            </div>
           ) : (
-            // 당첨자가 없을 때 - 기존 상세 정보 표시
-            <>
-              <div className="text-sm font-medium truncate">
-                {r.productName}
-              </div>
-              <div className="text-xs text-gray-500 mt-0.5">
-                {r.brandName} · {currency(r.price)}원
-              </div>
-              <div className="text-xs text-gray-600 mt-1">
-                {r.startDate} ~ {r.endDate}
-              </div>
-              <div className="text-[11px] text-emerald-700 mt-1">
-                {r.ecoStockName} {r.ecoStockAmount ? `+${currency(r.ecoStockAmount)} 적립` : ""}
-                {typeof r.participateCount === "number" ? ` · ${currency(r.participateCount)}명 참여` : ""}
-              </div>
-            </>
-          )}
-        </div>
-      </article>
-    );
+            raffles.map((r) => {
+              const content = (
+                <article className={`border border-gray-200 rounded-2xl overflow-hidden ${r.winnerName ? 'opacity-70 cursor-default' : 'cursor-pointer'
+                  }`}>
+                  {/* 큰 이미지 */}
+                  <div className="relative h-[380px] bg-gray-100">
+                    {r.imageUrl ? (
+                      <img
+                        src={r.imageUrl}
+                        alt={r.productName}
+                        className={`w-full h-full object-cover ${r.winnerName ? 'grayscale' : ''}`}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        이미지 없음
+                      </div>
+                    )}
 
-    // 당첨자가 있으면 일반 div로, 없으면 Link로 렌더링
-    return r.winnerName ? (
-      <div key={r.raffleId} className="block">
-        {content}
-      </div>
-    ) : (
-      <Link
-        key={r.raffleId}
-        to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
-        state={{
-          winnerName: r.winnerName
-        }}
-        className="block"
-        aria-label={`${r.productName} 상세 보기`}
-      >
-        {content}
-      </Link>
-    );
-  })}
-</div>
+                    {/* 당첨자 오버레이 */}
+                    {r.winnerName && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <div className="text-xl font-bold mb-2">당첨자 발표</div>
+                          <div className="text-lg">{r.winnerName}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 정보 섹션 */}
+                  <div className="p-4 bg-white">
+                    <div className="space-y-2">
+                      {/* 상품명과 참여자 */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 leading-tight">{r.productName}</h3>
+                          <div className="text-sm text-gray-500 mt-1">{r.brandName}</div>
+                        </div>
+                        {typeof r.participateCount === "number" && (
+                          <span className="text-sm text-gray-500 ml-3 whitespace-nowrap">
+                            {currency(r.participateCount)}명 참여
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 가격과 에코스톡 */}
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <div className="text-gray-400 line-through text-sm">{currency(r.price)}원</div>
+                          {r.ecoStockName && (
+                            <div className="text-green-600 font-semibold text-lg">
+                              {r.ecoStockName} {r.ecoStockAmount || 1}개
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 기간 */}
+                      <div className="text-sm text-gray-500">{r.startDate} ~ {r.endDate}</div>
+                    </div>
+                  </div>
+                </article>
+              );
+
+              return r.winnerName ? (
+                <div key={r.raffleId}>
+                  {content}
+                </div>
+              ) : (
+                <Link
+                  key={r.raffleId}
+                  to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
+                  state={{ winnerName: r.winnerName }}
+                  aria-label={`${r.productName} 상세 보기`}
+                >
+                  {content}
+                </Link>
+              );
+            })
+          )}
         </div>
       </section>
 
-      {/* Scrim for FAB open */}
+      {/* 스크림 */}
       <div
         onClick={() => setFabOpen(false)}
-        className={`fixed inset-0 z-[60] bg-black/30 transition-opacity duration-200 ${fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-[60] bg-black/30 transition-opacity duration-200 ${fabOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
       />
 
-
-      {/* Floating Actions: 푸드딜 / 래플 (컨테이너는 pointer-events-none로 두고, 실제 요소에만 auto) */}
+      {/* 개선된 플로팅 버튼 */}
       <div className="fixed right-4 bottom-28 z-[70] pointer-events-none">
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-3">
+
+          {/* 메뉴 옵션들 */}
           <div
-            className={`flex flex-col items-end gap-2 transition-all duration-200 ${
-              fabOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none"
-            }`}
+            className={`flex flex-col items-end gap-2 transition-all duration-300 ${fabOpen
+                ? "opacity-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 translate-y-2 pointer-events-none"
+              }`}
           >
-            <div className="rounded-2xl bg-white border border-gray-200 shadow-xl overflow-hidden">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-w-[120px]">
               <Link
                 to="/eco-deal/main"
-                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setFabOpen(false)}
               >
-                푸드딜
+                <span className="text-base">🥗</span>
+                <span>푸드딜</span>
               </Link>
+              <div className="border-t border-gray-100"></div>
               <Link
                 to="/raffle"
-                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setFabOpen(false)}
               >
-                래플
+                <span className="text-base">🎁</span>
+                <span>래플</span>
               </Link>
+              <div className="border-t border-gray-100"></div>
               <Link
                 to="/phti/main"
-                className="block px-5 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 min-w-[140px] text-center"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setFabOpen(false)}
               >
-                PHTI
+                <span className="text-base">🧠</span>
+                <span>PHTI</span>
               </Link>
             </div>
           </div>
+
+          {/* 메인 FAB 버튼 */}
           <button
             type="button"
             aria-label={fabOpen ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={fabOpen}
             onClick={() => setFabOpen((v) => !v)}
-            className="pointer-events-auto w-14 h-14 rounded-full bg-gray-900 text-white text-3xl leading-none flex items-center justify-center shadow-lg active:scale-95 transition"
+            className={`pointer-events-auto w-12 h-12 rounded-full shadow-lg transition-all duration-200 flex items-center justify-center ${fabOpen
+                ? "bg-gray-600 rotate-45"
+                : "bg-gray-800 hover:bg-gray-700"
+              }`}
           >
-            {fabOpen ? "×" : "+"}
+            <span className="text-white text-xl font-light">
+              +
+            </span>
           </button>
         </div>
       </div>
