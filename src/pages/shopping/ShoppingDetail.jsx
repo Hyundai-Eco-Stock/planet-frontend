@@ -78,6 +78,11 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
     setQty(Math.max(MIN_QTY, Math.min(MAX_QTY, n)));
   };
 
+  // 다른 상품으로 이동 시 수량 초기화
+  useEffect(() => {
+    setQty(1);
+  }, [productId]);
+
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
     if (!main) return;
