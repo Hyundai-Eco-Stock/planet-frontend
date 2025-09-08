@@ -167,10 +167,14 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   if (!main) return <div className="p-4">데이터가 없습니다.</div>;
 
   return (
-    <main className="max-w-screen-md mx-auto">
+    <main className="shopping-detail max-w-screen-md mx-auto">
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Hide number input spinners (scoped to ShoppingDetail) */
+        .shopping-detail input[type='number']::-webkit-outer-spin-button,
+        .shopping-detail input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .shopping-detail input[type='number'] { -moz-appearance: textfield; }
       `}</style>
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
@@ -205,7 +209,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
                   max="99"
                   value={qty}
                   onChange={onQtyChange}
-                  className="w-14 text-center outline-none py-1.5"
+                  className="w-14 text-center outline-none py-1.5 appearance-none"
                 />
                 <button type="button" onClick={inc} aria-label="수량 증가" className="px-3 py-1.5 hover:bg-gray-50">+</button>
               </div>
