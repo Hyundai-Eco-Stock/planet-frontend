@@ -34,7 +34,8 @@ const Login = () => {
                 useAuthStore.getState().setProfile(profileUrl);
                 useAuthStore.getState().setRole(role);
                 requestToPermitPushNotification();
-                navigate("/my-page/main");
+                if (role == "ADMIN") navigate("/admin/home");
+                else navigate("/my-page/main");
             }).catch((error) => {
                 console.error("Login failed:", error);
                 Swal.fire({
