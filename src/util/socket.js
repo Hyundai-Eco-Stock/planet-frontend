@@ -1,294 +1,305 @@
-// wsClient.js (Pure JS)
 import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import useAuthStore from "@/store/authStore";
 
-// ===== 설정 =====
-const WS_PATH = "/ws";
-const BASE_URL = import.meta.env.VITE_APP_BASE_API_BASE_URL; // e.g. https://api.greendealshop.store
-const MAX_RETRIES = 6;
-const BASE_DELAY = 1000;
-const MAX_DELAY = 15000;
-const HEARTBEAT_OUT = 20000;
-const HEARTBEAT_IN = 20000;
-const PAUSE_WHEN_HIDDEN = true;
-
 let client = null;
+let subscriptions = new Map();
+let subscriptionCallbacks = new Map(); // 재구독을 위한 콜백 저장
 let isConnecting = false;
 let connectionPromise = null;
-let retry = 0;
-let reconnectTimer = null;
-let hardStop = false; // auth/policy error 시 재시도 중단
 
-// 재구독을 위해 "stockId -> subscription" / "stockId -> callback" 저장
-const subscriptionObjs = new Map();
-const subscriptionCallbacks = new Map();
-
-function clearReconnectTimer() {
-  if (reconnectTimer) {
-    window.clearTimeout(reconnectTimer);
-    reconnectTimer = null;
-  }
-}
-
-function shouldPause() {
-  return PAUSE_WHEN_HIDDEN && typeof document !== "undefined" && document.hidden;
-}
-
-function computeDelay() {
-  const jitter = Math.random() * 300;
-  return Math.min(BASE_DELAY * Math.pow(2, retry) + jitter, MAX_DELAY);
-}
-
-function stopAll() {
-  hardStop = true;
-  clearReconnectTimer();
-  isConnecting = false;
-  connectionPromise = null;
-  retry = 0;
-}
-
-function hasAuthLikeError(body) {
-  if (!body) return false;
-  const b = String(body).toLowerCase();
-  return (
-    b.includes("unauthorized") ||
-    b.includes("forbidden") ||
-    b.includes("401") ||
-    b.includes("403") ||
-    b.includes("token") ||
-    b.includes("expired")
-  );
-}
-
-function isAuthErrorLike(err) {
-  const msg = String(err?.message || err).toLowerCase();
-  return (
-    msg.includes("unauthorized") ||
-    msg.includes("forbidden") ||
-    msg.includes("401") ||
-    msg.includes("403")
-  );
-}
-
-function scheduleReconnect(reject) {
-  isConnecting = false;
-  connectionPromise = null;
-
-  if (hardStop || shouldPause()) return;
-  if (retry >= MAX_RETRIES) {
-    reject(new Error("Max WS reconnect attempts exceeded"));
-    return;
-  }
-  retry += 1;
-  const delay = computeDelay();
-  clearReconnectTimer();
-  reconnectTimer = window.setTimeout(() => {
-    if (!hardStop) connect().catch(() => {});
-  }, delay);
-}
-
-function resubscribeAll() {
-  const entries = Array.from(subscriptionCallbacks.entries());
-  entries.forEach(([stockId, cb]) => {
-    try {
-      const old = subscriptionObjs.get(stockId);
-      if (old) old.unsubscribe();
-    } catch (_) {}
-    try {
-      const sub = client.subscribe(`/topic/stock${stockId}/update`, (msg) => {
-        try { cb(stockId, msg.body); } catch (e) {
-          console.error(`stock ${stockId} handler error:`, e);
-        }
-      });
-      subscriptionObjs.set(stockId, sub);
-    } catch (e) {
-      console.error(`resubscribe ${stockId} failed:`, e);
-    }
-  });
-}
-
-// ===== 공개 API =====
+let retryCount = 0;
+const MAX_RETRIES = 5;
+const BASE_DELAY = 1000;
+const HEARTBEAT_INTERVAL = 20000;
 
 // 소켓 연결
 export const connect = () => {
-  if (client?.connected) return Promise.resolve(client);
-  if (isConnecting && connectionPromise) return connectionPromise;
-  if (hardStop) return Promise.reject(new Error("WS reconnect disabled (auth/policy error)"));
-
-  isConnecting = true;
-
-  connectionPromise = new Promise((resolve, reject) => {
-    const { accessToken } = useAuthStore.getState();
-
-    const socketFactory = () => new SockJS(`${BASE_URL}${WS_PATH}`);
-    const c = Stomp.over(socketFactory);
-    client = c;
-
-    // 로그 스팸 방지
-    c.debug = () => {};
-
-    // 하트비트
-    c.heartbeatOutgoing = HEARTBEAT_OUT;
-    c.heartbeatIncoming = HEARTBEAT_IN;
-
-    const connectHeaders = {};
-    if (accessToken) {
-      connectHeaders.Authorization = `Bearer ${accessToken}`;
+    if (client?.connected) {
+        console.log("✅ 이미 WebSocket 연결됨");
+        return Promise.resolve(client);
+    }
+    
+    if (isConnecting && connectionPromise) {
+        console.log("⏳ WebSocket 연결 시도 중...");
+        return connectionPromise;
     }
 
-    c.onConnect = () => {
-      isConnecting = false;
-      retry = 0;
-      clearReconnectTimer();
-      hardStop = false;
-      resubscribeAll();
-      resolve(c);
-    };
+    console.log("🔄 WebSocket 연결 시작");
+    isConnecting = true;
 
-    c.onStompError = (frame) => {
-      console.error("STOMP error:", frame?.headers?.message, frame?.body);
-      if (hasAuthLikeError(frame?.body)) {
-        stopAll();
-        reject(new Error("Authorization failed at STOMP level"));
-        disconnect();
-      } else {
-        scheduleReconnect(reject);
-      }
-    };
+    connectionPromise = new Promise((resolve, reject) => {
+        try {
+            // SockJS 팩토리 함수 생성 (자동 재연결을 위해)
+            const socketFactory = () => new SockJS(import.meta.env.VITE_APP_BASE_API_BASE_URL + '/ws');
+            client = Stomp.over(socketFactory);
 
-    c.onWebSocketError = (evt) => {
-      // 네트워크/프록시 에러 로그(참고용)
-      console.error("WS socket error:", evt?.message || evt);
-    };
+            // 디버그 로그 설정
+            client.debug = (msg) => {
+                console.log("[STOMP]", msg);
+            };
 
-    c.onWebSocketClose = (evt) => {
-      // 정책 위반(1008) / 커스텀 코드(4001/4003) → 재시도 중단
-      if ([1008, 4001, 4003].includes(evt.code)) {
-        console.error("WS closed with policy/auth error:", evt.code, evt.reason);
-        stopAll();
-        reject(new Error(`WS closed: ${evt.code} ${evt.reason}`));
-        disconnect();
-        return;
-      }
-      scheduleReconnect(reject);
-    };
+            // 하트비트 설정
+            client.heartbeatOutgoing = HEARTBEAT_INTERVAL;
+            client.heartbeatIncoming = HEARTBEAT_INTERVAL;
 
-    try {
-      // ✅ onConnect 자리에 "빈 함수"를 반드시 넣어 성공 프레임이 onError로 안 떨어지게 함
-      c.connect(
-        connectHeaders,
-        () => {}, // onConnect (실제 처리는 c.onConnect에서)
-        (error) => {
-          // old signature용 에러 콜백
-          console.error("connect error:", error);
-          if (isAuthErrorLike(error)) {
-            stopAll();
-            reject(new Error("Authorization failed at connect"));
-            disconnect();
-          } else {
-            scheduleReconnect(reject);
-          }
+            // 인증 헤더 준비
+            const { accessToken } = useAuthStore.getState();
+            const connectHeaders = {};
+            if (accessToken) {
+                connectHeaders.Authorization = `Bearer ${accessToken}`;
+                console.log("🔑 인증 토큰 포함하여 연결");
+            }
+
+            // 연결 시도
+            client.connect(
+                connectHeaders,
+                (frame) => {
+                    console.log("✅ WebSocket 연결 성공:", frame);
+                    isConnecting = false;
+                    retryCount = 0;
+                    
+                    // 기존 구독들 재구독
+                    resubscribeAll();
+                    
+                    resolve(client);
+                },
+                (error) => {
+                    console.error("❌ WebSocket 연결 실패:", error);
+                    handleConnectionError(error, reject);
+                }
+            );
+
+            // WebSocket 이벤트 핸들러
+            client.onWebSocketError = (event) => {
+                console.error("🔴 WebSocket 오류:", event);
+            };
+
+            client.onWebSocketClose = (event) => {
+                console.warn("🔌 WebSocket 연결 종료:", event.code, event.reason);
+                
+                // 정상 종료가 아닌 경우 재연결 시도
+                if (event.code !== 1000) {
+                    scheduleReconnect();
+                }
+            };
+
+            client.onStompError = (frame) => {
+                console.error("🔴 STOMP 오류:", frame);
+                handleConnectionError(new Error(frame.headers?.message || "STOMP Error"), reject);
+            };
+
+        } catch (error) {
+            console.error("❌ WebSocket 초기화 실패:", error);
+            handleConnectionError(error, reject);
         }
-      );
-    } catch (err) {
-      console.error("WS init error:", err);
-      scheduleReconnect(reject);
-    }
-  });
+    });
 
-  return connectionPromise;
+    return connectionPromise;
+};
+
+// 연결 오류 처리
+const handleConnectionError = (error, reject) => {
+    isConnecting = false;
+    client = null;
+    connectionPromise = null;
+    
+    // 인증 오류인지 확인
+    const errorMsg = String(error?.message || error).toLowerCase();
+    if (errorMsg.includes('unauthorized') || errorMsg.includes('401') || errorMsg.includes('403')) {
+        console.error("🚫 인증 오류 - 재연결 중단");
+        reject(new Error("인증 실패"));
+        return;
+    }
+    
+    scheduleReconnect();
+    reject(error);
+};
+
+// 재연결 스케줄링
+const scheduleReconnect = () => {
+    if (retryCount >= MAX_RETRIES) {
+        console.error("🚨 최대 재연결 시도 횟수 초과");
+        return;
+    }
+    
+    retryCount++;
+    const delay = Math.min(BASE_DELAY * Math.pow(2, retryCount), 30000);
+    console.log(`⏳ ${delay / 1000}초 후 재연결 시도 (${retryCount}/${MAX_RETRIES})`);
+    
+    setTimeout(() => {
+        if (!client?.connected) {
+            connect().catch(console.error);
+        }
+    }, delay);
+};
+
+// 기존 구독들 재구독
+const resubscribeAll = () => {
+    if (subscriptionCallbacks.size === 0) return;
+    
+    console.log("🔄 기존 구독들 재구독 중...");
+    
+    // 기존 구독 객체들 정리
+    subscriptions.clear();
+    
+    // 저장된 콜백으로 재구독
+    subscriptionCallbacks.forEach((callback, stockId) => {
+        try {
+            const subscription = client.subscribe(`/topic/stock${stockId}/update`, (message) => {
+                try {
+                    console.log(`📈 주식 ${stockId} 데이터 수신:`, message.body);
+                    callback(stockId, message.body);
+                } catch (error) {
+                    console.error(`주식 ${stockId} 처리 오류:`, error);
+                }
+            });
+            
+            subscriptions.set(stockId, subscription);
+            console.log(`📩 주식 ${stockId} 재구독 완료`);
+        } catch (error) {
+            console.error(`주식 ${stockId} 재구독 실패:`, error);
+        }
+    });
 };
 
 // 연결 해제
 export const disconnect = () => {
-  unsubscribeAll();
-  clearReconnectTimer();
-  try {
-    if (client?.deactivate) client.deactivate();
-    else if (client?.disconnect) client.disconnect();
-  } catch (_) {}
-  client = null;
-  isConnecting = false;
-  connectionPromise = null;
+    console.log("🔌 WebSocket 연결 해제 시작");
+    
+    unsubscribeAll();
+    
+    if (client?.connected) {
+        try {
+            client.disconnect(() => {
+                console.log("✅ WebSocket 연결 해제 완료");
+            });
+        } catch (error) {
+            console.error("연결 해제 오류:", error);
+        }
+    }
+    
+    client = null;
+    isConnecting = false;
+    connectionPromise = null;
+    retryCount = 0;
+    subscriptionCallbacks.clear();
 };
 
 // 주식 데이터 구독
 export const subscribeToStock = async (stockId, onStockUpdate) => {
-  // 콜백 저장(재구독용)
-  subscriptionCallbacks.set(stockId, onStockUpdate);
+    console.log(`📩 주식 ${stockId} 구독 요청`);
+    
+    // 콜백 저장 (재구독용)
+    subscriptionCallbacks.set(stockId, onStockUpdate);
+    
+    // 이미 구독 중인지 확인
+    if (isStockSubscribed(stockId)) {
+        console.log(`✅ 주식 ${stockId} 이미 구독 중`);
+        return subscriptions.get(stockId);
+    }
 
-  // 이미 구독 중이면 반환
-  if (subscriptionObjs.has(stockId)) return subscriptionObjs.get(stockId);
+    try {
+        await connect();
+        
+        if (!client?.connected) {
+            throw new Error("WebSocket 연결 실패");
+        }
 
-  try {
-    await connect();
-    if (!client?.connected) throw new Error("WebSocket not connected");
+        const subscription = client.subscribe(`/topic/stock${stockId}/update`, (message) => {
+            try {
+                console.log(`📈 주식 ${stockId} 데이터 수신:`, message.body);
+                onStockUpdate(stockId, message.body);
+            } catch (error) {
+                console.error(`주식 ${stockId} 처리 오류:`, error);
+            }
+        });
 
-    const sub = client.subscribe(`/topic/stock${stockId}/update`, (msg) => {
-      try {
-        onStockUpdate(stockId, msg.body);
-      } catch (e) {
-        console.error(`stock ${stockId} handler error:`, e);
-      }
-    });
+        subscriptions.set(stockId, subscription);
+        console.log(`✅ 주식 ${stockId} 구독 완료`);
+        
+        return subscription;
 
-    subscriptionObjs.set(stockId, sub);
-    return sub;
-  } catch (err) {
-    console.error(`subscribe ${stockId} failed:`, err);
-    return null;
-  }
+    } catch (error) {
+        console.error(`❌ 주식 ${stockId} 구독 실패:`, error);
+        // 실패 시 콜백 제거
+        subscriptionCallbacks.delete(stockId);
+        throw error;
+    }
 };
 
 // 특정 주식 구독 해제
 export const unsubscribeStock = (stockId) => {
-  const sub = subscriptionObjs.get(stockId);
-  if (sub) {
-    try { sub.unsubscribe(); } catch (_) {}
-    subscriptionObjs.delete(stockId);
-  }
-  // 콜백까지 지우고 싶으면 아래 라인 주석 해제
-  // subscriptionCallbacks.delete(stockId);
+    console.log(`🔌 주식 ${stockId} 구독 해제`);
+    
+    const subscription = subscriptions.get(stockId);
+    if (subscription) {
+        try {
+            subscription.unsubscribe();
+            subscriptions.delete(stockId);
+            subscriptionCallbacks.delete(stockId);
+            console.log(`✅ 주식 ${stockId} 구독 해제 완료`);
+        } catch (error) {
+            console.error(`❌ 주식 ${stockId} 구독 해제 실패:`, error);
+        }
+    }
 };
 
 // 모든 구독 해제
 export const unsubscribeAll = () => {
-  subscriptionObjs.forEach((sub) => {
-    try { sub.unsubscribe(); } catch (_) {}
-  });
-  subscriptionObjs.clear();
+    console.log("🔌 모든 구독 해제");
+    
+    subscriptions.forEach((subscription, stockId) => {
+        try {
+            subscription.unsubscribe();
+        } catch (error) {
+            console.error(`주식 ${stockId} 구독 해제 실패:`, error);
+        }
+    });
+    
+    subscriptions.clear();
+    // 재구독용 콜백은 유지 (연결이 끊어졌다가 다시 연결될 때 자동 재구독)
 };
 
 // 구독 상태 확인
-export const isStockSubscribed = (stockId) => subscriptionObjs.has(stockId);
+export const isStockSubscribed = (stockId) => subscriptions.has(stockId);
 
 // 구독 목록
-export const getSubscribedStocks = () => Array.from(subscriptionObjs.keys());
+export const getSubscribedStocks = () => Array.from(subscriptions.keys());
 
 // 연결 상태 확인
-export const isConnected = () => !!client?.connected;
+export const isConnected = () => client?.connected || false;
 
-// 연결 대기
-export const waitForConnection = async () => {
-  if (isConnected()) return true;
-  try {
-    await connect();
-    return true;
-  } catch (_) {
-    return false;
-  }
+// 연결 대기 함수
+export const waitForConnection = async (timeout = 10000) => {
+    if (client?.connected) {
+        return true;
+    }
+
+    try {
+        const connectPromise = connect();
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Connection timeout')), timeout)
+        );
+        
+        await Promise.race([connectPromise, timeoutPromise]);
+        return client?.connected || false;
+    } catch (error) {
+        console.error("연결 대기 실패:", error);
+        return false;
+    }
 };
 
-// 탭 비활성 시 재시도 일시정지/복귀
-if (PAUSE_WHEN_HIDDEN && typeof document !== "undefined") {
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      clearReconnectTimer();
-    } else {
-      if (!isConnected() && !isConnecting && !hardStop) {
-        connect().catch(() => {});
-      }
-    }
-  });
+// 브라우저 가시성 변경 시 처리
+if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            console.log("📱 브라우저 숨김 - 재연결 일시정지");
+        } else {
+            console.log("📱 브라우저 활성화 - 연결 상태 확인");
+            if (!isConnected() && !isConnecting) {
+                connect().catch(console.error);
+            }
+        }
+    });
 }
