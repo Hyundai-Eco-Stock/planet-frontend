@@ -67,10 +67,16 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   }, [rows, main]);
 
   // 수량 상태 및 핸들러
+  const MAX_QTY = 100;
+  const MIN_QTY = 1;
   const [qty, setQty] = useState(1);
-  const inc = () => setQty((q) => q+1);
-  const dec = () => setQty((q) => q-1);
-  const onQtyChange = (e) => setQty(parseInt(e.target.value, 10));
+  const inc = () => setQty((q) => Math.min(MAX_QTY, (Number(q) || 0) + 1));
+  const dec = () => setQty((q) => Math.max(MIN_QTY, (Number(q) || 0) - 1));
+  const onQtyChange = (e) => {
+    const n = parseInt(e.target.value, 10);
+    if (isNaN(n)) return setQty(MIN_QTY);
+    setQty(Math.max(MIN_QTY, Math.min(MAX_QTY, n)));
+  };
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
@@ -206,7 +212,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
                 <input
                   type="number"
                   min="1"
-                  max="99"
+                  max="100"
                   value={qty}
                   onChange={onQtyChange}
                   className="w-14 text-center outline-none py-1.5 appearance-none"
