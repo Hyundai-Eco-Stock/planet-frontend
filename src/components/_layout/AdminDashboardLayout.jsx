@@ -1,10 +1,10 @@
-import AdminHeader from "@/components/_layout/AdminHeader";
+import AdminDashboardHeader from "@/components/_layout/AdminDashboardHeader";
 import { Outlet } from "react-router-dom";
 
 const AdminLayout = () => {
     return (
         <div className="min-h-screen flex flex-col">
-            <AdminHeader />
+            <AdminDashboardHeader />
             <main className="px-4 overflow-y-auto scrollbar-hide flex-1">
                 <Outlet />
             </main>

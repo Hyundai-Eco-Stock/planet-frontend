@@ -16,7 +16,7 @@ import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터�
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
 import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
 import LayoutShoppingWithBack from '@/components/_layout/LayoutShoppingWithBack'
-import AdminLayout from '@/components/_layout/AdminLayout' // 관리자
+import AdminDashboardLayout from '@/components/_layout/AdminDashboardLayout' // 관리자
 
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
@@ -86,7 +86,7 @@ import PhtiMain from '@/pages/phti/PhtiMain'
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
 
 // 관리자
-import Test from '@/pages/admin/Test'
+import AdminHome from '@/pages/admin/AdminHome'
 import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
@@ -173,7 +173,6 @@ function App() {
 
 			{/* 로고만 있는 Layout (헤더만) */}
 			<Route element={<LayoutLogoOnly />}>
-				
 			</Route>
 
 			{/* 푸터만 있는 Layout (푸터만) */}
@@ -187,7 +186,6 @@ function App() {
 				<Route path="/payments/fail" element={<PaymentFailPage />} />
 				<Route path="/login/success" element={<LoginSuccess />} />
 				<Route path="/change/password" element={<ChangePassword />} />
-				<Route path="/admin/test" element={<Test />} />
 				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 				<Route path="/qr" element={<QrResolvePage />} />
 			</Route>
@@ -201,8 +199,8 @@ function App() {
 			</Route>
 
 			{/* ADMIN */}
-			<Route element={<AdminLayout />}>
-				<Route path="/admin/test" element={<Test />} />
+			<Route element={<AdminDashboardLayout />}>
+				<Route path="/admin/home" element={<AdminHome />} />
 				<Route path="/admin/dashboard/main" element={<EcoStockDashboard />} />
 				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
 				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />

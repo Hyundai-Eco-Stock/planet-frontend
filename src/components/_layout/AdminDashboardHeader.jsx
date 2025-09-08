@@ -18,7 +18,7 @@ const AdminHeader = () => {
                     inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
                     aria-label="planet 홈으로 이동"
                 >
-                    planet 관리자 대시보드
+                    planet 관리자
                 </Link>
 
                 <nav className="flex gap-6">
