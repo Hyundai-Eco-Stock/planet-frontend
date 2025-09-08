@@ -18,10 +18,11 @@ export default function ShoppingMain() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [detailProductId, setDetailProductId] = useState(null); // 상세 모달용
-
-  // URL 쿼리(category) 동기화용
+  // URL 쿼리(category, detail) 동기화용
   const [searchParams, setSearchParams] = useSearchParams();
+  // 상세 모달용: URL 쿼리로 스택처럼 관리
+  const detailParam = searchParams.get("detail");
+  const detailProductId = detailParam != null && detailParam !== "" ? Number(detailParam) : null;
 
   /* CategoryBar.jsx CategotySheet.jsx 데이터 맵핑 */
   const barCategories = useMemo(
@@ -163,16 +164,29 @@ export default function ShoppingMain() {
         items={items} 
         loading={loading} 
         error={error}
-        onOpenDetail={(pid) => setDetailProductId(pid)}
+        onOpenDetail={(pid) => {
+          setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set("detail", String(pid)); // push history with new detail
+            return next;
+          });
+        }}
       />
 
       {detailProductId != null && (
         <div className="fixed inset-0 z-[60] bg-white flex flex-col">
-          <HeaderWithShoppingAndBack onBackClick={() => setDetailProductId(null)} />
+          {/* onBackClick 생략: 기본 navigate(-1)로 이전 상세 또는 닫기 */}
+          <HeaderWithShoppingAndBack />
           <main className="px-4 pb-24 overflow-y-auto scrollbar-hide flex-1">
             <ShoppingDetail
               productId={detailProductId}
-              onRequestNavigate={(pid) => setDetailProductId(pid)}
+              onRequestNavigate={(pid) => {
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set("detail", String(pid)); // push another detail into history
+                  return next;
+                });
+              }}
               isFullScreen
             />
           </main>
