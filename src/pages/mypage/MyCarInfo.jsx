@@ -142,45 +142,47 @@ const MyCarInfo = () => {
     }, [])
 
     return (
-        <div className="space-y-4 pb-24">
-            <div>
-                <label className="block mb-1 font-semibold">내 차량 번호</label>
-                <div className="flex gap-2">
-                    <CustomCommonInput
-                        value={carNumberLeft}
-                        readOnly={carInfoExist}
-                        maxLength={3}
-                        onChange={(e) => setCarNumberLeft(e.target.value)}
-                        placeholder="12"
-                    />
-                    <CustomCommonInput
-                        value={carNumberMiddle}
-                        readOnly={carInfoExist}
-                        maxLength={1}
-                        onChange={(e) => setCarNumberMiddle(e.target.value)}
-                        placeholder="가"
-                    />
-                    <CustomCommonInput
-                        value={carNumberRight}
-                        readOnly={carInfoExist}
-                        maxLength={4}
-                        onChange={(e) => setCarNumberRight(e.target.value)}
-                        placeholder="1234"
-                    />
+        <div className="max-w-xl w-full pt-8 text-center">
+            <div className="space-y-6">
+                {/* 차량 번호 입력 섹션 */}
+                <div className="w-full flex flex-col gap-1">
+                    <div className="px-2 text-start font-semibold">내 차량 번호</div>
+                    <div className="flex gap-2">
+                        <CustomCommonInput
+                            value={carNumberLeft}
+                            readOnly={carInfoExist}
+                            maxLength={3}
+                            onChange={(e) => setCarNumberLeft(e.target.value)}
+                            placeholder="12"
+                        />
+                        <CustomCommonInput
+                            value={carNumberMiddle}
+                            readOnly={carInfoExist}
+                            maxLength={1}
+                            onChange={(e) => setCarNumberMiddle(e.target.value)}
+                            placeholder="가"
+                        />
+                        <CustomCommonInput
+                            value={carNumberRight}
+                            readOnly={carInfoExist}
+                            maxLength={4}
+                            onChange={(e) => setCarNumberRight(e.target.value)}
+                            placeholder="1234"
+                        />
+                    </div>
                 </div>
-            </div>
-            {/* 입출차 기록 */}
-            {
-                carHistories.length > 0 && (
-                    <div className="mt-6">
-                        <h3 className="text-base font-semibold text-gray-700 mb-2">입/출차 기록</h3>
-                        <div className="divide-y divide-gray-200 border rounded-lg bg-white shadow">
+
+                {/* 입출차 기록 섹션 */}
+                {carHistories.length > 0 && (
+                    <div className="w-full">
+                        <div className="px-2 text-start font-semibold mb-4">입/출차 기록</div>
+                        <div className="divide-y divide-gray-200 border rounded-lg bg-white shadow max-h-80 overflow-y-auto">
                             {carHistories.map((h) => (
                                 <div
                                     key={h.carAccessHistoryId}
                                     className="px-4 py-3 flex items-center justify-between"
                                 >
-                                    <div>
+                                    <div className="text-left">
                                         <div className="text-sm font-medium text-gray-900">
                                             {new Date(h.createdAt).toLocaleString("ko-KR")}
                                         </div>
@@ -200,23 +202,23 @@ const MyCarInfo = () => {
                             ))}
                         </div>
                     </div>
-                )
-            }
-            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
-                {!carInfoExist ?
-                    <CustomCommonButton
-                        onClick={handleRegisterCarInfo}
-                    >
-                        차량 정보 등록
-                    </CustomCommonButton>
-                    :
-                    <CustomCommonButton
-                        onClick={handleDeleteCarInfo}
-                        className="bg-red-500"
-                    >
-                        차량 정보 삭제
-                    </CustomCommonButton>
-                }
+                )}
+
+                {/* 하단 고정 버튼 */}
+                <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
+                    {!carInfoExist ?
+                        <CustomCommonButton
+                            onClick={handleRegisterCarInfo}
+                            children="차량 정보 등록"
+                        />
+                        :
+                        <CustomCommonButton
+                            onClick={handleDeleteCarInfo}
+                            className="bg-red-500"
+                            children="차량 정보 삭제"
+                        />
+                    }
+                </div>
             </div>
         </div>
     );
