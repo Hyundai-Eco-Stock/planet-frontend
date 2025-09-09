@@ -1,19 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCog } from "@fortawesome/free-solid-svg-icons";
 
-/**
- * @param {*} title 제목
- */
-const HeaderWithLogoAndClose = ({ title = "", onClose }) => {
+const HeaderWithLogoAndSetting = ({ title = "" }) => {
     const navigate = useNavigate();
 
-    const onCloseClick = () => {
-        if (onClose) {
-            onClose();
-        } else {
-            navigate(-1); // 기본 동작: 뒤로가기
-        }
+    const onSettingClick = () => {
+        navigate("/my-page/settings"); // 원하는 설정 페이지 경로로 이동
     };
 
     return (
@@ -32,16 +25,16 @@ const HeaderWithLogoAndClose = ({ title = "", onClose }) => {
 
                 <h1 className="flex-2 font-bold text-xl">{title}</h1>
 
-                {/* 오른쪽: 닫기 버튼 */}
-                <div className="flex-1 flex items-center gap-5 justify-end">
+                {/* 오른쪽: 설정 + 닫기 버튼 */}
+                <div className="flex-1 flex items-center gap-3 justify-end">
                     <button
                         type="button"
-                        onClick={onCloseClick}
-                        aria-label="닫기"
+                        onClick={onSettingClick}
+                        aria-label="설정"
                         className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                     >
-                        <FontAwesomeIcon icon={faTimes} className="text-lg" />
-                        <span className="sr-only">닫기</span>
+                        <FontAwesomeIcon icon={faCog} className="text-lg" />
+                        <span className="sr-only">설정</span>
                     </button>
                 </div>
             </div>
@@ -49,4 +42,4 @@ const HeaderWithLogoAndClose = ({ title = "", onClose }) => {
     );
 };
 
-export default HeaderWithLogoAndClose;
+export default HeaderWithLogoAndSetting;

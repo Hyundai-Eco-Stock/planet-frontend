@@ -11,15 +11,7 @@ const CountdownTimer = ({ endDate, large = false }) => {
 
   const adjustedEndDate = getEndOfDay(endDate);
   const timeLeft = useCountdown(adjustedEndDate);
-
-  if (Object.keys(timeLeft).length === 0) {
-    return (
-      <div className="flex items-center justify-center gap-2">
-        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-        <span className={`text-red-600 font-bold ${large ? 'text-4xl' : 'text-sm'}`}>마감</span>
-      </div>
-    );
-  }
+  const isExpired = Object.keys(timeLeft).length === 0;
 
   if (large) {
     return (
@@ -27,24 +19,24 @@ const CountdownTimer = ({ endDate, large = false }) => {
         <div className="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
           <div className="flex items-center gap-2 md:gap-4">
             <div className="text-center">
-              <div className="text-2xl md:text-4xl font-bold text-gray-900">{timeLeft.days}</div>
+              <div className="text-2xl md:text-4xl font-bold text-gray-900">{isExpired ? 0 : timeLeft.days}</div>
               <div className="text-xs md:text-sm text-gray-600">일</div>
             </div>
             <div className="text-2xl md:text-4xl text-gray-400">:</div>
             <div className="text-center">
-              <div className="text-2xl md:text-4xl font-bold text-gray-900">{String(timeLeft.hours).padStart(2, '0')}</div>
+              <div className="text-2xl md:text-4xl font-bold text-gray-900">{isExpired ? '00' : String(timeLeft.hours).padStart(2, '0')}</div>
               <div className="text-xs md:text-sm text-gray-600">시간</div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
             <div className="text-center">
-              <div className="text-2xl md:text-4xl font-bold text-gray-900">{String(timeLeft.minutes).padStart(2, '0')}</div>
+              <div className="text-2xl md:text-4xl font-bold text-gray-900">{isExpired ? '00' : String(timeLeft.minutes).padStart(2, '0')}</div>
               <div className="text-xs md:text-sm text-gray-600">분</div>
             </div>
             <div className="text-2xl md:text-4xl text-gray-400">:</div>
             <div className="text-center">
-              <div className="text-2xl md:text-4xl font-bold text-green-600 animate-pulse">{String(timeLeft.seconds).padStart(2, '0')}</div>
+              <div className="text-2xl md:text-4xl font-bold text-emerald-600 animate-pulse">{isExpired ? '00' : String(timeLeft.seconds).padStart(2, '0')}</div>
               <div className="text-xs md:text-sm text-gray-600">초</div>
             </div>
           </div>
@@ -53,10 +45,22 @@ const CountdownTimer = ({ endDate, large = false }) => {
     );
   }
 
+  // 마감된 경우와 진행 중인 경우 모두 처리
+  if (isExpired) {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="w-5 h-5 bg-gray-400 rounded-full"></div>
+        <span className="text-gray-500 font-bold text-3xl">
+          00:00:00
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full animate-pulse"></div>
-      <span className="text-orange-600 font-bold text-sm">
+    <div className="flex items-center gap-4">
+      <div className="w-5 h-5 bg-emerald-600 rounded-full animate-pulse"></div>
+      <span className="text-emerald-600 font-bold text-3xl">
         {timeLeft.days}일 {String(timeLeft.hours).padStart(2, '0')}:
         {String(timeLeft.minutes).padStart(2, '0')}:
         {String(timeLeft.seconds).padStart(2, '0')}

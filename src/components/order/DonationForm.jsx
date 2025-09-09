@@ -32,10 +32,12 @@ const DonationForm = ({ recommendedAmount, onUpdate }) => {
   }
 
   const handleInputChange = (value) => {
-    setInputValue(value)
+    // 숫자가 아닌 문자는 모두 제거 (포인트 입력과 동일한 방식)
+    const numbersOnly = value.replace(/[^0-9]/g, '')
+    setInputValue(numbersOnly)
     
     // 숫자만 추출
-    const numericValue = parseInt(value.replace(/[^0-9]/g, '')) || 0
+    const numericValue = parseInt(numbersOnly) || 0
     const validAmount = Math.max(0, Math.min(numericValue, 10000))
     
     setDonationAmount(validAmount)
@@ -80,7 +82,20 @@ const DonationForm = ({ recommendedAmount, onUpdate }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-lg font-semibold mb-4">(선택) 2025 내 나무 갖기 기부 프로젝트</h2>
+      <h2 className="text-lg font-semibold mb-2">(선택) 2025 내 나무 갖기 기부 프로젝트</h2>
+      
+      {/* 기부 설명 추가 */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+        <div className="flex items-start">
+          <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="text-sm text-green-700">
+            <p className="font-medium mb-1">💚 포인트로도 기부 가능합니다!</p>
+            <p>보유 포인트나 현금으로 환경 보호에 참여하세요. 작은 기부가 큰 변화를 만듭니다.</p>
+          </div>
+        </div>
+      </div>
       
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -118,6 +133,8 @@ const DonationForm = ({ recommendedAmount, onUpdate }) => {
           <div className="flex-1 relative">
             <input
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}
               onFocus={handleInputFocus}
@@ -183,6 +200,7 @@ const DonationForm = ({ recommendedAmount, onUpdate }) => {
           <p>• 기부금은 2025 내 나무 갖기 기부 프로젝트 지원에 사용됩니다.</p>
           <p>• 기부 내역은 주문 완료 후 확인할 수 있습니다.</p>
           <p>• 최대 10,000원까지 기부 가능합니다.</p>
+          <p>• 포인트나 현금 모두 기부에 사용할 수 있습니다.</p>
         </div>
       </div>
     </div>

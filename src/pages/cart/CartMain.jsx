@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import useCartStore from '@/store/cartStore'
 import CartSection from '@/components/cart/CartSection'
 import EmptyCart from '@/components/cart/EmptyCart'
@@ -17,11 +17,19 @@ const CartMain = () => {
   const cartStore = useCartStore()
   const { deliveryCart, pickupCart } = cartStore
   
-  // 현재 선택된 탭
-  const [activeTab, setActiveTab] = useState('delivery')
+  const [sp, setSp] = useSearchParams()
+  const initialTab = sp.get('tab') === 'pickup' ? 'pickup' : 'delivery'
+  const [activeTab, setActiveTab] = useState(initialTab)
   
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
+
+  useEffect(() => {
+   const next = new URLSearchParams(sp)
+   next.set('tab', activeTab)
+   setSp(next, { replace: true }) // 히스토리 오염 방지
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, [activeTab])
   
   // 실시간 장바구니 상태 동기화
   useEffect(() => {
@@ -205,8 +213,8 @@ const CartMain = () => {
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
       
-      {/* 상단 탭 헤더 */}
-      <div className="flex border-b border-gray-200 bg-white sticky top-0 z-10">
+      {/* 상단 탭 헤더 - 헤더 아래에 고정 */}
+      <div className="flex border-b border-gray-200 bg-white sticky top-16 z-40 shadow-sm">
         <button 
           className={`flex-1 py-4 text-center font-medium transition-colors ${
             activeTab === 'delivery' 
@@ -229,7 +237,7 @@ const CartMain = () => {
         </button>
       </div>
       
-      {/* 장바구니 내용 영역 */}
+      {/* 장바구니 내용 영역 - 탭 헤더 높이만큼 상단 마진 추가 */}
       <div className="flex-1 pb-40">
         <CartSection 
           cartType={activeTab}

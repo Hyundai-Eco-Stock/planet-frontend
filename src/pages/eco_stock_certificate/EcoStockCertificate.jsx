@@ -1,45 +1,45 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { CustomCommonButton } from "../../components/_custom/CustomButtons";
-import { useEffect } from "react";
+// import { useNavigate, useOutletContext } from "react-router-dom";
+// import { CustomCommonButton } from "../../components/_custom/CustomButtons";
+// import { useEffect } from "react";
 
-const EcoStockCertificate = () => {
+// const EcoStockCertificate = () => {
 
-    const { setTitle } = useOutletContext();
+//     const { setTitle } = useOutletContext();
 
-    useEffect(() => {
-        setTitle("오프라인 활동 인증");
-    }, [setTitle]);
+//     useEffect(() => {
+//         setTitle("오프라인 활동 인증");
+//     }, [setTitle]);
 
 
-    const ecoStockCertificateList = [
-        { name: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
-        { name: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
-    ]
+//     const ecoStockCertificateList = [
+//         { name: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
+//         { name: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
+//     ]
 
-    return (
-        <div className="flex flex-col mt-6 gap-6">
-            {
-                ecoStockCertificateList.map((certificate) =>
-                    <Component key={certificate.name} {...certificate} />
-                )
-            }
-        </div>
-    );
-}
+//     return (
+//         <div className="flex flex-col mt-6 gap-6">
+//             {
+//                 ecoStockCertificateList.map((certificate) =>
+//                     <Component key={certificate.name} {...certificate} />
+//                 )
+//             }
+//         </div>
+//     );
+// }
 
-const Component = ({ name, path }) => {
+// const Component = ({ name, path }) => {
 
-    const navigate = useNavigate();
+//     const navigate = useNavigate();
 
-    const handleClick = () => {
-        navigate(path);
-    }
+//     const handleClick = () => {
+//         navigate(path);
+//     }
 
-    return (
-        <CustomCommonButton
-            onClick={handleClick}
-            children={name} />
-    )
-}
+//     return (
+//         <CustomCommonButton
+//             onClick={handleClick}
+//             children={name} />
+//     )
+// }
 
-export default EcoStockCertificate;
+// export default EcoStockCertificate;

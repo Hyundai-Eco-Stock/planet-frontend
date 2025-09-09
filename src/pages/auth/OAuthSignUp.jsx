@@ -1,29 +1,37 @@
+import "@/main.css"; // 전역 공통 유틸(@layer)
+
 import Swal from 'sweetalert2';
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import { SimpleSelect } from '@/components/_custom/CustomSelect';
+import CustomProfileImageInput from '@/components/_custom/CustomProfileImageInput';
 
-import useAuthStore from '@/store/authStore';
-import "@/main.css"; // 전역 공통 유틸(@layer) 사용
 import { signUpByKakao } from "@/api/auth/auth.api";
-import CustomProfileImageInput from '../../components/_custom/CustomProfileImageInput';
 import DaumPostcode from '@/components/address/DaumPostcode';
+import useAuthStore from '@/store/authStore';
+import { fetchMemberProfile } from "@/api/member/member.api";
+
+// 비밀번호 규칙 정규식
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
 
 const OAuthSignUp = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("회원가입");
+    }, [setTitle]);
+
     const location = useLocation();
     const navigate = useNavigate();
 
-    const queryParams = new URLSearchParams(location.search);
-    const accessToken = queryParams.get("accessToken");
-    const email = queryParams.get("email") || "";
-    const nameParam = queryParams.get("name") || "";
-    const profileUrlParam = queryParams.get("profileUrl") || "";
-
-    const [name, setName] = useState(nameParam);
-    const [profileUrl, setProfileUrl] = useState(profileUrlParam);
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [profileUrl, setProfileUrl] = useState("");
     const [profileFile, setProfileFile] = useState(null);
     const [password, setPassword] = useState("");
     const [passwordCheck, setPasswordCheck] = useState("");
@@ -40,24 +48,14 @@ const OAuthSignUp = () => {
 
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-    const yearRef = useRef(null);
-    const monthRef = useRef(null);
-    const dayRef = useRef(null);
-
-    // ✅ 비밀번호 규칙 정규식
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
-
     useEffect(() => {
-        if (accessToken && email && nameParam) {
-            useAuthStore.getState().setLoginStatus(true);
-            useAuthStore.getState().setAccessToken(accessToken);
-            useAuthStore.getState().setEmail(email);
-            useAuthStore.getState().setName(name);
-            useAuthStore.getState().setProfile(profileUrl);
-
-            window.history.replaceState({}, "", "/signup");
-        }
-    }, [accessToken, email, nameParam]);
+        fetchMemberProfile()
+            .then(({ profileUrl, email, name }) => {
+                setProfileUrl(profileUrl)
+                setEmail(email)
+                setName(name)
+            })
+    }, []);
 
     // ✅ 비밀번호 확인
     useEffect(() => {
@@ -94,17 +92,10 @@ const OAuthSignUp = () => {
 
         setIsSubmitDisabled(disabled);
     }, [
-        passwordValid,
-        passwordMatch,
-        password,
-        passwordCheck,
-        name,
-        sex,
-        birthYear,
-        birthMonth,
-        birthDay,
-        address,
-        detailAddress,
+        passwordValid, passwordMatch, password, passwordCheck,
+        name, sex,
+        birthYear, birthMonth, birthDay,
+        address, detailAddress, zonecode
     ]);
 
     const handleProfileChange = (file) => {
@@ -131,11 +122,12 @@ const OAuthSignUp = () => {
             birth,
             address,
             detailAddress,
+            zipCode: zonecode
         })
             .then((data) => {
-                const profileUrl = data.profileUrl;
                 useAuthStore.getState().setProfile(profileUrl);
-                
+                useAuthStore.getState().setSignUpStatus(true);
+
                 Swal.fire({
                     icon: "success",
                     title: "회원가입 완료!",
@@ -165,190 +157,181 @@ const OAuthSignUp = () => {
     };
 
     return (
-        <div className="min-h-dvh flex flex-col gap-3 px-4 pb-24 pt-2">
-            {/* Header */}
-            <header className="pt-1 pb-5 text-center">
-                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">회원가입</h1>
-                <p className="mt-1 text-[13px] text-gray-500">필수 정보를 입력하고 계정을 만들어주세요.</p>
-            </header>
+        <div className="flex flex-col gap-3 pb-24">
+            {/* 프로필 */}
+            <section className="flex flex-col gap-2">
+                <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
+                <CustomProfileImageInput
+                    value={profileFile}
+                    onChange={handleProfileChange}
+                    previewUrl={profileUrl}
+                />
+            </section>
 
-            {/* Card */}
-            <main className="flex flex-col gap-3">
-                {/* 프로필 */}
-                <section className="flex flex-col gap-2">
-                    <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
-                    <CustomProfileImageInput
-                        value={profileFile}
-                        onChange={handleProfileChange}
-                        previewUrl={profileUrl}
+            {/* 이메일 */}
+            <section>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">이메일</label>
+                <CustomCommonInput
+                    type="email"
+                    value={email}
+                    placeholder="이메일을 입력해주세요"
+                    readOnly={true}
+                />
+            </section>
+
+            {/* 이름 */}
+            <section>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">이름</label>
+                <CustomCommonInput
+                    type="text"
+                    value={name}
+                    placeholder="이름을 입력해주세요"
+                    readOnly={true}
+                    onChange={(e) => setName(e.target.value)}
+                />
+            </section>
+
+            {/* 비밀번호 */}
+            <section>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">비밀번호</label>
+                <CustomCommonInput
+                    type="password"
+                    value={password}
+                    placeholder="사용할 비밀번호를 입력해주세요"
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                {!passwordValid && (
+                    <p className="mt-1 text-xs text-red-500">
+                        영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.
+                    </p>
+                )}
+                {passwordValid && password && (
+                    <p className="mt-1 text-xs text-green-600">사용 가능한 비밀번호입니다.</p>
+                )}
+            </section>
+
+            {/* 비밀번호 재입력 */}
+            <section>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">비밀번호 재입력</label>
+                <CustomCommonInput
+                    type="password"
+                    value={passwordCheck}
+                    placeholder="사용할 비밀번호를 다시 입력해주세요"
+                    onChange={(e) => setPasswordCheck(e.target.value)}
+                />
+                {passwordCheck && (
+                    passwordMatch ? (
+                        <div className="mt-1 text-xs text-green-600">비밀번호가 일치합니다.</div>
+                    ) : (
+                        <div className="mt-1 text-xs text-red-500">비밀번호가 일치하지 않습니다.</div>
+                    )
+                )}
+            </section>
+
+            {/* 성별 */}
+            <section className="flex flex-col gap-2 mt-3">
+                <label className="text-sm font-semibold text-gray-900">성별</label>
+                <div className="flex gap-3">
+                    <button
+                        type="button"
+                        className={`flex-1 py-3 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                        onClick={() => setSex("M")}
+                    >
+                        남자
+                    </button>
+                    <button
+                        type="button"
+                        className={`flex-1 py-3 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
+                        onClick={() => setSex("F")}
+                    >
+                        여자
+                    </button>
+                </div>
+            </section>
+
+            {/* 생년월일 */}
+            <section className="flex flex-col gap-2 mt-3">
+                <label className="text-sm font-semibold text-gray-900">생년월일</label>
+                <div className="flex gap-2">
+                    {/* 연도 */}
+                    <SimpleSelect
+                        value={birthYear}
+                        onChange={(e) => setBirthYear(e.target.value)}
+                        options={Array.from({ length: 100 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return { value: year, label: year };
+                        })}
+                        placeholder="YYYY"
+                        className="flex-1"
+                        iconVisible={false}
                     />
-                </section>
+                    <span className="m-auto">년</span>
 
-                {/* 이메일 */}
-                <section>
-                    <label className="block text-sm font-semibold text-gray-900 mb-1">이메일</label>
-                    <CustomCommonInput
-                        type="email"
-                        value={email}
-                        placeholder="이메일을 입력해주세요"
-                        readOnly={true}
+                    {/* 월 */}
+                    <SimpleSelect
+                        value={birthMonth}
+                        onChange={(e) => setBirthMonth(e.target.value)}
+                        options={Array.from({ length: 12 }, (_, i) => {
+                            const month = String(i + 1).padStart(2, "0");
+                            return { value: month, label: month };
+                        })}
+                        placeholder="MM"
+                        className="flex-1"
+                        iconVisible={false}
                     />
-                </section>
+                    <span className="m-auto">월</span>
 
-                {/* 이름 */}
-                <section>
-                    <label className="block text-sm font-semibold text-gray-900 mb-1">이름</label>
-                    <CustomCommonInput
-                        type="text"
-                        value={name}
-                        placeholder="이름을 입력해주세요"
-                        readOnly={true}
-                        onChange={(e) => setName(e.target.value)}
+                    {/* 일 */}
+                    <SimpleSelect
+                        value={birthDay}
+                        onChange={(e) => setBirthDay(e.target.value)}
+                        options={Array.from({ length: 31 }, (_, i) => {
+                            const day = String(i + 1).padStart(2, "0");
+                            return { value: day, label: day };
+                        })}
+                        placeholder="DD"
+                        className="flex-1"
+                        iconVisible={false}
                     />
-                </section>
+                    <span className="m-auto">일</span>
+                </div>
+            </section>
 
-                {/* 비밀번호 */}
-                <section>
-                    <label className="block text-sm font-semibold text-gray-900 mb-1">비밀번호</label>
-                    <CustomCommonInput
-                        type="password"
-                        value={password}
-                        placeholder="비밀번호를 입력해주세요"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    {!passwordValid && (
-                        <p className="mt-1 text-xs text-red-500">
-                            영문 대소문자, 특수문자를 포함하여 10자 이상 입력해주세요.
-                        </p>
-                    )}
-                    {passwordValid && password && (
-                        <p className="mt-1 text-xs text-green-600">사용 가능한 비밀번호입니다.</p>
-                    )}
-                </section>
-
-                {/* 비밀번호 재입력 */}
-                <section>
-                    <label className="block text-sm font-semibold text-gray-900 mb-1">비밀번호 재입력</label>
-                    <CustomCommonInput
-                        type="password"
-                        value={passwordCheck}
-                        placeholder="비밀번호를 다시 입력해주세요"
-                        onChange={(e) => setPasswordCheck(e.target.value)}
-                    />
-                    {passwordCheck && (
-                        passwordMatch ? (
-                            <div className="mt-1 text-xs text-green-600">비밀번호가 일치합니다.</div>
-                        ) : (
-                            <div className="mt-1 text-xs text-red-500">비밀번호가 일치하지 않습니다.</div>
-                        )
-                    )}
-                </section>
-
-                {/* 성별 */}
-                <section className="flex flex-col gap-2 mt-3">
-                    <label className="text-sm font-semibold text-gray-900">성별</label>
-                    <div className="flex gap-3">
-                        <button
-                            type="button"
-                            className={`flex-1 py-3 rounded-lg border ${sex === "M" ? "bg-emerald-500 text-white" : "bg-white"}`}
-                            onClick={() => setSex("M")}
-                        >
-                            남자
-                        </button>
-                        <button
-                            type="button"
-                            className={`flex-1 py-3 rounded-lg border ${sex === "F" ? "bg-emerald-500 text-white" : "bg-white"}`}
-                            onClick={() => setSex("F")}
-                        >
-                            여자
-                        </button>
-                    </div>
-                </section>
-
-                {/* 생년월일 */}
-                <section className="flex flex-col gap-2 mt-3">
-                    <label className="text-sm font-semibold text-gray-900">생년월일</label>
-                    <div className="flex gap-2">
-                        <CustomCommonInput
-                            type="number"
-                            value={birthYear}
-                            placeholder="YYYY"
-                            closeBtnVisible={false}
-                            onChange={(e) => {
-                                setBirthYear(e.target.value);
-                                if (e.target.value.length === 4) {
-                                    monthRef.current?.focus();
-                                }
-                            }}
-                            ref={yearRef}
-                            maxLength={4}
-                        />
-                        <span className="m-auto">년</span>
-                        <CustomCommonInput
-                            type="number"
-                            value={birthMonth}
-                            placeholder="MM"
-                            closeBtnVisible={false}
-                            onChange={(e) => {
-                                setBirthMonth(e.target.value);
-                                if (e.target.value.length === 2) {
-                                    dayRef.current?.focus();
-                                }
-                            }}
-                            ref={monthRef}
-                            maxLength={2}
-                        />
-                        <span className="m-auto">월</span>
-                        <CustomCommonInput
-                            type="number"
-                            value={birthDay}
-                            placeholder="DD"
-                            closeBtnVisible={false}
-                            onChange={(e) => { setBirthDay(e.target.value); }}
-                            ref={dayRef}
-                            maxLength={2}
-                        />
-                        <span className="m-auto">일</span>
-                    </div>
-                </section>
-
-                {/* 주소 */}
-                <section className="flex flex-col gap-2 mt-3">
-                    <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
-                    <div className="flex gap-2">
-                        <CustomCommonInput
-                            type="text"
-                            value={zonecode}
-                            placeholder="우편번호"
-                            readOnly
-                            className="flex-1"
-                        />
-                        <DaumPostcode
-                            onComplete={({ zonecode, address }) => {
-                                setZonecode(zonecode);
-                                setAddress(address);
-                            }}
-                        />
-                    </div>
-
+            {/* 주소 */}
+            <section className="flex flex-col gap-2 mt-3">
+                <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
+                <div className="flex gap-2">
                     <CustomCommonInput
                         type="text"
-                        value={address}
-                        placeholder="기본 주소"
+                        value={zonecode}
+                        placeholder="우편번호"
                         readOnly
+                        className="flex-1"
                     />
-
-                    <CustomCommonInput
-                        type="text"
-                        value={detailAddress}
-                        placeholder="상세 주소 입력"
-                        onChange={(e) => setDetailAddress(e.target.value)}
+                    <DaumPostcode
+                        onComplete={({ zonecode, address }) => {
+                            setZonecode(zonecode);
+                            setAddress(address);
+                        }}
                     />
-                </section>
-            </main>
+                </div>
 
-            {/* Fixed CTA */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white pt-1 pb-8 px-4">
+                <CustomCommonInput
+                    type="text"
+                    value={address}
+                    placeholder="기본 주소"
+                    readOnly
+                />
+
+                <CustomCommonInput
+                    type="text"
+                    value={detailAddress}
+                    placeholder="상세 주소 입력"
+                    onChange={(e) => setDetailAddress(e.target.value)}
+                />
+            </section>
+
+            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
                 <CustomCommonButton
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
@@ -356,7 +339,7 @@ const OAuthSignUp = () => {
                 >
                     회원 가입
                 </CustomCommonButton>
-            </footer>
+            </div>
         </div>
     );
 };

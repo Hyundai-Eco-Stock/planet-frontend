@@ -67,10 +67,21 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   }, [rows, main]);
 
   // 수량 상태 및 핸들러
+  const MAX_QTY = 100;
+  const MIN_QTY = 1;
   const [qty, setQty] = useState(1);
-  const inc = () => setQty((q) => q+1);
-  const dec = () => setQty((q) => q-1);
-  const onQtyChange = (e) => setQty(parseInt(e.target.value, 10));
+  const inc = () => setQty((q) => Math.min(MAX_QTY, (Number(q) || 0) + 1));
+  const dec = () => setQty((q) => Math.max(MIN_QTY, (Number(q) || 0) - 1));
+  const onQtyChange = (e) => {
+    const n = parseInt(e.target.value, 10);
+    if (isNaN(n)) return setQty(MIN_QTY);
+    setQty(Math.max(MIN_QTY, Math.min(MAX_QTY, n)));
+  };
+
+  // 다른 상품으로 이동 시 수량 초기화
+  useEffect(() => {
+    setQty(1);
+  }, [productId]);
 
   // 구매/장바구니 핸들러
   const handleBuyNow = () => {
@@ -167,10 +178,14 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   if (!main) return <div className="p-4">데이터가 없습니다.</div>;
 
   return (
-    <main className="max-w-screen-md mx-auto">
+    <main className="shopping-detail max-w-screen-md mx-auto">
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Hide number input spinners (scoped to ShoppingDetail) */
+        .shopping-detail input[type='number']::-webkit-outer-spin-button,
+        .shopping-detail input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .shopping-detail input[type='number'] { -moz-appearance: textfield; }
       `}</style>
       {/* 메인 이미지 영역 */}
       <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
@@ -202,29 +217,23 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
                 <input
                   type="number"
                   min="1"
-                  max="99"
+                  max="100"
                   value={qty}
                   onChange={onQtyChange}
-                  className="w-14 text-center outline-none py-1.5"
+                  className="w-14 text-center outline-none py-1.5 appearance-none"
                 />
                 <button type="button" onClick={inc} aria-label="수량 증가" className="px-3 py-1.5 hover:bg-gray-50">+</button>
               </div>
             </div>
           </div>
 
-      {/* 탭 바 */}
-      <div className="mt-6 border-b grid grid-cols-2 w-full">
+      {/* 탭 바 (리뷰 탭 제거) */}
+      <div className="mt-6 border-b grid grid-cols-1 w-full">
         <button
           className={`w-full pb-3 text-base text-center ${activeTab === 'info' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'}`}
           onClick={() => setActiveTab('info')}
         >
           상품 정보
-        </button>
-        <button
-          className={`w-full pb-3 text-base text-center ${activeTab === 'review' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('review')}
-        >
-          리뷰
         </button>
       </div>
 
@@ -278,9 +287,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
           )}
         </section>
       )}
-      {activeTab === 'review' && (
-        <section className="mt-4" />
-      )}
+      {false && <section className="mt-4" />} {/* 리뷰 탭 제거 */}
       </div>
     </div>
       {/* 유사상품추천 */}

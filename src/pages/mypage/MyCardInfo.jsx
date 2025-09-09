@@ -61,13 +61,27 @@ const MyCardInfo = () => {
     };
 
     const handleDelete = async (memberCardId) => {
-        try {
-            await deleteMyCardInfo(memberCardId);
-            Swal.fire("삭제 완료", "카드가 삭제되었습니다.", "success");
-            loadCards();
-        } catch {
-            Swal.fire("에러", "카드 삭제 중 오류가 발생했습니다.", "error");
-        }
+        Swal.fire({
+            title: "정말 삭제하시겠습니까?",
+            text: "삭제 후에는 복구할 수 없습니다.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33", // 빨강
+            cancelButtonColor: "#3085d6", // 파랑
+            confirmButtonText: "네, 삭제합니다",
+            cancelButtonText: "취소"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMyCardInfo(memberCardId)
+                    .then(() => {
+                        Swal.fire("삭제 완료", "카드가 삭제되었습니다.", "success");
+                        loadCards();
+                    }).catch(() => {
+                        Swal.fire("에러", "카드 삭제 중 오류가 발생했습니다.", "error");
+                    })
+            }
+        })
+
     };
 
     // 카드번호 마스킹 처리
@@ -78,7 +92,7 @@ const MyCardInfo = () => {
     return (
         <>
             {/* 등록된 카드 리스트 */}
-            <div className="space-y-4 px-2">
+            <div className="space-y-4 pb-6">
                 {myCards.map((card) => (
                     <div
                         key={card.memberCardId}

@@ -45,3 +45,8 @@ export const fetchDonatorPercentage = async () => {
 	const response = await apiClient.get("/admin/donator-percentage");
 	return response.data;
 };
+
+export const testNotification = async () => {
+	const response  = await apiClient.post("/admin/notification/test")
+	return response.data;
+}

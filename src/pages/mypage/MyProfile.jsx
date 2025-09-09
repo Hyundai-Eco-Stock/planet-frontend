@@ -25,13 +25,16 @@ const MyProfile = () => {
 
     const navigate = useNavigate();
 
+    const [initialProfile, setInitialProfile] = useState(null);
+    const [isChanged, setIsChanged] = useState(false);
+
     const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기
     const [profileImageFile, setProfileImageFile] = useState(null); // 서버 전송용 파일
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sex, setSex] = useState(""); // 'M' or 'F'
-    const [zonecode, setZonecode] = useState(""); // 'M' or 'F'
+    const [zonecode, setZonecode] = useState("");
 
     const [birthYear, setBirthYear] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
@@ -43,7 +46,7 @@ const MyProfile = () => {
     // const [newPassword, setNewPassword] = useState("");
     // const [newPasswordAgain, setNewPasswordAgain] = useState("");
 
-    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // ✅ 버튼 활성화 상태
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // 버튼 활성화 상태
 
     const yearRef = useRef(null);
     const monthRef = useRef(null);
@@ -51,24 +54,68 @@ const MyProfile = () => {
 
     // 페이지 렌더링 시 데이터 가져와 넣기
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await fetchMemberProfile();
-            console.log(data);
-            setName(data.name);
-            setEmail(data.email);
-            setSex(data.sex);
-            if (data.birth) {
-                const [year, month, day] = data.birth.split("-");
-                setBirthYear(year);
-                setBirthMonth(month);
-                setBirthDay(day);
-            }
-            setProfileImageUrl(data.profileUrl);
-            if (data.address) setAddress(data.address);
-            if (data.detailAddress) setDetailAddress(data.detailAddress);
-        };
-        fetchData();
+        fetchMemberProfile()
+            .then(({ profileUrl, email, name, sex, birth, address, detailAddress, zipCode }) => {
+                console.log("zipCode", zipCode)
+                setName(name);
+                setEmail(email);
+                setSex(sex);
+                if (birth) {
+                    const [year, month, day] = birth.split("-");
+                    setBirthYear(year);
+                    setBirthMonth(month);
+                    setBirthDay(day);
+                }
+                setProfileImageUrl(profileUrl);
+                if (address) setAddress(address);
+                if (detailAddress) setDetailAddress(detailAddress);
+                if (zipCode) setZonecode(zipCode);
+
+                // 초기값 저장
+                setInitialProfile({
+                    name,
+                    email,
+                    sex,
+                    birthYear: birth?.split("-")[0] || "",
+                    birthMonth: birth?.split("-")[1] || "",
+                    birthDay: birth?.split("-")[2] || "",
+                    profileUrl,
+                    address,
+                    detailAddress,
+                    zonecode: zipCode
+                });
+            })
     }, []);
+
+    useEffect(() => {
+        if (!initialProfile) return;
+
+        const changed =
+            initialProfile.name !== name ||
+            initialProfile.email !== email ||
+            initialProfile.sex !== sex ||
+            initialProfile.birthYear !== birthYear ||
+            initialProfile.birthMonth !== birthMonth ||
+            initialProfile.birthDay !== birthDay ||
+            initialProfile.profileUrl !== profileImageUrl ||
+            initialProfile.address !== address ||
+            initialProfile.detailAddress !== detailAddress ||
+            initialProfile.zonecode !== zonecode;
+
+        setIsChanged(changed);
+    }, [
+        name,
+        email,
+        sex,
+        birthYear,
+        birthMonth,
+        birthDay,
+        profileImageUrl,
+        address,
+        detailAddress,
+        zonecode,
+        initialProfile
+    ]);
 
     // ✅ 실시간 유효성 검사
     useEffect(() => {
@@ -83,7 +130,7 @@ const MyProfile = () => {
             !detailAddress.trim();
 
         setIsSubmitDisabled(disabled);
-    }, [name, email, sex, birthYear, birthMonth, birthDay, address, detailAddress]);
+    }, [name, email, sex, birthYear, birthMonth, birthDay, address, detailAddress, zonecode]);
 
     // 프로필 이미지 변경 핸들러
     const handleProfileImageChange = (file) => {
@@ -304,7 +351,7 @@ const MyProfile = () => {
             <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
                 <CustomCommonButton
                     onClick={handleSubmitWithPassword}
-                    disabled={isSubmitDisabled}
+                    disabled={!isChanged || isSubmitDisabled}
                     className="btn-primary w-full"
                 >
                     수정
