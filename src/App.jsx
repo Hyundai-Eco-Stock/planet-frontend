@@ -190,11 +190,12 @@ function App() {
 
 				{/* 로고만 있는 Layout (헤더만) */}
 				<Route element={<LayoutLogoOnly />}>
+					<Route path="/login" element={<Login />} />
 				</Route>
 
 				{/* 푸터만 있는 Layout (푸터만) */}
 				<Route element={<LayoutFooterOnly />}>
-					<Route path="/login" element={<Login />} />
+
 				</Route>
 
 				{/* 아무것도 없는 Layout */}
