@@ -78,8 +78,11 @@ const HeaderWithShopping = ({ onBackClick }) => {
     };
 
     return (
-        <header className="px-4 sticky top-0 z-50 bg-white text-[#0b1020]">
-            <div className="flex items-center justify-between py-3 h-16">
+        <header 
+            className="px-4 sticky top-0 z-50 bg-white border-b border-gray-200" 
+            style={{backgroundColor: '#ffffff', height: '48px'}}
+        >
+            <div className="flex items-center justify-between h-full">
                 {/* 왼쪽: 로고 텍스트 */}
                 <button
                     onClick={handleBack}
