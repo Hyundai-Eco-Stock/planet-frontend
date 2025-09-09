@@ -122,6 +122,7 @@ const LocalSignUp = () => {
             birth,
             address,
             detailAddress,
+            zipCode: zonecode,
         })
             .then(() => {
                 Swal.fire({

@@ -1,5 +1,5 @@
 import HeaderWithBack from "@/components/_layout/HeaderWithBack";
-import { Outlet, useOutletContext } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useState } from "react";
 
 const LayoutBack = () => {

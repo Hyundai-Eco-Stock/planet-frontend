@@ -5,7 +5,7 @@ import useAuthStore from "@/store/authStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-import ProfileButton from "@/components/auth/ProfileButtons";
+import { ProfileButton } from "@/components/auth/ProfileButtons";
 
 import { logout } from "@/api/auth/auth.api";
 
@@ -31,13 +31,15 @@ const MyPageMain = () => {
         { title: '내 정보 수정', path: '/my-page/profile' },
         { title: '내 차량번호 관리 및 입/출차 내역 조회', path: '/my-page/my-car' },
         { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
-        { title: '앱 설정', path: '/my-page/settings' },
-        
+        // { title: '앱 설정', path: '/my-page/settings' },
+
         { title: '', path: 'LINE' },
-        
+
         { title: 'ECO STOCK 인증 / 보유 / 사용', path: 'TITLE' },
         { title: '에코스톡 발급 & 포인트 교환 내역', path: '/my-page/my-assets' },
-        { title: '오프라인 활동 인증', path: '/eco-stock/certificate' },
+        // { title: '오프라인 활동 인증', path: '/eco-stock/certificate' },
+        { title: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
+        { title: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
 
         { title: '', path: 'LINE' },
@@ -45,15 +47,15 @@ const MyPageMain = () => {
         { title: '구매 / 결제', path: 'TITLE' },
         { title: '상품 구매 내역', path: '/my-page/my-buy-history' },
         { title: '에코딜 예약 내역', path: '/my-page/eco-deal-reservation' },
-        
+
         // { title: '', path: 'LINE' },
 
         // { title: '설정', path: 'TITLE' },
     ]
 
     return (
-        <div className="w-full pt-3 px-2">
-            <div className="w-full flex justify-between items-center pb-[1rem] border-gray-200">
+        <div className="pt-3 px-2 pb-24">
+            <div className="flex justify-between items-center pb-[1rem] border-gray-200">
                 {/* 왼쪽 */}
                 <div className="flex items-center gap-3">
                     <ProfileButton />
@@ -92,7 +94,7 @@ const MyPageMain = () => {
                             return <hr key={idx} className="border-gray-200" />;
                         }
                         if (nav.path == 'TITLE') {
-                            return  <span key={idx} className="font-bold pt-6 pb-2">{nav.title}</span>
+                            return <span key={idx} className="font-bold pt-6 pb-2">{nav.title}</span>
                         }
                         return (
                             <Link to={nav.path} key={idx}>
