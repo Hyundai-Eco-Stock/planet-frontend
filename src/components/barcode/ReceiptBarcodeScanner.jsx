@@ -5,16 +5,17 @@ import { DecodeHintType, BarcodeFormat } from "@zxing/library";
 
 const ReceiptBarcodeScanner = ({ onDetected }) => {
     const videoRef = useRef(null);
+    const controlsRef = useRef(null);
+    const streamRef = useRef(null);
+
     const [running, setRunning] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        let controls;
-
         const start = async () => {
             if (!videoRef.current) return;
 
-            // 읽을 포맷(영수증은 Code128 비율 높음, EAN/UPC도 함께)
+            // ZXing 설정
             const hints = new Map();
             hints.set(DecodeHintType.POSSIBLE_FORMATS, [
                 BarcodeFormat.CODE_128,
@@ -29,16 +30,26 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             setRunning(true);
 
             try {
-                controls = await reader.decodeFromVideoDevice(
-                    undefined, // 기본 카메라
+                // 카메라 직접 오픈 (명시적으로 streamRef에 저장)
+                streamRef.current = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" },
+                    audio: false,
+                });
+                videoRef.current.srcObject = streamRef.current;
+
+                // ZXing에 우리가 연 스트림을 넘김
+                controlsRef.current = await reader.decodeFromStream(
+                    streamRef.current,
                     videoRef.current,
-                    (result, err, c) => {
+                    (result, err) => {
                         if (result) {
                             onDetected(result.getText(), result);
-                            c.stop(); // 한 번 읽으면 멈춤
+
+                            // 스캔 성공 → 정리
+                            reader.reset();
+                            stopStream();
                             setRunning(false);
                         }
-                        // err는 스캔 진행 중 빈번 (NotFound 등) → 무시
                     }
                 );
             } catch (e) {
@@ -47,10 +58,23 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             }
         };
 
+        const stopStream = () => {
+            controlsRef.current?.stop?.();
+            controlsRef.current = null;
+
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+                streamRef.current = null;
+            }
+            if (videoRef.current) {
+                videoRef.current.srcObject = null;
+            }
+        };
+
         start();
 
         return () => {
-            controls?.stop?.();
+            stopStream();
             setRunning(false);
         };
     }, [onDetected]);
@@ -62,6 +86,7 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                 className="w-full h-full rounded-lg border"
                 muted
                 playsInline
+                autoPlay
             />
             <div className="text-xs text-gray-500">
                 {running ? "스캔 중…" : error ? `오류: ${error}` : "스캔 준비 완료"}

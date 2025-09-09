@@ -1,4 +1,4 @@
-import HeaderWithBack from "@/components/_layout/HeaderWithBack";
+import HeaderWithLogo from "./HeaderWithLogo";
 import { Outlet, useOutletContext } from "react-router-dom";
 import { useState } from "react";
 
@@ -8,7 +8,7 @@ const LayoutBack = () => {
     return (
         <div className="m-auto max-w-xl min-h-screen flex flex-col">
             
-            <HeaderWithBack title={title} />
+            <HeaderWithLogo title={title} />
 
             <main className="px-4 overflow-y-auto scrollbar-hide flex-1">
                 <Outlet context={{ setTitle }} />

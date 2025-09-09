@@ -1,9 +1,13 @@
-// src/firebase-init.js
+import Swal from "sweetalert2";
+
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { registerFcmToken } from "./api/fcm_token/fcmToken.api";
+
+import { registerFcmToken } from "@/api/fcm_token/fcmToken.api";
+
 import useAuthStore from '@/store/authStore';
 import useNotificationStore from '@/store/notificationStore';
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyDtSf2TcLa8wba4nWUu9Z71HVN0F6Lso6c",
@@ -54,23 +58,59 @@ export const requestForToken = async () => {
     }
 };
 
-// 중앙 집중식 포그라운드 메시지 리스너 초기화 함수
+// 포그라운드 메시지 리스너 초기화 함수
 export const initializeForegroundMessaging = () => {
     onMessage(messaging, (payload) => {
         console.log('포그라운드 메시지 수신 (중앙 리스너):', payload);
 
         // 스토어 상태 업데이트 (인앱 UI용)
-        useNotificationStore.getState().setNotification({
-            title: payload.notification.title,
-            body: payload.notification.body,
-        });
+        // useNotificationStore.getState().setNotification({
+        //     title: payload.notification.title,
+        //     body: payload.notification.body,
+        // });
+        const { title, body } = payload.notification || {};
+        const path = payload.data?.path || "/";
+
+         // 개발 환경: 강제 모바일 테스트
+        // const forceMobile = import.meta.env.DEV && true
+        // const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
+        // 운영 환경: 모바일, 브라우저 환경 구분
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
         // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
         if (document.visibilityState === 'visible') {
-            new Notification(payload.notification.title, {
-                body: payload.notification.body,
-                icon: "/planet-logo-512.png",
-            });
+            if (isMobile) {
+                Swal.fire({
+                    toast: true,
+                    position: "top",
+                    html: `
+                        <div style="width:100%; display:flex; align-items:center; gap:12px;">
+                            <img src="/planet-logo-512.png" alt="logo" style="width:32px; height:32px; border-radius:8px;" />
+                            <div style="text-align:left;">
+                            <div style="font-weight:600; font-size:14px; color:#111;">${title}</div>
+                            <div style="font-size:12px; color:#555;">${body}</div>
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    background: "#fff",
+                    customClass: {
+                        popup: "shadow-lg rounded-xl",
+                    },
+                    timer: 5000,
+                    timerProgressBar: true,
+                    didOpen: (popup) => {
+                        popup.addEventListener("click", () => {
+                          window.location.href = path; // 클릭 시 페이지 이동
+                        });
+                    },
+                });
+            } else {
+                // new Notification(payload.notification.title, {
+                //     body: payload.notification.body,
+                //     icon: "/planet-logo-512.png",
+                // });
+            }
         }
     });
 };

@@ -72,7 +72,9 @@ const MyEcoStockInfo = () => {
   }, [prices]);
 
   const enriched = useMemo(() => {
-    return (items || []).map((it) => {
+    return (items || [])
+      .filter((it) => Number(it?.currentTotalQuantity || 0) > 0)
+      .map((it) => {
       const qty = Number(it.currentTotalQuantity || 0);
       const amt = Number(it.currentTotalAmount || 0);
       const avg = qty > 0 ? amt / qty : 0;

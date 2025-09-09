@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import CategoryBar from "./CategoryBar";
 // import CategorySheet from "./CategorySheet";
 import { fetchProductsByCategory, fetchCategories, searchProducts } from "../../api/product/product.api";
-import {ProductComponent} from "../../components/product/ProductComponent";
+import { ProductComponent } from "../../components/product/ProductComponent";
 import ShoppingDetail from "./ShoppingDetail";
 import HeaderWithShoppingAndBack from "@/components/_layout/HeaderWithShoppingAndBack";
 import { useSearchParams } from "react-router-dom";
@@ -18,10 +18,11 @@ export default function ShoppingMain() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [detailProductId, setDetailProductId] = useState(null); // 상세 모달용
-
-  // URL 쿼리(category) 동기화용
+  // URL 쿼리(category, detail) 동기화용
   const [searchParams, setSearchParams] = useSearchParams();
+  // 상세 모달용: URL 쿼리로 스택처럼 관리
+  const detailParam = searchParams.get("detail");
+  const detailProductId = detailParam != null && detailParam !== "" ? Number(detailParam) : null;
 
   /* CategoryBar.jsx CategotySheet.jsx 데이터 맵핑 */
   const barCategories = useMemo(
@@ -38,7 +39,7 @@ export default function ShoppingMain() {
   useEffect(() => {
     const urlCat = searchParams.get("category");
     const key = urlCat ? (isNaN(Number(urlCat)) ? urlCat : Number(urlCat)) : null;
-    
+
     setActiveCategoryId(key);
     setLoading(true);
     setError(null);
@@ -69,7 +70,7 @@ export default function ShoppingMain() {
         setTimeout(() => window.scrollTo(0, y), 0);
         sessionStorage.removeItem('shopping-main-scroll');
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   /* 카테고리 클릭 : URL 갱신 & 즉시 상품 목록 로드 */
@@ -112,11 +113,10 @@ export default function ShoppingMain() {
     }
   };
 
-
   return (
     <div className="max-w-xl min-h-screen bg-white text-gray-900">
-      {/* 고정된 카테고리 바 (헤더 높이 64px 아래) */}
-      <div className="max-w-xl fixed left-1/2 -translate-x-1/2 z-40 bg-white border-b border-gray-100 px-4" style={{ top: '64px' }}>
+      {/* 고정된 카테고리 바 (헤더 높이 48px 아래) */}
+      <div className="max-w-xl fixed left-1/2 -translate-x-1/2 z-40 bg-white border-b border-gray-100 px-4" style={{ top: '48px' }}>
         <CategoryBar
           categories={barCategories}
           active={activeCategoryId}
@@ -129,18 +129,28 @@ export default function ShoppingMain() {
       <div className="h-[96px]" />
 
       {/* 검색 바: CategoryBar 아래 */}
-      <div className="mt-2">
-        <form onSubmit={handleSearchSubmit} className="max-w-screen-md mx-auto flex gap-2">
-          <input
-            type="text"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            placeholder="상품명·브랜드 검색"
-            className="flex-1 h-10 rounded-md border border-gray-200 px-3 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300"
-          />
+      <div className="mt-6">
+        <form onSubmit={handleSearchSubmit} className="flex gap-3">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder="상품명·브랜드 검색"
+              className="w-full h-9 rounded-lg border border-gray-200 px-4 pr-10 text-base focus:outline-none focus:border-gray-900"
+            />
+            <svg 
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <button
             type="submit"
-            className="h-10 px-4 rounded-md bg-gray-900 text-white"
+            className="h-9 px-6 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
             aria-label="검색"
           >
             검색
@@ -159,20 +169,33 @@ export default function ShoppingMain() {
        * />
        */}
 
-      <ProductComponent 
-        items={items} 
-        loading={loading} 
+      <ProductComponent
+        items={items}
+        loading={loading}
         error={error}
-        onOpenDetail={(pid) => setDetailProductId(pid)}
+        onOpenDetail={(pid) => {
+          setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set("detail", String(pid)); // push history with new detail
+            return next;
+          });
+        }}
       />
 
       {detailProductId != null && (
         <div className="fixed inset-0 z-[60] bg-white flex flex-col">
-          <HeaderWithShoppingAndBack onBackClick={() => setDetailProductId(null)} />
+          {/* onBackClick 생략: 기본 navigate(-1)로 이전 상세 또는 닫기 */}
+          <HeaderWithShoppingAndBack />
           <main className="px-4 pb-24 overflow-y-auto scrollbar-hide flex-1">
             <ShoppingDetail
               productId={detailProductId}
-              onRequestNavigate={(pid) => setDetailProductId(pid)}
+              onRequestNavigate={(pid) => {
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set("detail", String(pid)); // push another detail into history
+                  return next;
+                });
+              }}
               isFullScreen
             />
           </main>

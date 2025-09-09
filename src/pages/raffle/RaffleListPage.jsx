@@ -64,16 +64,16 @@ const ErrorState = ({ message, onRetry }) => (
 );
 
 const RaffleListPage = () => {
-  const [raffleList, setRaffleList] = useState([]); // []로 시작
+  const [raffleList, setRaffleList] = useState([]);
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // 문자열로 단순화
+  const [error, setError] = useState("");
   const { loginStatus } = useAuthStore.getState();
   const navigate = useNavigate();
 
   const handleButtonClick = useCallback(
     (item, e) => {
-      e.stopPropagation(); // 카드 클릭 막기
+      e.stopPropagation();
       navigate(`/raffle/detail/${item.raffleId}`, {
         state: {
           personalStockInfoList,
@@ -91,113 +91,69 @@ const RaffleListPage = () => {
       setLoading(true);
       setError("");
 
-      const raffleResponse = await getRaffleList();
-      setRaffleList(raffleResponse || []);
+        const raffleResponse = await getRaffleList();
+        setRaffleList(raffleResponse || []);
 
-      if (loginStatus) {
-        const stockResponse = await getMemberStockInfoAll();
-        setPersonalStockInfoList(stockResponse || []);
-      } else {
-        setPersonalStockInfoList([]); // 미로그인 시 빈 배열
+        if (loginStatus) {
+          const stockResponse = await getMemberStockInfoAll();
+          setPersonalStockInfoList(stockResponse || []);
+        } else {
+          setPersonalStockInfoList([]);
+        }
+      } catch (err) {
+        console.error("데이터 조회 실패:", err);
+        setError("데이터 조회에 실패했어요");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("데이터 조회 실패:", err);
-      setError("데이터 조회에 실패했어요");
-    } finally {
-      setLoading(false);
-    }
-  }, [loginStatus]);
+    };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [loginStatus]);
 
-  // ---- 상태별 UI ----
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <main className="max-w-4xl mx-auto px-4 py-10">
-          {/* 상단 헤더 */}
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">🎁</span>
-              </div>
-              <h1 className="text-3xl font-bold text-green-600">래플 이벤트</h1>
-            </div>
-            <p className="text-gray-600 text-lg">불러오는 중입니다...</p>
-            <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mt-3" />
-          </div>
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="text-gray-500">불러오는 중...</div>
+    </div>
+  );
 
-          {/* 스켈레톤 목록 */}
-          <div className="grid grid-cols-1 gap-6">
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white flex items-start">
-        <main className="max-w-4xl mx-auto px-4 py-10 w-full">
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">🎁</span>
-              </div>
-              <h1 className="text-3xl font-bold text-green-600">래플 이벤트</h1>
-            </div>
-            <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mt-3" />
-          </div>
-
-          <ErrorState message={error} onRetry={fetchData} />
-        </main>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="text-red-500">{error}</div>
+    </div>
+  );
 
   if (raffleList.length === 0) {
     return (
-      <div className="min-h-screen bg-white">
-        <main className="max-w-4xl mx-auto px-4 py-10">
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">🎁</span>
-              </div>
-              <h1 className="text-3xl font-bold text-green-600">래플 이벤트</h1>
-            </div>
-            <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mt-3" />
-          </div>
-
-          <EmptyState onRefresh={fetchData} />
-        </main>
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="text-gray-400 text-center">
+          <div className="text-lg mb-2">진행중인 래플이 없습니다</div>
+          <div className="text-sm">새로운 래플을 기다려주세요</div>
+        </div>
       </div>
     );
   }
 
   // 기본 리스트
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <main className="max-w-4xl mx-auto px-4 flex-1 py-6">
+    <div className="min-h-screen bg-white">
+      <main className="pb-20">
         {/* 상단 헤더 */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg">🎁</span>
-            </div>
-            <h1 className="text-3xl font-bold text-green-600">래플 이벤트</h1>
+        <div className="px-4 pt-6 pb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">래플 응모하기</h2>
+            <p className="text-sm text-gray-500">
+              진행중 {raffleList.filter(r => !r.winnerName).length}개
+            </p>
           </div>
-          <p className="text-gray-600 text-lg">✨ 친환경 제품을 무료로 받아보세요! ✨</p>
-          <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mt-3"></div>
         </div>
+        
+        {/* 구분선 */}
+        <div className="-mx-4 border-b border-gray-200"></div>
 
         {/* 래플 목록 */}
-        <div className="grid grid-cols-1 gap-6">
+        <div className="-mx-4 space-y-6">
           {raffleList.map((item) => (
             <RaffleCard
               key={item.raffleId}

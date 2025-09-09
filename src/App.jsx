@@ -12,11 +12,12 @@ import LayoutBack from '@/components/_layout/LayoutBack' // 헤더 + 푸터
 import LayoutBackOnly from '@/components/_layout/LayoutBackOnly' // 헤더만
 import LayoutLogoOnly from '@/components/_layout/LayoutLogoOnly' // 헤더만
 import LayoutLogoAndClose from '@/components/_layout/LayoutLogoAndClose' // 헤더만
+import LayoutLogoAndSetting from '@/components/_layout/LayoutLogoAndSetting' // 헤더만
 import LayoutFooterOnly from '@/components/_layout/LayoutFooterOnly' // 푸터만
 import LayoutNone from '@/components/_layout/LayoutNone'  // 아무것도 없음
 import LayoutCartOrder from '@/components/_layout/LayoutCartOrder'  // 장바구니·주문 전용 레이아웃
 import LayoutShoppingWithBack from '@/components/_layout/LayoutShoppingWithBack'
-import AdminLayout from '@/components/_layout/AdminLayout' // 관리자
+import AdminDashboardLayout from '@/components/_layout/AdminDashboardLayout' // 관리자
 
 // -------------------------- 라우팅 시작 --------------------------
 // 홈
@@ -49,7 +50,7 @@ import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 
 // 에코스톡 인증
-import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
+// import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
 import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 
@@ -86,11 +87,12 @@ import PhtiMain from '@/pages/phti/PhtiMain'
 import PhtiSurvey from '@/pages/phti/PhtiSurvey'
 
 // 관리자
-import Test from '@/pages/admin/Test'
+import AdminHome from '@/pages/admin/AdminHome'
 import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
+import SignUpRequiredRoute from './SignUpRequiredRoute'
 
 
 // -------------------------- 라우팅 끝 --------------------------
@@ -110,107 +112,119 @@ function App() {
 
 	return (
 		<Routes>
-			{/* 리다이렉트 path */}
-			<Route path="/" element={<Navigate to="/home/main" />} />
-			<Route path="/home" element={<Navigate to="/home/main" />} />
+			{/* 로그인한 유저 중 회원가입 안 한 유저들 로그인 페이지로 보내는 라우팅 */}
+			<Route element={<SignUpRequiredRoute />}>
 
-			<Route path="/phti" element={<Navigate to="/phti/main" />} />
+				{/* 리다이렉트 path */}
+				<Route path="/" element={<Navigate to="/home/main" />} />
+				<Route path="/home" element={<Navigate to="/home/main" />} />
 
-			<Route path="/admin" element={<Navigate to="/admin/dashboard/main" />} />
-			<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />} />
+				<Route path="/phti" element={<Navigate to="/phti/main" />} />
 
-			{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
-			<Route element={<LayoutShopping />}>
-				<Route path="/home/main" element={<HomeMain />} />
-				<Route path="/shopping/main" element={<ShoppingMain />} />
-				<Route path='/eco-deal/main' element={<EcoDealMain />} />
-			</Route>
+				<Route path="/admin" element={<Navigate to="/admin/dashboard/main" />} />
+				<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />} />
 
-			{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
-			<Route element={<LayoutLogoAndFooter />}>
-				<Route path="/my-page/main" element={<MyPageMain />} />
-				<Route path="/raffle" element={<RaffleListPage />} />
-				<Route path="/eco-stock/main" element={<EcoStockMain />} />
-			</Route>
-
-			{/* 뒤로가기 Layout (헤더 + 푸터) */}
-			<Route element={<LayoutBack />}>
-				<Route path="/eco-stock/certificate" element={<EcoStockCertificate />} />
-			</Route>
-
-			{/* 뒤로가기 Layout (헤더만) */}
-			<Route element={<LayoutBackOnly />}>
-				<Route path="/signup/local" element={<LocalSignUp />} />
-				<Route path="/signup/oauth" element={<OAuthSignUp />} />
-				<Route path="/send/password-change-mail" element={<SendPasswordChangeMail />} />
-
-				<Route element={<PrivateRoute />}>
-					<Route path="/my-page/profile" element={<MyProfile />} />
-					<Route path="/my-page/my-car" element={<MyCarInfo />} />
-					<Route path="/my-page/my-card" element={<MyCardInfo />} />
-					<Route path="/my-page/settings" element={<Settings />} />
-					<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
-					<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
-					<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
-					<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
-					<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
-					<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
-					<Route path="/phti/main" element={<PhtiMain />} />
-					<Route path="/phti/survey" element={<PhtiSurvey />} />
+				{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
+				<Route element={<LayoutShopping />}>
+					<Route path="/home/main" element={<HomeMain />} />
+					<Route path="/shopping/main" element={<ShoppingMain />} />
+					<Route path='/eco-deal/main' element={<EcoDealMain />} />
 				</Route>
-			</Route>
 
-			{/* 뒤로 가기 + 장바구니 레이아웃 */}
-			<Route element={<LayoutShoppingWithBack />}>
-				<Route path="/shopping/detail" element={<ShoppingDetail />} />
-				<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
-			</Route>
+				{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
+				<Route element={<LayoutLogoAndFooter />}>
+					<Route path="/my-page/main" element={<MyPageMain />} />
+				  <Route path="/raffle" element={<RaffleListPage />} />
+				  <Route path="/eco-stock/main" element={<EcoStockMain />} />
+				  {/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
+				</Route>
+    
+        {/* 뒤로가기 Layout (헤더 + 푸터) */}
+			  <Route element={<LayoutBack />}>
+			  </Route>
 
-			{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
-			<Route element={<LayoutLogoAndClose />}>
-				<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
-			</Route>
+				{/* 로고 + 설정 */}
+				<Route element={<LayoutLogoAndSetting />}>
+					<Route path="/my-page/main" element={<MyPageMain />} />
+				</Route>
 
-			{/* 로고만 있는 Layout (헤더만) */}
-			<Route element={<LayoutLogoOnly />}>
-				
-			</Route>
+				{/* 뒤로가기 Layout (헤더 + 푸터) */}
+				<Route element={<LayoutBack />}>
+					{/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
+				</Route>
 
-			{/* 푸터만 있는 Layout (푸터만) */}
-			<Route element={<LayoutFooterOnly />}>
-				<Route path="/login" element={<Login />} />
-			</Route>
+				{/* 뒤로가기 Layout (헤더만) */}
+				<Route element={<LayoutBackOnly />}>
+					<Route path="/signup/local" element={<LocalSignUp />} />
+					<Route path="/signup/oauth" element={<OAuthSignUp />} />
+					<Route path="/send/password-change-mail" element={<SendPasswordChangeMail />} />
 
-			{/* 아무것도 없는 Layout */}
-			<Route element={<LayoutNone />}>
-				<Route path="/payments/success" element={<PaymentSuccessPage />} />
-				<Route path="/payments/fail" element={<PaymentFailPage />} />
-				<Route path="/login/success" element={<LoginSuccess />} />
-				<Route path="/change/password" element={<ChangePassword />} />
-				<Route path="/admin/test" element={<Test />} />
-				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
-				<Route path="/qr" element={<QrResolvePage />} />
-			</Route>
+					<Route element={<PrivateRoute />}>
+						<Route path="/my-page/profile" element={<MyProfile />} />
+						<Route path="/my-page/my-car" element={<MyCarInfo />} />
+						<Route path="/my-page/my-card" element={<MyCardInfo />} />
+						<Route path="/my-page/settings" element={<Settings />} />
+						<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
+						<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
+						<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+						<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
+						<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
+						<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
+						<Route path="/phti/main" element={<PhtiMain />} />
+						<Route path="/phti/survey" element={<PhtiSurvey />} />
+					</Route>
+				</Route>
 
-			{/* 장바구니·주문용 Layout */}
-			<Route element={<LayoutCartOrder />}>
-				<Route path="/cart/main" element={<CartMain />} />
-				<Route path="/orders" element={<OrderRedirect />} />
-				<Route path="/orders/delivery" element={<DeliveryOrderPage />} />
-				<Route path="/orders/pickup" element={<PickupOrderPage />} />
-			</Route>
+				{/* 뒤로 가기 + 장바구니 레이아웃 */}
+				<Route element={<LayoutShoppingWithBack />}>
+					<Route path="/shopping/detail" element={<ShoppingDetail />} />
+					<Route path='/eco-deal/detail' element={<EcoDealDetail />} />
+				</Route>
 
-			{/* ADMIN */}
-			<Route element={<AdminLayout />}>
-				<Route path="/admin/test" element={<Test />} />
-				<Route path="/admin/dashboard/main" element={<EcoStockDashboard />} />
-				<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
-				<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
-				<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
-				<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
-				<Route path="/receipt/create" element={<div>영수증 생성</div>} />
-				<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
-				<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
+				{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
+				<Route element={<LayoutLogoAndClose />}>
+					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
+				</Route>
+
+				{/* 로고만 있는 Layout (헤더만) */}
+				<Route element={<LayoutLogoOnly />}>
+				</Route>
+
+				{/* 푸터만 있는 Layout (푸터만) */}
+				<Route element={<LayoutFooterOnly />}>
+					<Route path="/login" element={<Login />} />
+				</Route>
+
+				{/* 아무것도 없는 Layout */}
+				<Route element={<LayoutNone />}>
+					<Route path="/payments/success" element={<PaymentSuccessPage />} />
+					<Route path="/payments/fail" element={<PaymentFailPage />} />
+					<Route path="/login/success" element={<LoginSuccess />} />
+					<Route path="/change/password" element={<ChangePassword />} />
+					<Route path="/receipt/create" element={<div>영수증 생성</div>} />
+					<Route path="/qr" element={<QrResolvePage />} />
+				</Route>
+
+				{/* 장바구니·주문용 Layout */}
+				<Route element={<LayoutCartOrder />}>
+					<Route path="/cart/main" element={<CartMain />} />
+					<Route path="/orders" element={<OrderRedirect />} />
+					<Route path="/orders/delivery" element={<DeliveryOrderPage />} />
+					<Route path="/orders/pickup" element={<PickupOrderPage />} />
+				</Route>
+
+				{/* ADMIN */}
+				<Route element={<AdminDashboardLayout />}>
+					<Route path="/admin/home" element={<AdminHome />} />
+					<Route path="/admin/dashboard/main" element={<EcoStockDashboard />} />
+					<Route path="/admin/dashboard/eco-stock" element={<EcoStockDashboard />} />
+					<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
+					<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
+					<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
+					<Route path="/receipt/create" element={<div>영수증 생성</div>} />
+					<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
+					<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
+				</Route>
 			</Route>
 		</Routes>
 	)

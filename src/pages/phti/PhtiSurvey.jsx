@@ -5,6 +5,7 @@ import { fetchPhtiQuestinosAndChoices, submitPhtiSurvey } from "@/api/phti/phti.
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import Swal from "sweetalert2";
 
 const variants = {
     enter: (direction) => ({
@@ -41,6 +42,7 @@ const PhtiSurvey = () => {
         fetchData();
     }, []);
 
+    // 바로 다음 질문으로 넘어가기
     const handleNext = () => {
         const currentQuestionId = questions[currentIndex].questionId;
         // 선택 안 했으면 넘어가지 않음
@@ -52,6 +54,7 @@ const PhtiSurvey = () => {
         }
     };
 
+    // 바로 직전 질문으로 돌아가기
     const handleBack = () => {
         if (currentIndex > 0) {
             setDirection(-1); // 뒤로
@@ -59,6 +62,18 @@ const PhtiSurvey = () => {
         }
     };
 
+    // 아직 답변 안 한 질문으로 이동
+    const handleNotAnsweredQuestion = () => {
+        for (let i = 0; i < questions.length; i++) {
+            if (!answers[questions[i].questionId]) {
+                setDirection(i > currentIndex ? 1 : -1); // 현재 위치와 비교해 방향 지정
+                setCurrentIndex(i);
+                return;
+            }
+        }
+    };
+
+    // choice 선택
     const handleChoiceSelect = (questionId, choiceId) => {
         setAnswers((prev) => {
             const updated = {
@@ -71,6 +86,12 @@ const PhtiSurvey = () => {
                 setDirection(1);
                 setCurrentIndex((prevIndex) => prevIndex + 1);
             }
+
+            // 답변 안한 질문으로 이동
+            // handleNotAnsweredQuestion();
+
+            // 다음 질문으로 이동
+            // handleNext();
             return updated;
         });
     };
@@ -90,7 +111,25 @@ const PhtiSurvey = () => {
         } finally {
             setLoading(false);
         }
+    };
 
+    const handleForceNavigateToUnanswered = () => {
+        Swal.fire({
+            icon: "warning",
+            title: "답변하지 않은 문항이 있어요",
+            text: "먼저 모든 문항에 답변해주세요.",
+            confirmButtonText: "확인",
+            confirmButtonColor: "#10B981", // 초록색 (Tailwind emerald 계열)
+            timer: 900,
+        });
+
+        for (let i = 0; i < questions.length; i++) {
+            if (!answers[questions[i].questionId]) {
+                setCurrentIndex(i);
+                setDirection(1);
+                return;
+            }
+        }
     };
 
     if (questions.length === 0) return <div>로딩중...</div>;
@@ -110,7 +149,7 @@ const PhtiSurvey = () => {
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.25 }}
                         className="h-full flex flex-col"
                     >
                         <h2 className="text-lg font-bold text-gray-800 mb-4">
@@ -180,17 +219,43 @@ const PhtiSurvey = () => {
                 </div>
             </div>
 
+            {/* 제출 버튼 */}
             <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
-                {loading ? (
-                    <ClipLoader size={32} color="#10B981" />
-                ) : (
-                    <CustomCommonButton
-                        onClick={handleSubmit}
-                        children="제출하기"
-                        disabled={!allAnswered}
-                    />
-                )}
+                <CustomCommonButton
+                    onClick={allAnswered ? handleSubmit : handleForceNavigateToUnanswered}
+                    children={allAnswered ? "제출하기" : "답변 완료 후 제출"}
+                />
             </div>
+
+            {/* 페이지네이션 */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+                {questions.map((q, idx) => {
+                    const answered = answers[q.questionId];
+                    const isCurrent = idx === currentIndex;
+                    return (
+                        <button
+                            key={q.questionId}
+                            onClick={() => {
+                                setCurrentIndex(idx);
+                                setDirection(idx > currentIndex ? 1 : -1);
+                            }}
+                            className={`
+                                w-6 h-6 rounded-full text-xs font-bold
+                                flex items-center justify-center
+                                ${isCurrent ? "bg-emerald-500 text-white" : answered ? "bg-emerald-300" : "bg-gray-100"}
+                            `}
+                        >
+                            {answered ? "✓" : idx + 1}
+                        </button>
+                    );
+                })}
+            </div>
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+                    <ClipLoader size={60} color="#10B981" />
+                    <span className="ml-4 text-white font-medium">제출 중입니다...</span>
+                </div>
+            )}
         </div>
     );
 };
