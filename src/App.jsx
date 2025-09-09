@@ -133,10 +133,11 @@ function App() {
 
 				{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutLogoAndFooter />}>
-					<Route path="/my-page/main" element={<MyPageMain />} />
+					{/* <Route path="/my-page/main" element={<MyPageMain />} /> */}
 					<Route path="/raffle" element={<RaffleListPage />} />
 					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
 					<Route path="/eco-stock/main" element={<EcoStockMain />} />
+					<Route path="/my-page/main" element={<MyPageMain />} />
 					{/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
 				</Route>
 
@@ -147,7 +148,7 @@ function App() {
 
 				{/* 로고 + 설정 */}
 				<Route element={<LayoutLogoAndSetting />}>
-					<Route path="/my-page/main" element={<MyPageMain />} />
+				
 				</Route>
 
 				{/* 뒤로가기 Layout (헤더 + 푸터) */}

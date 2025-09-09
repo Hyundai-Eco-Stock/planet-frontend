@@ -24,12 +24,12 @@ const LayoutLogoAndFooter = () => {
     };
 
     return (
-        <div className="m-auto max-w-xl min-h-screen flex flex-col">
+        <div className="m-auto max-w-xl h-screen flex flex-col overflow-hidden">
             <HeaderWithLogo title={getTitle()} />
-            <main className="px-4 pb-24 overflow-y-auto scrollbar-hide flex-1">
+            <main className="px-4 flex-1 overflow-y-auto scrollbar-hide">
                 <Outlet />
             </main>
-            <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl bg-white border-t border-gray-200" style={{ height: '65px' }}>
+            <footer className="flex-shrink-0 bg-white border-t border-gray-200" style={{ height: '65px' }}>
                 <Footer />
             </footer>
         </div>

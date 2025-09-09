@@ -54,58 +54,115 @@ const MyPageMain = () => {
     ]
 
     return (
-        <div className="pt-3 px-2 pb-24">
-            <div className="flex justify-between items-center pb-[1rem] border-gray-200">
-                {/* 왼쪽 */}
-                <div className="flex items-center gap-3">
-                    <ProfileButton />
-                    <span className="font-semibold">
-                        {loginStatus ?
-                            <div className="flex items-center gap-1">
-                                <span className="text-lg">{name}</span>
-                                <span>님</span>
-                            </div>
-                            :
-                            <button
-                                onClick={goToLogin}
-                                className="text-blue-500 hover:underline"
-                            >
-                                로그인이 필요합니다.
-                            </button>}
-                    </span>
-                </div>
-                {/* 오른쪽 */}
-                {loginStatus ? (
-                    <>
+        <div>
+            {/* 프로필 헤더 카드 */}
+            <div className="mx-4 mt-4 mb-6 bg-white rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        {/* 네모박스 크기 프로필 버튼 */}
+                        <div className="relative">
+                            <ProfileButton size="large" />
+                            {loginStatus && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-white rounded-full"></div>
+                            )}
+                        </div>
+
+                        <div>
+                            {loginStatus ? (
+                                <>
+                                    <div className="text-lg font-bold text-gray-900">{name}님</div>
+                                    <div className="text-sm text-gray-500">환경을 생각하는 사용자</div>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={goToLogin}
+                                    className="text-left"
+                                >
+                                    <div className="text-lg font-bold text-blue-600">로그인이 필요합니다</div>
+                                    <div className="text-sm text-gray-500">터치하여 로그인하세요</div>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {loginStatus && (
                         <button
                             onClick={handleLogout}
-                            className="pr-5 text-sm text-red-500 hover:underline"
+                            className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
                             로그아웃
                         </button>
-                    </>
-                ) : null}
+                    )}
+                </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-                {
-                    navigations.map((nav, idx) => {
-                        if (nav.path == 'LINE') {
-                            return <hr key={idx} className="border-gray-200" />;
-                        }
-                        if (nav.path == 'TITLE') {
-                            return <span key={idx} className="font-bold pt-6 pb-2">{nav.title}</span>
-                        }
+            {/* 퀵 액션 카드들 - 각각 다른 색상 */}
+            {loginStatus && (
+                <div className="mx-4 mb-6">
+                    <div className="grid grid-cols-3 gap-3">
+                        <Link to="/my-page/my-assets" className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
+                                <span className="text-white">💰</span>
+                            </div>
+                            <div className="text-xs font-medium text-white">포인트</div>
+                            <div className="text-xs text-white/80">관리</div>
+                        </Link>
+
+                        <Link to="/eco-stock/certificate" className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
+                                <span className="text-white">🌱</span>
+                            </div>
+                            <div className="text-xs font-medium text-white">에코스톡</div>
+                            <div className="text-xs text-white/80">인증</div>
+                        </Link>
+
+                        <Link to="/my-page/my-buy-history" className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
+                                <span className="text-white">🛍️</span>
+                            </div>
+                            <div className="text-xs font-medium text-white">구매</div>
+                            <div className="text-xs text-white/80">내역</div>
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {/* 메뉴 리스트 */}
+            <div className="px-4 space-y-1">
+                {navigations.map((nav, idx) => {
+                    if (nav.path === 'LINE') {
+                        return <div key={idx} className="h-4" />;
+                    }
+
+                    if (nav.path === 'TITLE') {
                         return (
-                            <Link to={nav.path} key={idx}>
-                                <div className="h-[4rem] flex justify-between items-center text-start font-semibold">
-                                    <span>{nav.title}</span>
-                                    <FontAwesomeIcon icon={faChevronRight} />
-                                </div>
-                            </Link>
+                            <div key={idx} className="pt-4 pb-3">
+                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-1">
+                                    {nav.title}
+                                </h3>
+                            </div>
                         );
-                    })
-                }
+                    }
+
+                    // 퀵 액션에 있는 항목들은 제외
+                    if (nav.path === '/my-page/my-assets' ||
+                        nav.path === '/eco-stock/certificate' ||
+                        nav.path === '/my-page/my-buy-history') {
+                        return null;
+                    }
+
+                    return (
+                        <Link to={nav.path} key={idx}>
+                            <div className="flex justify-between items-center py-4 px-1 hover:bg-gray-50 rounded-lg transition-colors">
+                                <span className="text-gray-900 font-medium">{nav.title}</span>
+                                <FontAwesomeIcon
+                                    icon={faChevronRight}
+                                    className="text-gray-400 text-sm"
+                                />
+                            </div>
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );
