@@ -1,22 +1,75 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CartIcon from '@/assets/navigation_icon/Cart.svg';
+import Toast from "@/components/common/Toast";
+
 const EcoBadge = React.memo(() => (
-  <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <path d="M12 3c-3.5 0-6.5 2.8-6.5 6.3 0 1.3.4 2.4 1.1 3.5C5.2 13.8 4.5 15 4.5 16.5 4.5 18.4 6.1 20 8 20h2v2h4v-2h2c1.9 0 3.5-1.6 3.5-3.5 0-1.5-.7-2.7-2.1-3.7.7-1.1 1.1-2.3 1.1-3.5C18.5 5.8 15.5 3 12 3z" fill="currentColor"/>
-      <rect x="11" y="17" width="2" height="5" fill="currentColor"/>
+  <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none bg-emerald-50 text-emerald-700 border border-emerald-200">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
     </svg>
-    친환경
+    Re.Green
   </span>
 ));
-import { useNavigate } from "react-router-dom";
 
 // Named export (so `import { ProductComponent } from ...` works)
 export function ProductComponent({ items = [], loading = false, error = null, onOpenDetail }) {
   const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false);
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+
+    const item = {
+      id: product.productId,
+      name: product.productName,
+      price: Number(product.price ?? 0),
+      imageUrl: product.imageUrl || '',
+      isEcoDeal: Boolean(product.isEcoDeal === true || product.ecoDealStatus === 'Y'),
+      quantity: 1,
+      salePercent: Number(product.salePercent ?? 0),
+    };
+
+    // 상태 로드/초기화 (ShoppingDetail과 동일한 방식)
+    let store;
+    try {
+      const raw = localStorage.getItem('cart-storage');
+      store = raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      store = null;
+    }
+    if (!store || typeof store !== 'object') {
+      store = { state: { deliveryCart: [], pickupCart: [], selectedStore: null }, version: 0 };
+    } else {
+      store.state = store.state || {};
+      if (!Array.isArray(store.state.deliveryCart)) store.state.deliveryCart = [];
+      if (!Array.isArray(store.state.pickupCart)) store.state.pickupCart = [];
+      if (typeof store.version !== 'number') store.version = 0;
+    }
+
+    // deliveryCart 갱신(동일 id면 수량 누적 및 최신 정보 반영) - ShoppingDetail과 동일
+    const list = store.state.deliveryCart;
+    const idx = list.findIndex((i) => String(i.id) === String(item.id));
+    if (idx >= 0) {
+      const prevQty = Number(list[idx].quantity || 0);
+      list[idx] = { ...list[idx], ...item, quantity: prevQty + item.quantity };
+    } else {
+      list.push(item);
+    }
+
+    try {
+      localStorage.setItem('cart-storage', JSON.stringify(store));
+      setShowToast(true);
+    } catch (e) {
+      console.error('cart-storage 저장 실패', e);
+      alert('장바구니 저장에 실패했습니다.');
+    }
+  };
+
   return (
     // 중앙 컨텐츠
-    <main className="pt-4 flex justify-center">
-      <div className="w-full max-w-screen-md">
+    <main className="pt-4">
+      <div className="w-full max-w-screen-md mx-auto">
         {/* 상태 표시 */}
         {loading && (
           <div className="h-56 flex items-center justify-center text-gray-400">
@@ -37,30 +90,30 @@ export function ProductComponent({ items = [], loading = false, error = null, on
         )}
 
         {!loading && !error && items.length > 0 && (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {items.map((p) => {
               const name = p.productName ?? "상품명";
               const brand = p.brandName;
               const price = p.price;
               const img = p.imageUrl;
-              
+
               return (
-                <li
-                  key={p.productId}
-                  className="rounded-xl border border-gray-100 overflow-hidden bg-white cursor-pointer"
-                  onClick={() => {
-                    if (typeof onOpenDetail === 'function') {
-                      onOpenDetail(p.productId);
-                      return;
-                    }
-                    try {
-                      const y = window.scrollY || document.documentElement.scrollTop || 0;
-                      sessionStorage.setItem('shopping-main-scroll', String(y));
-                    } catch (_) {}
-                    navigate(`/shopping/detail?productId=${p.productId}`);
-                  }}
-                >
-                  <div className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative">
+                <div key={p.productId} className="cursor-pointer">
+                  {/* 이미지 부분 - 회색 테두리만 */}
+                  <div
+                    className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative border border-gray-200 rounded-lg mb-2"
+                    onClick={() => {
+                      if (typeof onOpenDetail === 'function') {
+                        onOpenDetail(p.productId);
+                        return;
+                      }
+                      try {
+                        const y = window.scrollY || document.documentElement.scrollTop || 0;
+                        sessionStorage.setItem('shopping-main-scroll', String(y));
+                      } catch (_) { }
+                      navigate(`/shopping/detail?productId=${p.productId}`);
+                    }}
+                  >
                     <EcoBadge />
                     {img ? (
                       <img src={img} alt={name} className="w-full h-full object-cover" />
@@ -68,19 +121,50 @@ export function ProductComponent({ items = [], loading = false, error = null, on
                       <span className="text-gray-300">이미지 없음</span>
                     )}
                   </div>
-                  <div className="p-2">
-                    <div className="text-[13px] text-gray-500 line-clamp-1">{brand}</div>
-                    <div className="text-sm font-medium line-clamp-2">{name}</div>
+
+                  {/* 정보 부분 */}
+                  <div className="space-y-2">
+                    {/* 장바구니 담기 버튼 */}
+                    <button
+                      onClick={(e) => handleAddToCart(e, p)}
+                      className="w-full py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-200 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <img src={CartIcon} className="w-4 h-4" />
+                      담기
+                    </button>
+
+                    {/* 브랜드명 / 무료배송 */}
+                    <div className="text-xs font-normal text-gray-500 flex justify-between">
+                      <span>{brand || "브랜드명"}</span>
+                      <span>무료배송</span>
+                    </div>
+
+                    {/* 상품명 */}
+                    <div className="text-sm font-normal text-gray-900 line-clamp-2">
+                      {name}
+                    </div>
+
+                    {/* 가격 */}
                     {price != null && (
-                      <div className="mt-1 font-semibold">{Number(price).toLocaleString()}원</div>
+                      <div className="text-sm font-bold text-gray-900">
+                        {Number(price).toLocaleString()}원
+                      </div>
                     )}
                   </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
+
+      { /* Toast 알ㄹ미 */}
+      <Toast
+        message="나의 장바구니에 담았어요"
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={2000}
+      />
     </main>
   );
 }

@@ -24,7 +24,7 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
     const priceChange = getPriceChange();
 
     const getPriceChangeStyle = () => {
-        if (priceChange.amount > 0) return 'text-green-600';
+        if (priceChange.amount > 0) return 'text-emerald-600';
         if (priceChange.amount < 0) return 'text-red-600';
         return 'text-gray-600'; // 0%는 회색
     };
@@ -42,7 +42,7 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
 
 
     return (
-        <div className="bg-white border-t border-gray-200 p-4 relative z-10">
+        <div className="bg-white border-gray-200 p-4 relative z-10">
             <div className="max-w-4xl mx-auto min-w-0">
                 <div className="flex items-center justify-between mb-6 sm:mb-10 gap-4">
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -80,7 +80,7 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
                         </div>
                         <div className="min-w-0 flex-1">
                             {stockList && stockList.length > 0 ? (
-                                <div className="w-full max-w-64 relative z-50">
+                                <div className="w-full max-w-64 relative z-20">
                                     <ModernStockSelector
                                         stockList={stockList}
                                         selectedStockId={stockId}
@@ -93,7 +93,7 @@ const StockChartHeader = ({ stockList, stockId, onStockChange, getStockName, cur
                                 </h3>
                             )}
                             <div className="flex items-center space-x-2 mt-1">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse flex-shrink-0"></div>
                                 <p className="text-xs sm:text-sm text-gray-500">실시간 차트</p>
                             </div>
                         </div>
