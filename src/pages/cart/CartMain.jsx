@@ -7,67 +7,67 @@ import { CustomCommonButton } from '@/components/_custom/CustomButtons'
 
 const CartMain = () => {
   const navigate = useNavigate()
-  
+
   // 하이드레이션 상태
   const [isHydrated, setIsHydrated] = useState(false)
   // 강제 리렌더링용 상태
   const [, forceUpdate] = useState({})
-  
+
   // Zustand store에서 모든 상태와 함수들을 구독
   const cartStore = useCartStore()
   const { deliveryCart, pickupCart } = cartStore
-  
+
   const [sp, setSp] = useSearchParams()
   const initialTab = sp.get('tab') === 'pickup' ? 'pickup' : 'delivery'
   const [activeTab, setActiveTab] = useState(initialTab)
-  
+
   // 선택된 상품 ID들
   const [selectedProductIds, setSelectedProductIds] = useState([])
 
   useEffect(() => {
-   const next = new URLSearchParams(sp)
-   next.set('tab', activeTab)
-   setSp(next, { replace: true }) // 히스토리 오염 방지
-   // eslint-disable-next-line react-hooks/exhaustive-deps
- }, [activeTab])
-  
+    const next = new URLSearchParams(sp)
+    next.set('tab', activeTab)
+    setSp(next, { replace: true }) // 히스토리 오염 방지
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
+
   // 실시간 장바구니 상태 동기화
   useEffect(() => {
     const handleCartUpdate = () => {
       // Zustand store 상태를 강제로 동기화
       const currentState = useCartStore.getState()
-      
+
       // 강제 리렌더링 (상태 객체 참조 변경)
       forceUpdate({})
-      
+
       console.log('장바구니 업데이트 감지:', {
         deliveryCount: currentState.deliveryCart.length,
         pickupCount: currentState.pickupCart.length,
         timestamp: new Date().toISOString()
       })
     }
-    
+
     // 여러 이벤트 모두 감지
     window.addEventListener('cartStorageUpdate', handleCartUpdate)
     window.addEventListener('storage', handleCartUpdate) // localStorage 직접 변경 감지
-    
+
     // cleanup
     return () => {
       window.removeEventListener('cartStorageUpdate', handleCartUpdate)
       window.removeEventListener('storage', handleCartUpdate)
     }
   }, [])
-  
+
   // 페이지 포커스 시 상태 동기화 (다른 탭에서 추가했을 때)
   useEffect(() => {
     const handleFocus = () => {
       forceUpdate({})
     }
-    
+
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
   }, [])
-  
+
   // 하이드레이션 처리
   useEffect(() => {
     const initializeCart = () => {
@@ -77,10 +77,10 @@ const CartMain = () => {
         if (cartData) {
           const parsed = JSON.parse(cartData)
           const state = parsed.state || parsed
-          
+
           if (state.deliveryCart || state.pickupCart) {
             const currentState = useCartStore.getState()
-            
+
             // 상태가 다르면 업데이트
             if (
               JSON.stringify(currentState.deliveryCart) !== JSON.stringify(state.deliveryCart) ||
@@ -99,30 +99,30 @@ const CartMain = () => {
         setIsHydrated(true)
       }
     }
-    
+
     initializeCart()
-    
+
     // 추가 안전장치: 200ms 후 한 번 더 체크
     const timer = setTimeout(initializeCart, 200)
     return () => clearTimeout(timer)
   }, [])
-  
+
   // 각 탭에 상품이 있는지 확인
   const hasDeliveryProducts = deliveryCart.length > 0
   const hasPickupProducts = pickupCart.length > 0
   const hasAnyProducts = hasDeliveryProducts || hasPickupProducts
-  
+
   // 현재 활성 탭의 장바구니 가져오기
   const getCurrentCart = () => {
     return activeTab === 'delivery' ? deliveryCart : pickupCart
   }
-  
+
   // 선택된 상품들만 필터링
   const getSelectedProducts = () => {
     const currentCart = getCurrentCart()
     return currentCart.filter(product => selectedProductIds.includes(product.id))
   }
-  
+
   // 선택된 상품들의 원가 총합
   const getSelectedOriginalPrice = () => {
     const selectedProducts = getSelectedProducts()
@@ -130,49 +130,49 @@ const CartMain = () => {
       return total + (product.price * product.quantity)
     }, 0)
   }
-  
+
   // 선택된 상품들의 할인 적용된 총 가격
   const getSelectedTotalPrice = () => {
     const selectedProducts = getSelectedProducts()
     return selectedProducts.reduce((total, product) => {
-      const discountedPrice = product.isEcoDeal 
+      const discountedPrice = product.isEcoDeal
         ? product.price * (1 - product.salePercent / 100)
         : product.price
       return total + (discountedPrice * product.quantity)
     }, 0)
   }
-  
+
   // 선택된 상품들의 할인 금액
   const getSelectedDiscountAmount = () => {
     return getSelectedOriginalPrice() - getSelectedTotalPrice()
   }
-  
+
   // 선택된 상품 개수
   const getSelectedProductsCount = () => {
     const selectedProducts = getSelectedProducts()
     return selectedProducts.reduce((total, product) => total + product.quantity, 0)
   }
-  
+
   // 선택된 상품 변경 핸들러 (useCallback으로 메모이제이션)
   const handleSelectedChange = useCallback((selectedIds) => {
     setSelectedProductIds(selectedIds)
   }, [])
-  
+
   // 상품이 삭제되어서 선택 목록에서 제거된 경우 처리
   useEffect(() => {
     const currentCart = getCurrentCart()
     const currentProductIds = currentCart.map(product => product.id)
-    
+
     // 삭제된 상품은 선택 목록에서 제거
-    setSelectedProductIds(prev => 
+    setSelectedProductIds(prev =>
       prev.filter(id => currentProductIds.includes(id))
     )
   }, [deliveryCart, pickupCart, activeTab])
-  
+
   // 주문하기 버튼 클릭
   const handleOrderClick = () => {
     const selectedProducts = getSelectedProducts()
-  
+
     if (selectedProducts.length === 0) {
       alert('주문할 상품을 선택해주세요.')
       return
@@ -183,16 +183,16 @@ const CartMain = () => {
       ...product,
       ecoDealStatus: product.isEcoDeal,
     }))
-    
+
     // 주문 페이지로 이동
-    navigate('/orders', { 
-      state: { 
-        products: orderProducts, 
+    navigate('/orders', {
+      state: {
+        products: orderProducts,
         deliveryType: activeTab === 'pickup' ? 'PICKUP' : 'DELIVERY'
-      } 
+      }
     })
   }
-  
+
   // 하이드레이션 중이면 로딩 화면
   if (!isHydrated) {
     return (
@@ -204,51 +204,49 @@ const CartMain = () => {
       </div>
     )
   }
-  
+
   // 빈 장바구니 화면
   if (!hasAnyProducts) {
     return <EmptyCart />
   }
-  
+
   return (
     <div className="w-full min-h-screen flex flex-col bg-gray-50">
-      
+
       {/* 상단 탭 헤더 - 헤더 아래에 고정 */}
-      <div className="flex border-b border-gray-200 bg-white sticky top-16 z-40 shadow-sm">
-        <button 
-          className={`flex-1 py-4 text-center font-medium transition-colors ${
-            activeTab === 'delivery' 
-              ? 'text-green-600 border-b-2 border-green-600 bg-green-50' 
+      <div className="flex border-b border-gray-200 bg-white sticky top-12 z-40 shadow-sm">
+        <button
+          className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'delivery'
+              ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
               : 'text-gray-500 hover:text-gray-700'
-          }`}
+            }`}
           onClick={() => setActiveTab('delivery')}
         >
           일반 배송 ({deliveryCart.length})
         </button>
-        <button 
-          className={`flex-1 py-4 text-center font-medium transition-colors ${
-            activeTab === 'pickup' 
-              ? 'text-green-600 border-b-2 border-green-600 bg-green-50' 
+        <button
+          className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'pickup'
+              ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
               : 'text-gray-500 hover:text-gray-700'
-          }`}
+            }`}
           onClick={() => setActiveTab('pickup')}
         >
           픽업 배송 ({pickupCart.length})
         </button>
       </div>
-      
+
       {/* 장바구니 내용 영역 - 탭 헤더 높이만큼 상단 마진 추가 */}
       <div className="flex-1 pb-40">
-        <CartSection 
+        <CartSection
           cartType={activeTab}
           products={getCurrentCart()}
           onSelectedChange={handleSelectedChange}
         />
       </div>
-      
+
       {/* 하단 주문 버튼 영역 - 고정 */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg p-4">
-        
+
         {/* 가격 상세 정보 */}
         <div className="space-y-2 mb-4">
           <div className="flex justify-between text-sm">
@@ -257,16 +255,16 @@ const CartMain = () => {
               {getSelectedOriginalPrice().toLocaleString()}원
             </span>
           </div>
-          
+
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">총 할인금액</span>
             <span className="text-red-600">
               -{getSelectedDiscountAmount().toLocaleString()}원
             </span>
           </div>
-          
+
           <hr className="border-gray-200" />
-          
+
           <div className="flex justify-between items-center">
             <span className="text-lg font-medium text-gray-700">최종 결제금액</span>
             <span className="text-xl font-bold text-green-600">
@@ -274,7 +272,7 @@ const CartMain = () => {
             </span>
           </div>
         </div>
-        
+
         <CustomCommonButton
           onClick={handleOrderClick}
           disabled={selectedProductIds.length === 0}
@@ -282,7 +280,7 @@ const CartMain = () => {
         >
           주문하기 ({getSelectedProductsCount()}개)
         </CustomCommonButton>
-        
+
         {/* 배송비 안내 */}
         <p className="text-center text-sm text-gray-500 mt-2">
           {activeTab === 'pickup' ? '매장 픽업 (무료)' : '일반 배송 (무료)'}
