@@ -15,7 +15,7 @@ const EcoBadge = () => (
   </span>
 );
 
-// 배지 생성 함수 수정
+// 배지 생성 함수
 const generateBadges = (productName, categoryName) => {
   const badgeOptions = [
     { text: 'BEST', color: 'bg-blue-50 text-blue-600' },
@@ -26,7 +26,6 @@ const generateBadges = (productName, categoryName) => {
     { text: 'MD추천', color: 'bg-pink-50 text-pink-600' }
   ];
 
-  // 상품 ID나 이름 기반으로 배지를 선택 (일관성 유지)
   const hash = productName?.length || 0;
   const selectedBadges = [];
 
@@ -42,7 +41,7 @@ const generateBadges = (productName, categoryName) => {
   return selectedBadges;
 };
 
-// 카테고리별 리뷰 생성 함수 (더 많은 리뷰)
+// 카테고리별 리뷰 생성 함수
 const generateReviews = (categoryName, brandName) => {
   const category = categoryName?.toLowerCase() || '';
   const brand = brandName?.toLowerCase() || '';
@@ -117,7 +116,7 @@ const generateReviews = (categoryName, brandName) => {
     ];
   }
 
-  // 기본 리뷰 (위 조건에 해당하지 않는 경우)
+  // 기본 리뷰
   return [
     { id: 1, rating: 5, text: "품질이 정말 좋고 만족스러워요!", author: "김**", date: "2025.09.15" },
     { id: 2, rating: 4, text: "친환경 제품이라서 더 의미 있게 사용해요", author: "이**", date: "2025.09.12" },
@@ -134,12 +133,12 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   const productId = productIdProp ?? sp.get("productId");
   const navigate = useNavigate();
 
-  const [rows, setRows] = useState([]); // 상품 상세 데이터
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("info"); // 상품정보, 리뷰 탭
-  const [showAllInfo, setShowAllInfo] = useState(false); // 상품정보 이미지 전체 보기 여부
-  const [recommends, setRecommends] = useState([]); // 유사상품추천 목록
+  const [activeTab, setActiveTab] = useState("info");
+  const [showAllInfo, setShowAllInfo] = useState(false);
+  const [recommends, setRecommends] = useState([]);
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -160,7 +159,6 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       .finally(() => setLoading(false));
   }, [productId]);
 
-  // 상품정보 탭에 노출할 상세 이미지들: sortOrder >= 1만 노출
   const infoImages = useMemo(
     () => rows
       .filter((r) => Number(r?.sortOrder) >= 1)
@@ -175,21 +173,18 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   const canCollapse = infoImages.length > MAX_INITIAL_INFO_IMAGES;
   const moreBtnAnchorId = 'product-info-more-anchor';
 
-  // 메인 정보 파생
   const main = useMemo(() => rows[0] || null, [rows]);
   const name = main?.productName ?? "상품명";
   const brand = main?.brandName ?? "브랜드명";
   const price = main?.price;
   const categoryName = main?.categoryName ?? '';
 
-  // 리뷰 데이터 생성
   const reviews = useMemo(() => generateReviews(categoryName, brand), [categoryName, brand]);
   const averageRating = useMemo(() => {
     if (reviews.length === 0) return 0;
     return (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1);
   }, [reviews]);
 
-  // 상품 썸네일: sortOrder === 0의 productImageUrl 우선, 없으면 imageUrl 사용
   const thumbnail = useMemo(() => {
     const zeroOrder = rows.find((r) => Number(r?.sortOrder) === 0);
     if (zeroOrder?.productImageUrl) return zeroOrder.productImageUrl;
@@ -198,15 +193,24 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
 
   // 수량 상태 및 핸들러
   const [qty, setQty] = useState(1);
+  const inc = () => setQty((q) => Math.min(99, q + 1));
+  const dec = () => setQty((q) => Math.max(1, q - 1));
+  const onQtyChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (isNaN(value) || value < 1) {
+      setQty(1);
+    } else if (value > 99) {
+      setQty(99);
+    } else {
+      setQty(value);
+    }
+  };
 
-  // 계산된 값들
   const discountedPrice = price ? price * (1 - (main?.salePercent || 0) / 100) : 0;
 
-  // 구매/장바구니 핸들러
   const handleBuyNow = () => {
     if (!main) return;
 
-    // 상품 정보를 주문서 형식으로 변환
     const orderProduct = {
       id: main.productId,
       name: main.productName,
@@ -218,19 +222,17 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       salePercent: Number(main.salePercent ?? 0),
     }
 
-    // 에코딜 상품인지 확인하여 배송 타입 결정
     const deliveryType = orderProduct.isEcoDeal ? 'PICKUP' : 'DELIVERY';
 
     navigate('/orders', {
       state: {
         products: [orderProduct],
         deliveryType: deliveryType,
-        fromDirectPurchase: true // 바로 구매인지 구분하기 위한 플래그
+        fromDirectPurchase: true
       }
     });
   };
 
-  // 장바구니 담기 (localstorage 사용)
   const handleAddToCart = () => {
     if (!main) return;
     const item = {
@@ -243,7 +245,6 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       salePercent: Number(main.salePercent ?? 0),
     };
 
-    // 상태 로드/초기화
     let store;
     try {
       const raw = localStorage.getItem('cart-storage');
@@ -260,7 +261,6 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       if (typeof store.version !== 'number') store.version = 0;
     }
 
-    // deliveryCart 갱신(동일 id면 수량 누적 및 최신 정보 반영)
     const list = store.state.deliveryCart;
     const idx = list.findIndex((i) => String(i.id) === String(item.id));
     if (idx >= 0) {
@@ -286,7 +286,6 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
     const pid = main.productId;
 
     const params = { name: nm, categoryId: cid, productId: pid, size: 10 };
-    // 유사상품 추천
     searchRecommendProducts(params)
       .then((list) => setRecommends(Array.isArray(list) ? list : []))
       .catch(() => setRecommends([]));
@@ -309,7 +308,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
         }
       `}</style>
 
-      {/* 메인 이미지 영역 - 화면 꽉 채우기 */}
+      {/* 메인 이미지 영역 */}
       <div className="relative bg-gray-50 -mx-4">
         <div className="aspect-square overflow-hidden">
           {thumbnail ? (
@@ -320,24 +319,18 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
             </div>
           )}
         </div>
-
-        {/* Re.Green 배지 - 위치 조정 */}
         <EcoBadge />
       </div>
 
       {/* 상품 기본 정보 */}
       <div className="p-4 space-y-4">
-        {/* 브랜드명 */}
         {brand && <div className="text-sm text-gray-500">{brand}</div>}
-
-        {/* 상품명 */}
         <h1 className="text-lg font-medium leading-tight">{name}</h1>
 
-        {/* 평점 & 리뷰 */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
             <span className="text-sm font-semibold">{averageRating}</span>
           </div>
@@ -345,7 +338,6 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
           <span className="text-sm text-gray-500">리뷰 {reviews.length}건</span>
         </div>
 
-        {/* 가격 */}
         <div className="space-y-1">
           {main?.salePercent > 0 && (
             <div className="flex items-center gap-2">
@@ -362,33 +354,60 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
           </div>
         </div>
 
-        {/* 배지들 */}
-        <div className="flex gap-1 flex-wrap">
-          {generateBadges(name, categoryName).map((badge, index) => (
-            <span key={index} className={`${badge.color} px-2 py-1 rounded text-xs font-medium`}>
-              {badge.text}
-            </span>
-          ))}
-        </div>
+        {/* 배지들 + 수량 선택 */}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-1 flex-wrap">
+            {generateBadges(name, categoryName).map((badge, index) => (
+              <span key={index} className={`${badge.color} px-2 py-1 rounded text-xs font-medium`}>
+                {badge.text}
+              </span>
+            ))}
+          </div>
 
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500">수량</span>
+            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <button
+                onClick={dec}
+                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                aria-label="수량 감소"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                min="1"
+                max="99"
+                value={qty}
+                onChange={onQtyChange}
+                className="w-12 text-center text-sm outline-none py-1.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <button
+                onClick={inc}
+                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                aria-label="수량 증가"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="-mx-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+      <div className="border-b border-gray-200 sticky top-0 bg-white z-10">
         <div className="flex">
           <button
             onClick={() => setActiveTab('info')}
-            className={`flex-1 py-3 text-center font-medium transition-colors ${
-              activeTab === 'info' ? 'text-black border-b-2 border-black' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-3 text-center font-medium transition-colors ${activeTab === 'info' ? 'text-black border-b-2 border-black' : 'text-gray-500'
+              }`}
           >
             상품정보
           </button>
           <button
             onClick={() => setActiveTab('review')}
-            className={`flex-1 py-3 text-center font-medium transition-colors ${
-              activeTab === 'review' ? 'text-black border-b-2 border-black' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-3 text-center font-medium transition-colors ${activeTab === 'review' ? 'text-black border-b-2 border-black' : 'text-gray-500'
+              }`}
           >
             리뷰 {reviews.length}
           </button>
@@ -449,9 +468,9 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
             <div className="bg-gray-50 rounded-lg p-4 text-center">
               <div className="text-3xl font-bold">{averageRating}</div>
               <div className="flex justify-center my-2">
-                {[1,2,3,4,5].map((star) => (
+                {[1, 2, 3, 4, 5].map((star) => (
                   <svg key={star} className={`w-5 h-5 ${star <= Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'} fill-current`} viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 ))}
               </div>
@@ -463,9 +482,9 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
                 <div key={review.id} className="border-b border-gray-100 pb-4 last:border-b-0">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex">
-                      {[1,2,3,4,5].map((star) => (
+                      {[1, 2, 3, 4, 5].map((star) => (
                         <svg key={star} className={`w-4 h-4 ${star <= review.rating ? 'text-yellow-400' : 'text-gray-300'} fill-current`} viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
                       ))}
                     </div>
@@ -545,7 +564,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
         message="나의 장바구니에 담았어요"
         isVisible={showToast}
         onHide={() => setShowToast(false)}
-        duration={2000}  
+        duration={2000}
       />
     </div>
   );
