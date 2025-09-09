@@ -106,8 +106,9 @@ const RaffleListPage = () => {
       } finally {
         setLoading(false);
       }
-    };
-
+    }
+  );
+    
   useEffect(() => {
     fetchData();
   }, [loginStatus]);
