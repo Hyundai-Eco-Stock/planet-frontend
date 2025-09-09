@@ -20,8 +20,6 @@ const generateFoodBadges = (productName) => {
   const badgeOptions = [
     { text: '품질보장', color: 'bg-blue-50 text-blue-600' },
     { text: '한정수량', color: 'bg-red-50 text-red-600' },
-    { text: '신선식품', color: 'bg-green-50 text-green-600' },
-    { text: '당일픽업', color: 'bg-purple-50 text-purple-600' },
     { text: '엄선상품', color: 'bg-indigo-50 text-indigo-600' },
     { text: '프리미엄', color: 'bg-amber-50 text-amber-600' }
   ];
