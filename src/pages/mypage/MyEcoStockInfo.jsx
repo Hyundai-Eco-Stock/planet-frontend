@@ -10,7 +10,8 @@ const MyEcoStockInfo = () => {
   const [error, setError] = useState(null);
   const [lastSyncAt, setLastSyncAt] = useState(null);
 
-  const totalPoint = items.reduce((sum, item) => sum + (item.point || 0), 0);
+  const pointItem = items.find(item => item.point !== undefined);
+  const totalPoint = pointItem ? pointItem.point : 0;
 
   const loadAll = async () => {
     let canceled = false;
