@@ -118,7 +118,7 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                                 0원
                             </span>
                             <span className={`text-2xl font-bold ${hasWinner || isExpired ? 'text-gray-400' : 'text-red-500'}`}>
-                                99%
+                                100%
                             </span>
                         </div>
                         {/* 참여자 수 */}
