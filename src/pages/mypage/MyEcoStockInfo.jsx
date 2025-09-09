@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { fetchMyEcostocks, fetchEcostockPrices } from "@/api/member/member.api";
- 
+
 
 const MyEcoStockInfo = () => {
   const [items, setItems] = useState([]);
@@ -13,6 +13,7 @@ const MyEcoStockInfo = () => {
   const pointItem = items.find(item => item.point !== undefined);
   const totalPoint = pointItem ? pointItem.point : 0;
 
+
   const loadAll = async () => {
     let canceled = false;
     setLoading(true);
@@ -22,8 +23,8 @@ const MyEcoStockInfo = () => {
       if (canceled) return;
       setItems(Array.isArray(stocks) ? stocks : []);
 
-      console.log("템이요",items);
-      
+      console.log("템이요", items);
+
       setPrices(Array.isArray(priceList) ? priceList : []);
       setLastSyncAt(new Date());
     } catch (e) {
@@ -38,6 +39,18 @@ const MyEcoStockInfo = () => {
     }
     return () => { canceled = true };
   };
+
+  const totalProfitLoss = items.reduce((sum, stock) => {
+    const price = prices.find(p => p.ecoStockId === stock.ecoStockId)?.stockPrice ?? 0;
+
+    if (stock.currentTotalQuantity > 0) {
+      // (현재가 - 평균단가) × 수량
+      const pnl = price * stock.currentTotalQuantity;
+
+      return pnl;
+    }
+    return sum;
+  }, 0);
 
   useEffect(() => {
     let mounted = true;
@@ -94,9 +107,18 @@ const MyEcoStockInfo = () => {
       {lastSyncAt && (
         <div className="mb-3 text-[11px] text-gray-500">최근 동기화: {lastSyncAt.toLocaleString('ko-KR')}</div>
       )}
-      {/* Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <SummaryCard label="총 포인트"   value={`${formatNumber(totalPoint)}`} suffix="P" color="amber" />
+      <div className="flex gap-3">
+        <SummaryCard
+          label="보유 포인트"
+          value={`${formatNumber(totalPoint)}`}
+          suffix="P"
+          color="amber"
+        />
+        <SummaryCard
+          label="에코스톡 총 가치"
+          value={`${formatNumber(totalProfitLoss)}`}
+          suffix="P"
+        />
       </div>
 
       {/* List */}
@@ -134,7 +156,7 @@ const SummaryCard = ({ label, value, suffix, color = "indigo" }) => {
   }[color] || colorMap.indigo;
 
   return (
-    <div className={`rounded-2xl border border-gray-200 ring-1 ${colorMap.ring} bg-gradient-to-b ${colorMap.bg} p-4`}> 
+    <div className={`rounded-2xl border border-gray-200 ring-1 ${colorMap.ring} bg-gradient-to-b ${colorMap.bg} p-4`}>
       <div className="flex items-center justify-between">
         <div className="text-xs text-gray-500">{label}</div>
         <span className={`w-2.5 h-2.5 rounded-full ${colorMap.dot}`} />
@@ -209,8 +231,8 @@ const ChangeBadge = ({ value }) => {
   const cls = up
     ? `${base} bg-rose-50 text-rose-700 border border-rose-200`
     : down
-    ? `${base} bg-blue-50 text-blue-700 border border-blue-200`
-    : `${base} bg-gray-50 text-gray-600 border border-gray-200`;
+      ? `${base} bg-blue-50 text-blue-700 border border-blue-200`
+      : `${base} bg-gray-50 text-gray-600 border border-gray-200`;
   return (
     <span className={cls}>
       <span aria-hidden>{up ? "▲" : down ? "▼" : "—"}</span>
