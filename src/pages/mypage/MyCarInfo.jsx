@@ -7,6 +7,7 @@ import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 // import { SimpleSelect } from "@/components/_custom/CustomSelect";
 import { CustomCommonButton } from "../../components/_custom/CustomButtons";
 import { useOutletContext } from "react-router-dom";
+import { fetchCarHistoriesByCarNumber } from "@/api_department_core_backend/car/carAccessHistory.api";
 
 
 const MyCarInfo = () => {
@@ -20,6 +21,7 @@ const MyCarInfo = () => {
     const [carNumberMiddle, setCarNumberMiddle] = useState(null);
     const [carNumberRight, setCarNumberRight] = useState(null);
     const [carInfoExist, setCarInfoExist] = useState(null);
+    const [carHistories, setCarHistories] = useState([]);
 
     // 내 차 정보 등록
     const handleRegisterCarInfo = async () => {
@@ -93,7 +95,7 @@ const MyCarInfo = () => {
         });
     }
 
-    useState(() => {
+    useEffect(() => {
         // 내 차 정보 가져오기
         const handleFetchCarInfo = async () => {
             try {
@@ -110,6 +112,7 @@ const MyCarInfo = () => {
                         setCarNumberRight(match[3]);
                     }
                     setCarInfoExist(true);
+                    _fetchCarAccessHistories();
                 } else {
                     setCarNumberLeft("");
                     setCarNumberMiddle("");
@@ -126,13 +129,22 @@ const MyCarInfo = () => {
             }
         };
 
+        const _fetchCarAccessHistories = () => {
+            const carNumber = `${carNumberLeft}${carNumberMiddle}${carNumberRight}`;
+            fetchCarHistoriesByCarNumber(carNumber)
+                .then((data) => {
+                    console.log(data);
+                    setCarHistories(data);
+                })
+        }
+
         handleFetchCarInfo();
     }, [])
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-24">
             <div>
-                <label className="block mb-1 font-semibold">차량 번호</label>
+                <label className="block mb-1 font-semibold">내 차량 번호</label>
                 <div className="flex gap-2">
                     <CustomCommonInput
                         value={carNumberLeft}
@@ -157,8 +169,40 @@ const MyCarInfo = () => {
                     />
                 </div>
             </div>
+            {/* 입출차 기록 */}
+            {
+                carHistories.length > 0 && (
+                    <div className="mt-6">
+                        <h3 className="text-base font-semibold text-gray-700 mb-2">입/출차 기록</h3>
+                        <div className="divide-y divide-gray-200 border rounded-lg bg-white shadow">
+                            {carHistories.map((h) => (
+                                <div
+                                    key={h.carAccessHistoryId}
+                                    className="px-4 py-3 flex items-center justify-between"
+                                >
+                                    <div>
+                                        <div className="text-sm font-medium text-gray-900">
+                                            {new Date(h.createdAt).toLocaleString("ko-KR")}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {h.status === "ENTER" ? "입차" : h.status === "EXIT" ? "출차" : h.status}
+                                        </div>
+                                    </div>
+                                    <span
+                                        className={`px-3 py-1 text-xs font-semibold rounded-full
+                                                ${h.status === "ENTER" ? "bg-emerald-100 text-emerald-700"
+                                                : h.status === "EXIT" ? "bg-blue-100 text-blue-700"
+                                                    : "bg-gray-100 text-gray-600"}`}
+                                    >
+                                        {h.status === "ENTER" ? "입차" : h.status === "EXIT" ? "출차" : h.status}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )
+            }
             <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
-
                 {!carInfoExist ?
                     <CustomCommonButton
                         onClick={handleRegisterCarInfo}

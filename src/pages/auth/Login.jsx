@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import Planet from '@/assets/navigation_icon/Planet.svg';
-
+import SpeechBubble from "@/components/auth/SpeechBubble";
 import { KakaoLoginButton } from "@/components/auth/SocialLoginButtons";
 import { CustomCommonInput } from "@/components/_custom/CustomInputs";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
-import SpeechBubble from "@/components/auth/SpeechBubble";
+
 import { localLogin } from "@/api/auth/auth.api";
+
 import useAuthStore from "@/store/authStore";
 import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
+import Swal from "sweetalert2";
 
 const Login = () => {
 
@@ -22,21 +24,31 @@ const Login = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = await localLogin(id, pw);
-            const { accessToken, email, name, profileUrl } = response.data;
-            useAuthStore.getState().setLoginStatus(true);
-            useAuthStore.getState().setAccessToken(accessToken);
-            useAuthStore.getState().setEmail(email);
-            useAuthStore.getState().setName(name);
-            useAuthStore.getState().setProfile(profileUrl);
+        localLogin(id, pw)
+            .then(({ accessToken, email, name, profileUrl, role }) => {
+                console.log(accessToken, email, name, profileUrl, role);
+                
+                useAuthStore.getState().setLoginStatus(true);
+                useAuthStore.getState().setSignUpStatus(true);
+                useAuthStore.getState().setAccessToken(accessToken);
+                useAuthStore.getState().setEmail(email);
+                useAuthStore.getState().setName(name);
+                useAuthStore.getState().setProfile(profileUrl);
+                useAuthStore.getState().setRole(role);
 
-            requestToPermitPushNotification();
-            
-            navigate("/my-page/main");
-        } catch (error) {
-            console.error("Login failed:", error);
-        }
+                requestToPermitPushNotification();
+
+                if (role == "ADMIN") navigate("/admin/home");
+                else navigate("/my-page/main");
+            }).catch((error) => {
+                console.error("Login failed:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "로그인 실패",
+                    text: "올바르지 않은 아이디 또는 비밀번호입니다.",
+                    confirmButtonText: "확인"
+                });
+            })
     };
 
     return (
@@ -44,7 +56,7 @@ const Login = () => {
             <main className="w-full max-w-[640px]">
                 {/* 제목 */}
                 <div className="flex flex-col gap-3 justify-center items-center text-center pt-20 pb-10">
-                    <img src={Planet} className="w-24"/>
+                    <img src={Planet} className="w-24" />
                     <Link
                         to="/home"
                         className="font-extrabold tracking-[.2px] text-[24px] leading-none no-underline"
@@ -100,10 +112,10 @@ const Login = () => {
                         비밀번호 재설정
                     </button>
                 </div>
-                
+
 
                 {/* 3초 회원가입 말풍선 버튼 */}
-                <div className="mt-16 flex justify-center">
+                <div className="mt-10 flex justify-center">
                     <SpeechBubble />
                 </div>
 

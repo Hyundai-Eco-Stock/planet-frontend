@@ -94,7 +94,15 @@ const LocalSignUp = () => {
         const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
         signUpByLocal({
-            email, name, password, profileFile, sex, birth, address, detailAddress,
+            email,
+            name,
+            password,
+            profileFile,
+            sex,
+            birth,
+            address,
+            detailAddress,
+            zipCode: zonecode,
         })
             .then(() => {
                 Swal.fire({
