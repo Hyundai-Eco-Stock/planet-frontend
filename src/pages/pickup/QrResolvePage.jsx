@@ -47,12 +47,10 @@ export default function QrResolvePage() {
 
   if (loading) {
     return (
-      <div className="max-w-xl mx-auto p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 w-40 bg-gray-200 rounded"></div>
-          <div className="h-24 bg-gray-200 rounded"></div>
-          <div className="h-6 w-24 bg-gray-200 rounded"></div>
-          <div className="h-20 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">QR 코드를 확인하고 있습니다...</p>
         </div>
       </div>
     );
@@ -60,75 +58,149 @@ export default function QrResolvePage() {
 
   if (err) {
     return (
-      <div className="max-w-xl mx-auto p-6">
-        <h2 className="text-xl font-semibold mb-2">QR 확인 실패</h2>
-        <p className="text-red-600 mb-4">{err}</p>
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* 헤더 */}
+        <div className="bg-white px-6 pt-12 pb-8 text-center">
+          {/* 에러 아이콘 */}
+          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          
+          <h1 className="text-xl font-bold text-gray-900 mb-2">QR 확인 실패</h1>
+          <p className="text-gray-600 text-sm">{err}</p>
+        </div>
 
-        {/* 디버그에 도움: 서버가 무엇을 보냈는지 원본 응답 출력 */}
-        {raw && (
-          <details className="mb-4">
-            <summary className="cursor-pointer text-sm text-gray-500">응답 원본 보기</summary>
-            <pre className="mt-2 text-xs bg-gray-100 p-3 rounded overflow-x-auto">
-              {JSON.stringify(raw, null, 2)}
-            </pre>
-          </details>
-        )}
+        {/* 구분선 */}
+        <div className="border-t border-dashed border-gray-300 mx-6"></div>
 
-        <button
-          onClick={() => navigate("/")}
-          className="px-4 py-2 rounded bg-gray-900 text-white"
-        >
-          홈으로
-        </button>
+        {/* 디버그 정보 */}
+        <div className="flex-1 px-6 py-6 pb-24">
+          {raw && (
+            <details className="mb-6">
+              <summary className="cursor-pointer text-sm text-gray-600 hover:text-black">
+                응답 원본 보기
+              </summary>
+              <div className="mt-4 bg-gray-50 rounded-lg p-4">
+                <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap">
+                  {JSON.stringify(raw, null, 2)}
+                </pre>
+              </div>
+            </details>
+          )}
+        </div>
+
+        {/* 하단 고정 버튼 */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white p-4 border-t border-gray-200">
+          <button
+            onClick={() => navigate("/")}
+            className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            홈으로 이동
+          </button>
+        </div>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="max-w-xl mx-auto p-6">
-        <h2 className="text-xl font-semibold mb-2">표시할 주문 정보가 없습니다.</h2>
-        <button onClick={() => navigate("/")} className="px-4 py-2 rounded bg-gray-900 text-white">
-          홈으로
-        </button>
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* 헤더 */}
+        <div className="bg-white px-6 pt-12 pb-8 text-center">
+          {/* 정보 없음 아이콘 */}
+          <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          
+          <h1 className="text-xl font-bold text-gray-900 mb-2">주문 정보 없음</h1>
+          <p className="text-gray-600 text-sm">표시할 주문 정보가 없습니다</p>
+        </div>
+
+        {/* 하단 고정 버튼 */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white p-4 border-t border-gray-200">
+          <button
+            onClick={() => navigate("/")}
+            className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            홈으로 이동
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">주문 확인</h1>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="bg-white px-6 pt-12 pb-8 text-center">
+        {/* 성공 아이콘 */}
+        <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        
+        <h1 className="text-xl font-bold text-gray-900 mb-2">주문 확인 완료</h1>
+        <p className="text-gray-600 text-sm">픽업 주문 정보를 확인했습니다</p>
+      </div>
 
-      <div className="rounded-2xl border p-4 mb-6">
-        <div className="flex justify-between mb-1">
-          <span className="text-gray-500">주문번호</span>
-          <span className="font-medium">{order.orderNumber}</span>
-        </div>
-        <div className="flex justify-between mb-1">
-          <span className="text-gray-500">매장</span>
-          <span className="font-medium">{order.storeName}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">결제금액</span>
-          <span className="font-semibold">
-            {Number(order.totalAmount || 0).toLocaleString("ko-KR")}원
-          </span>
+      {/* 구분선 */}
+      <div className="border-t border-dashed border-gray-300 mx-6"></div>
+
+      {/* 주문 정보 */}
+      <div className="flex-1 px-6 py-6 pb-24">
+        <div className="space-y-4">
+          {/* 주문번호 */}
+          <div className="text-center pb-4 border-b border-gray-200">
+            <p className="text-gray-600 text-sm mb-1">주문번호</p>
+            <p className="font-mono text-lg font-bold text-gray-900">
+              {order.orderNumber}
+            </p>
+          </div>
+
+          {/* 매장 정보 */}
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-sm">매장</span>
+            <span className="font-medium text-sm">{order.storeName}</span>
+          </div>
+
+          {/* 결제금액 */}
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-sm">결제금액</span>
+            <span className="font-bold text-black text-lg">
+              {Number(order.totalAmount || 0).toLocaleString("ko-KR")}원
+            </span>
+          </div>
+
+          {/* 구분선 */}
+          <div className="border-t border-gray-200 my-4"></div>
+
+          {/* 상품 목록 */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-600 mb-3">주문 상품</h3>
+            <div className="space-y-3">
+              {(order.products || []).map((p) => (
+                <div key={p.productId ?? `${p.productName}-${p.quantity}`} className="flex justify-between items-center py-2">
+                  <span className="text-gray-900 text-sm flex-1 pr-4">{p.productName}</span>
+                  <span className="text-gray-600 text-sm">× {p.quantity}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold mb-2">상품 목록</h3>
-      <ul className="divide-y rounded-2xl border">
-        {(order.products || []).map((p) => (
-          <li key={p.productId ?? `${p.productName}-${p.quantity}`} className="flex justify-between p-3">
-            <span className="truncate pr-4">{p.productName}</span>
-            <span className="tabular-nums">× {p.quantity}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-6 flex gap-2">
-        <button onClick={() => navigate("/")} className="px-4 py-2 rounded-xl border">
-          돌아가기
+      {/* 하단 고정 버튼 */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white p-4 border-t border-gray-200">
+        <button
+          onClick={() => navigate("/")}
+          className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+        >
+          확인 완료
         </button>
       </div>
     </div>
