@@ -62,7 +62,7 @@ const TumblerCertificate = () => {
     };
 
     return (
-        <div className="max-w-xl w-full pt-2 text-center">
+        <div className="max-w-xl w-full pt-8 text-center">
             <div className="space-y-6">
                 <div>
                     <div className="flex w-full rounded-lg border overflow-hidden">
@@ -110,7 +110,7 @@ const TumblerCertificate = () => {
                 </div>
 
                 <div className='w-full flex flex-col gap-1'>
-                    <div className='text-start'>인식된 값</div>
+                    <div className='px-2 text-start'>인식된 값</div>
                     <CustomCommonInput
                         value={code}
                         onChange={(vOrEvent) =>
