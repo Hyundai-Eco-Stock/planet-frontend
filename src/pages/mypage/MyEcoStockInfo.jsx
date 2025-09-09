@@ -10,6 +10,8 @@ const MyEcoStockInfo = () => {
   const [error, setError] = useState(null);
   const [lastSyncAt, setLastSyncAt] = useState(null);
 
+  const totalPoint = items.reduce((sum, item) => sum + (item.point || 0), 0);
+
   const loadAll = async () => {
     let canceled = false;
     setLoading(true);
@@ -18,6 +20,9 @@ const MyEcoStockInfo = () => {
       const [stocks, priceList] = await Promise.all([fetchMyEcostocks(), fetchEcostockPrices()]);
       if (canceled) return;
       setItems(Array.isArray(stocks) ? stocks : []);
+
+      console.log("템이요",items);
+      
       setPrices(Array.isArray(priceList) ? priceList : []);
       setLastSyncAt(new Date());
     } catch (e) {
@@ -90,7 +95,7 @@ const MyEcoStockInfo = () => {
       )}
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <SummaryCard label="총 포인트" value={`${formatNumber(items.point)}`} suffix="P" color="amber" />
+        <SummaryCard label="총 포인트"   value={`${formatNumber(totalPoint)}`} suffix="P" color="amber" />
       </div>
 
       {/* List */}
