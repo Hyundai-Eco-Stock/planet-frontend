@@ -172,7 +172,7 @@ const EcoCard = ({ data }) => {
 
         {/* Body */}
         <div className="mt-3 grid gap-2">
-          <KV label="평균 단가" value={`${avgUnitPrice ? formatNumber(Number(avgUnitPrice.toFixed(0))) : "-"} P`} />
+          <KV label="평균 단가" value={`${avgUnitPrice ? formatNumber(Number(avgUnitPrice.toFixed(2))) : "-"} P`} />
           <KV label="현재가" value={`${stockPrice != null ? formatNumber(stockPrice) : "-"} P`} />
           <div className="h-px bg-gray-100 my-1" />
           <KV label="보유 수량" value={`${formatNumber(currentTotalQuantity)} 개`} />
