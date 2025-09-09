@@ -23,6 +23,9 @@ export const usePersonalStockInfo = (stockId) => {
         setIsLoading(true);
         try {
             const stockData = await getPersonalStockInfo(stockId);
+
+            console.log("디버깅",stockData);
+            
             setMemberStockInfo(stockData);
         } catch (err) {
             console.error('주식 정보 조회 실패:', err);
@@ -152,8 +155,16 @@ export const useStockSell = (stockInfo, stock, onSell, onSuccess) => {
 
 // 포맷팅 함수들
 export const formatCurrency = (amount) => {
-    if (amount === undefined || amount === null || isNaN(amount)) return '0';
-    return new Intl.NumberFormat('ko-KR').format(Math.round(amount));
+  if (amount === undefined || amount === null || isNaN(amount)) return '0.00';
+
+  // 소수점 둘째 자리까지 반올림
+  const rounded = Math.round(amount * 100) / 100;
+
+  // 항상 2자리 소수점 표시
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(rounded);
 };
 
 export const formatPercent = (percent) => {
