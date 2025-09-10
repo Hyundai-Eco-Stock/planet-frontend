@@ -349,8 +349,8 @@ const Home = () => {
                         </div>
                       )}
                       {discountRate > 0 && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                          {discountRate}% 할인
+                        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                          {discountRate}%
                         </div>
                       )}
                     </div>
