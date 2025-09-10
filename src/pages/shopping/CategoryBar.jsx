@@ -21,7 +21,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
   }, [active]); // categories 의존성 제거
 
   return (
-    <section className="sticky top-0 z-20 bg-white pt-2 pb-1">
+    <section className="sticky top-0 z-20 bg-white pt-2 pb-1 px-4">
       <div className="relative">
         {/* 스크롤 영역  */}
         <div
