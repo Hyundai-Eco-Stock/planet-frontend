@@ -33,7 +33,7 @@ const OrderHeader = ({
                 />
             </div>
 
-            <div>
+            {/* <div>
                 <div className="text-sm font-medium">카드사</div>
                 <CustomSelect
                     value={cardCompanyId ?? ""}
@@ -49,7 +49,7 @@ const OrderHeader = ({
             <div>
                 <div className="text-sm font-medium">카드 번호</div>
                 <CardNumberInput value={cardNumber} onChange={setCardNumber} />
-            </div>
+            </div> */}
         </div>
     );
 };
