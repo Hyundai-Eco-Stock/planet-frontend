@@ -81,7 +81,7 @@ const OfflinePayCreate = () => {
     };
 
     return (
-        <div className="flex h-full">
+        <div className="flex h-[90vh]">
             <div className="w-1/3 border-r flex flex-col">
                 <OrderHeader
                     departmentStores={departmentStores}
