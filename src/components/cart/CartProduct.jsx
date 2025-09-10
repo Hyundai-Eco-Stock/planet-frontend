@@ -1,16 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useCartStore from '@/store/cartStore'
 
 const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
   const navigate = useNavigate()
   const { updateQuantity, removeFromCart } = useCartStore()
-  
+
+  // 수량 입력 모드 상태
+  const [isEditing, setIsEditing] = useState(false)
+  const [inputQuantity, setInputQuantity] = useState(product.quantity.toString())
+
   // 할인된 가격 계산
-  const discountedPrice = product.isEcoDeal 
+  const discountedPrice = product.isEcoDeal
     ? product.price * (1 - product.salePercent / 100)
     : product.price
-    
+
   // 총 가격 (할인된 가격 × 수량)
   const totalPrice = discountedPrice * product.quantity
 
@@ -26,22 +30,57 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
   // 수량 변경 처리
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity < 1) return // 최소 1개
-    if (newQuantity > 999) return // 최대 999개
+    if (newQuantity > 99) return // 최대 99개
     updateQuantity(product.id, newQuantity, product.isEcoDeal)
   }
-  
+
+  // 수량 입력 시작
+  const handleQuantityClick = () => {
+    setIsEditing(true)
+    setInputQuantity(product.quantity.toString())
+  }
+
+  // 수량 입력 완료
+  const handleQuantitySubmit = () => {
+    const newQuantity = parseInt(inputQuantity, 10)
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      setInputQuantity('1')
+      handleQuantityChange(1)
+    } else if (newQuantity > 99) {
+      setInputQuantity('99')
+      handleQuantityChange(99)
+    } else {
+      handleQuantityChange(newQuantity)
+    }
+    setIsEditing(false)
+  }
+
+  // 수량 입력 취소
+  const handleQuantityCancel = () => {
+    setInputQuantity(product.quantity.toString())
+    setIsEditing(false)
+  }
+
+  // 입력 키 처리
+  const handleInputKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleQuantitySubmit()
+    } else if (e.key === 'Escape') {
+      handleQuantityCancel()
+    }
+  }
+
   // 상품 삭제 처리
   const handleRemove = () => {
     if (window.confirm(`${product.name}을(를) 삭제하시겠습니까?`)) {
       removeFromCart(product.id, product.isEcoDeal)
     }
   }
-  
+
   return (
-    <div className={`flex items-start gap-4 p-4 bg-white transition-all ${
-      isSelected ? 'bg-green-50' : ''
-    }`}>
-      
+    <div className={`flex items-start gap-4 p-4 bg-white transition-all ${isSelected ? 'bg-green-50' : ''
+      }`}>
+
       {/* 체크박스 */}
       <input
         type="checkbox"
@@ -49,7 +88,7 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
         onChange={onSelect}
         className="mt-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
       />
-      
+
       {/* 상품 이미지 */}
       <button
         onClick={handleProductClick}
@@ -57,8 +96,8 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
         aria-label={`${product.name} 상품 상세 보기`}
       >
         {product.imageUrl ? (
-          <img 
-            src={product.imageUrl} 
+          <img
+            src={product.imageUrl}
             alt={product.name}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -72,10 +111,10 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
           이미지
         </div>
       </button>
-      
+
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
-        
+
         {/* 상품명과 삭제 버튼 */}
         <div className="flex justify-between items-start mb-2">
           <button
@@ -97,7 +136,7 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
             </svg>
           </button>
         </div>
-        
+
         {/* 픽업 매장 정보 표시 */}
         {cartType === 'pickup' && product.selectedStore && (
           <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
@@ -124,7 +163,7 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
             </div>
           </div>
         )}
-        
+
         {/* 에코딜 배지 및 가격 정보 */}
         <div className="mb-3">
           {product.isEcoDeal ? (
@@ -151,10 +190,10 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
             </div>
           )}
         </div>
-        
+
         {/* 수량 조절 및 총 가격 */}
         <div className="flex justify-between items-center">
-          
+
           {/* 수량 조절 버튼 */}
           <div className="flex items-center border border-gray-300 rounded overflow-hidden">
             <button
@@ -166,21 +205,42 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
-            
-            <div className="px-4 py-1 min-w-[50px] text-center border-x border-gray-300 bg-gray-50">
-              <span className="font-medium">{product.quantity}</span>
+
+            {/* 수량 표시/입력 영역 */}
+            <div className="w-[50px] py-1 text-center border-x border-gray-300 bg-gray-50 flex items-center justify-center">
+              {isEditing ? (
+                <input
+                  type="number"
+                  value={inputQuantity}
+                  onChange={(e) => setInputQuantity(e.target.value)}
+                  onBlur={handleQuantitySubmit}
+                  onKeyDown={handleInputKeyDown}
+                  className="w-full text-center bg-transparent border-none outline-none font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  min="1"
+                  max="99"
+                  autoFocus
+                />
+              ) : (
+                <button
+                  onClick={handleQuantityClick}
+                  className="w-full h-full font-medium hover:text-green-600 transition-colors flex items-center justify-center"
+                >
+                  {product.quantity}
+                </button>
+              )}
             </div>
-            
+
             <button
               onClick={() => handleQuantityChange(product.quantity + 1)}
-              className="px-3 py-1 hover:bg-gray-100 transition-colors"
+              disabled={product.quantity >= 99}
+              className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
           </div>
-          
+
           {/* 총 가격 */}
           <div className="text-right">
             <span className="font-bold text-lg text-gray-900">
@@ -188,11 +248,11 @@ const CartProduct = ({ product, cartType, isSelected, onSelect }) => {
             </span>
           </div>
         </div>
-        
+
         {/* 배송 정보 */}
         <div className="mt-2 text-xs text-gray-500">
-          {cartType === 'pickup' ? 
-            '매장 픽업 (무료) - QR코드 제공' : 
+          {cartType === 'pickup' ?
+            '매장 픽업 (무료) - QR코드 제공' :
             '일반 배송 (무료)'}
         </div>
       </div>

@@ -1,15 +1,12 @@
 import Swal from "sweetalert2";
 import { useState, useEffect, useRef } from "react";
 
-import { CustomCommonInput } from "@/components/_custom/CustomInputs";
-import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { fetchMemberProfile, updateProfile } from "@/api/member/member.api";
 import CustomProfileImageInput from "@/components/_custom/CustomProfileImageInput";
 
 import useAuthStore from "@/store/authStore";
 import DaumPostcode from "@/components/address/DaumPostcode";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { SimpleSelect } from "@/components/_custom/CustomSelect";
 
 const sexInfo = [
     { value: "M", label: "남자" },
@@ -28,12 +25,12 @@ const MyProfile = () => {
     const [initialProfile, setInitialProfile] = useState(null);
     const [isChanged, setIsChanged] = useState(false);
 
-    const [profileImageUrl, setProfileImageUrl] = useState("");   // 프로필 이미지 미리보기
-    const [profileImageFile, setProfileImageFile] = useState(null); // 서버 전송용 파일
+    const [profileImageUrl, setProfileImageUrl] = useState("");
+    const [profileImageFile, setProfileImageFile] = useState(null);
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [sex, setSex] = useState(""); // 'M' or 'F'
+    const [sex, setSex] = useState("");
     const [zonecode, setZonecode] = useState("");
 
     const [birthYear, setBirthYear] = useState("");
@@ -43,14 +40,7 @@ const MyProfile = () => {
     const [address, setAddress] = useState("");
     const [detailAddress, setDetailAddress] = useState("");
 
-    // const [newPassword, setNewPassword] = useState("");
-    // const [newPasswordAgain, setNewPasswordAgain] = useState("");
-
-    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // 버튼 활성화 상태
-
-    const yearRef = useRef(null);
-    const monthRef = useRef(null);
-    const dayRef = useRef(null);
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
     // 페이지 렌더링 시 데이터 가져와 넣기
     useEffect(() => {
@@ -117,7 +107,7 @@ const MyProfile = () => {
         initialProfile
     ]);
 
-    // ✅ 실시간 유효성 검사
+    // 실시간 유효성 검사
     useEffect(() => {
         const disabled =
             !name.trim() ||
@@ -144,7 +134,6 @@ const MyProfile = () => {
     };
 
     const handleSubmitWithPassword = async () => {
-
         const _handleSubmit = async (oldPassword) => {
             const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
@@ -198,167 +187,278 @@ const MyProfile = () => {
     };
 
     return (
-        <div className="flex flex-col gap-3 pb-24">
-            {/* 프로필 이미지 */}
-            <section className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-gray-900">프로필</span>
-                <CustomProfileImageInput
-                    value={profileImageFile}
-                    onChange={handleProfileImageChange}
-                    previewUrl={profileImageUrl}
-                />
-            </section>
-
-            {/* 이름 */}
-            <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">이름</span>
-                <CustomCommonInput
-                    value={name}
-                    placeholder="이름을 입력해주세요."
-                    onChange={(e) => setName(e.target.value)}
-                    readOnly={true}
-                />
-            </label>
-
-            {/* 이메일 */}
-            <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">이메일</span>
-                <CustomCommonInput
-                    value={email}
-                    placeholder="이메일을 입력해주세요."
-                    readOnly={true}
-                />
-            </label>
-
-            {/* 성별 */}
-            <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">성별</span>
-                <div className="flex gap-3">
-                    {sexInfo.map(({ value, label }) => (
-                        <button
-                            key={value}
-                            type="button"
-                            className={`px-4 py-4 flex-1 rounded-xl border ${sex === value ? "bg-emerald-500 text-white" : "bg-white"}`}
-                            onClick={() => setSex(value)}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-            </label>
-
-            {/* 생년월일 */}
-            <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">생년월일</span>
-                <div className="flex gap-2">
-                    {/* 연도 */}
-                    <SimpleSelect
-                        value={birthYear}
-                        onChange={(e) => setBirthYear(e.target.value)}
-                        options={Array.from({ length: 100 }, (_, i) => {
-                            const year = new Date().getFullYear() - i;
-                            return { value: year, label: year };
-                        })}
-                        placeholder="YYYY"
-                        className="flex-1"
-                        iconVisible={false}
-                    />
-                    <span className="m-auto">년</span>
-
-                    {/* 월 */}
-                    <SimpleSelect
-                        value={birthMonth}
-                        onChange={(e) => setBirthMonth(e.target.value)}
-                        options={Array.from({ length: 12 }, (_, i) => {
-                            const month = String(i + 1).padStart(2, "0");
-                            return { value: month, label: month };
-                        })}
-                        placeholder="MM"
-                        className="flex-1"
-                        iconVisible={false}
-                    />
-                    <span className="m-auto">월</span>
-
-                    {/* 일 */}
-                    <SimpleSelect
-                        value={birthDay}
-                        onChange={(e) => setBirthDay(e.target.value)}
-                        options={Array.from({ length: 31 }, (_, i) => {
-                            const day = String(i + 1).padStart(2, "0");
-                            return { value: day, label: day };
-                        })}
-                        placeholder="DD"
-                        className="flex-1"
-                        iconVisible={false}
-                    />
-                    <span className="m-auto">일</span>
-                </div>
-            </label>
-
-            {/* 주소 */}
-            <section className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-900">기본 배송지</label>
-
-                <div className="flex flex-col gap-2">
-                    <div className="flex gap-2">
-                        <CustomCommonInput
-                            type="text"
-                            value={zonecode}
-                            placeholder="우편번호"
-                            readOnly
-                            className="flex-1"
+        <div className="min-h-screen bg-gray-50">
+            <div className="max-w-md mx-auto bg-white min-h-screen">
+                <div className="px-6 py-8 pb-32">
+                    {/* 프로필 업로드 */}
+                    <div className="flex flex-col items-center mb-8">
+                        <ProfileImageUpload
+                            value={profileImageFile}
+                            onChange={handleProfileImageChange}
+                            previewUrl={profileImageUrl}
                         />
-                        <DaumPostcode
-                            onComplete={({ zonecode, address }) => {
-                                setZonecode(zonecode);
-                                setAddress(address);
-                            }}
-                        />
+                        <p className="text-sm text-gray-500 mt-3">프로필 사진을 선택해주세요</p>
                     </div>
 
-                    <CustomCommonInput
-                        type="text"
-                        value={address}
-                        placeholder="기본 주소"
-                        readOnly
-                    />
+                    <div className="space-y-6">
+                        {/* 이름 */}
+                        <InputField
+                            label="이름"
+                            type="text"
+                            value={name}
+                            placeholder="이름을 입력해주세요"
+                            onChange={(e) => setName(e.target.value)}
+                            readOnly={true}
+                        />
 
-                    <CustomCommonInput
-                        type="text"
-                        value={detailAddress}
-                        placeholder="상세 주소를 입력해주세요."
-                        onChange={(e) => setDetailAddress(e.target.value)}
-                    />
+                        {/* 이메일 */}
+                        <InputField
+                            label="이메일"
+                            type="email"
+                            value={email}
+                            placeholder="이메일을 입력해주세요"
+                            readOnly={true}
+                        />
+
+                        {/* 성별 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-3">성별</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setSex("M")}
+                                    className={`py-3 rounded-lg border font-medium transition-all ${
+                                        sex === "M"
+                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                            : "border-gray-300 hover:border-gray-400"
+                                    }`}
+                                >
+                                    남자
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSex("F")}
+                                    className={`py-3 rounded-lg border font-medium transition-all ${
+                                        sex === "F"
+                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                            : "border-gray-300 hover:border-gray-400"
+                                    }`}
+                                >
+                                    여자
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 생년월일 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-3">생년월일</label>
+                            <div className="flex gap-2">
+                                {/* 년도 */}
+                                <div className="flex-1 relative">
+                                    <select
+                                        value={birthYear}
+                                        onChange={(e) => setBirthYear(e.target.value)}
+                                        className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
+                                    >
+                                        <option value="" style={{color: '#9CA3AF'}}>년도</option>
+                                        {Array.from({ length: 100 }, (_, i) => {
+                                            const year = new Date().getFullYear() - i;
+                                            return (
+                                                <option key={year} value={year}>
+                                                    {year}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* 월 */}
+                                <div className="flex-1 relative">
+                                    <select
+                                        value={birthMonth}
+                                        onChange={(e) => setBirthMonth(e.target.value)}
+                                        className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
+                                    >
+                                        <option value="" style={{color: '#9CA3AF'}}>월</option>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const month = String(i + 1).padStart(2, "0");
+                                            return (
+                                                <option key={month} value={month}>
+                                                    {month}월
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* 일 */}
+                                <div className="flex-1 relative">
+                                    <select
+                                        value={birthDay}
+                                        onChange={(e) => setBirthDay(e.target.value)}
+                                        className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
+                                    >
+                                        <option value="" style={{color: '#9CA3AF'}}>일</option>
+                                        {Array.from({ length: 31 }, (_, i) => {
+                                            const day = String(i + 1).padStart(2, "0");
+                                            return (
+                                                <option key={day} value={day}>
+                                                    {day}일
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 주소 */}
+                        <div className="mb-12">
+                            <label className="block text-sm font-semibold text-gray-900 mb-3">기본 배송지</label>
+                            <div className="space-y-3">
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        value={zonecode}
+                                        placeholder="우편번호"
+                                        readOnly
+                                        className="flex-1 py-3 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 placeholder-gray-400"
+                                    />
+                                    <DaumPostcode
+                                        onComplete={({ zonecode, address }) => {
+                                            setZonecode(zonecode);
+                                            setAddress(address);
+                                        }}
+                                    />
+                                </div>
+
+                                <input
+                                    type="text"
+                                    value={address}
+                                    placeholder="기본 주소"
+                                    readOnly
+                                    className="w-full py-3 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 placeholder-gray-400"
+                                />
+
+                                <input
+                                    type="text"
+                                    value={detailAddress}
+                                    placeholder="상세 주소를 입력해주세요"
+                                    onChange={(e) => setDetailAddress(e.target.value)}
+                                    className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:border-emerald-500 outline-none transition-all placeholder-gray-400"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </section>
 
-            {/* <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold">[선택] 새로운 비밀번호</span>
-                <CustomCommonInput
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => { setNewPassword(e.target.value) }}
-                    placeholder="새로운 비밀번호를 입력해주세요."
-                />
-                <CustomCommonInput
-                    type="password"
-                    value={newPasswordAgain}
-                    onChange={(e) => { setNewPasswordAgain(e.target.value) }}
-                    placeholder="비밀번호를 다시 한번 입력해주세요."
-                />
-            </label> */}
-
-            <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
-                <CustomCommonButton
-                    onClick={handleSubmitWithPassword}
-                    disabled={!isChanged || isSubmitDisabled}
-                    className="btn-primary w-full"
-                >
-                    수정
-                </CustomCommonButton>
+                {/* 제출 버튼 */}
+                <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 p-4">
+                    <button
+                        onClick={handleSubmitWithPassword}
+                        disabled={!isChanged || isSubmitDisabled}
+                        className={`w-full py-3 rounded-lg font-bold text-base transition-all duration-200 ${
+                            (!isChanged || isSubmitDisabled)
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-gradient-to-r from-gray-900 to-black text-white hover:from-black hover:to-gray-900"
+                        }`}
+                    >
+                        {!isChanged ? "변경사항이 없습니다" : isSubmitDisabled ? "정보를 모두 입력해주세요" : "수정 완료"}
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
+
+// 프로필 이미지 업로드 컴포넌트
+const ProfileImageUpload = ({ value, onChange, previewUrl }) => {
+    const [inputKey, setInputKey] = useState(0);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            onChange(file);
+        }
+    };
+
+    const handleClear = () => {
+        onChange(null);
+        setInputKey(k => k + 1);
+    };
+
+    return (
+        <div className="relative">
+            <label className="cursor-pointer">
+                <input
+                    key={inputKey}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                />
+                <div className="w-28 h-28 rounded-full border-3 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors overflow-hidden">
+                    {previewUrl ? (
+                        <img
+                            src={previewUrl}
+                            alt="프로필 미리보기"
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="text-center">
+                            <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p className="text-xs text-gray-500">사진 선택</p>
+                        </div>
+                    )}
+                </div>
+            </label>
+
+            {previewUrl && (
+                <button
+                    type="button"
+                    onClick={handleClear}
+                    className="absolute top-1 -right-1 w-7 h-7 bg-red-500 text-white rounded-full text-sm hover:bg-red-600 transition-colors flex items-center justify-center"
+                >
+                    ×
+                </button>
+            )}
+        </div>
+    );
+};
+
+// 입력 필드 컴포넌트
+const InputField = ({ label, type, value, placeholder, onChange, readOnly = false }) => (
+    <div>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">{label}</label>
+        <input
+            type={type}
+            value={value}
+            placeholder={placeholder}
+            onChange={onChange}
+            readOnly={readOnly}
+            className={`w-full py-3 px-4 border border-gray-300 rounded-lg focus:border-emerald-500 outline-none transition-all placeholder-gray-400 ${
+                readOnly ? 'bg-gray-50 text-gray-600' : ''
+            }`}
+        />
+    </div>
+);
 
 export default MyProfile;

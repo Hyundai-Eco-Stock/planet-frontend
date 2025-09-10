@@ -42,6 +42,21 @@ const DeliveryOrderPage = () => {
   const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY
 
   useEffect(() => {
+    // 컴포넌트 마운트 시 부모 헤더 숨기기
+    const parentHeader = document.querySelector('header'); // 또는 더 구체적인 선택자
+    if (parentHeader) {
+      parentHeader.style.display = 'none';
+    }
+
+    // 언마운트 시 복원
+    return () => {
+      if (parentHeader) {
+        parentHeader.style.display = '';
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const initializeOrder = async () => {
       // CartMain에서 넘어온 데이터 확인
       const locationData = location.state
@@ -354,7 +369,7 @@ const DeliveryOrderPage = () => {
             <div className="bg-white rounded-lg shadow-sm p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h2>
               <p className="text-gray-600 mb-6">주문을 진행하려면 먼저 로그인해주세요.</p>
-              
+
               <div className="space-y-3">
                 <button
                   onClick={handleLoginRedirect}
@@ -412,29 +427,34 @@ const DeliveryOrderPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* 헤더 */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center">
-            <button
-              onClick={handleGoBack}
-              className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div>
-              <h1 className="text-xl font-bold">주문서</h1>
-              <span className="text-sm text-gray-500">일반 배송</span>
-            </div>
-          </div>
+      <header
+        className="px-4 sticky top-0 z-50 bg-white border-b border-gray-200"
+        style={{ backgroundColor: '#ffffff', height: '48px' }}
+      >
+        <div className="flex items-center justify-between h-full">
+          <button
+            onClick={handleGoBack}
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="뒤로가기"
+          >
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <h1 className="font-semibold text-lg text-gray-900 absolute left-1/2 transform -translate-x-1/2">
+            주문/결제
+          </h1>
+
+          <div className="w-8 h-8"></div>
         </div>
-      </div>
+      </header>
 
       {/* 메인 컨텐츠 */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-32">
+      <div className="max-w-4xl mx-auto px-4 pb-32">
+
         {/* 주문 상품 목록 */}
         <OrderProductList products={orderDraft.products} />
 
@@ -452,13 +472,6 @@ const DeliveryOrderPage = () => {
           onUpdate={updateDeliveryInfo}
         />
 
-        {/* 기부 옵션 */}
-        <DonationForm
-          recommendedAmount={calculateRecommendedDonation()}
-          currentAmount={orderDraft.payment.donationAmount}
-          onUpdate={updateDonationAmount}
-        />
-
         {/* 포인트 사용 */}
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
@@ -467,8 +480,15 @@ const DeliveryOrderPage = () => {
           onUpdate={updatePointUsage}
         />
 
+        {/* 기부 옵션 */}
+        <DonationForm
+          recommendedAmount={calculateRecommendedDonation()}
+          currentAmount={orderDraft.payment.donationAmount}
+          onUpdate={updateDonationAmount}
+        />
+
         {/* 결제 위젯 */}
-        <div className="bg-white rounded-lg shadow-sm">
+        <div className="py-6 border-b border-gray-100">
           <div id="payment-widget" />
         </div>
 
