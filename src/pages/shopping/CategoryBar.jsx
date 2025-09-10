@@ -1,4 +1,3 @@
-// src/components/CategoryBar.jsx
 import React, { useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 
@@ -14,7 +13,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
       const container = scrollerRef.current;
       const containerRect = container.getBoundingClientRect();
       const elementRect = el.getBoundingClientRect();
-      
+
       if (elementRect.left < containerRect.left || elementRect.right > containerRect.right) {
         el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
       }
@@ -24,17 +23,17 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
   return (
     <section className="sticky top-0 z-20 bg-white pt-2 pb-1">
       <div className="relative">
-        {/* 스크롤 영역 (스크롤바 숨김) */}
+        {/* 스크롤 영역  */}
         <div
           ref={scrollerRef}
           className="relative z-10 w-full overflow-x-auto overflow-y-hidden pl-2 pr-8 touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [scroll-padding-left:3rem] [scroll-padding-right:3rem]"
         >
           <div className="inline-flex gap-3 pb-2 min-w-max">
-            <div aria-hidden className="shrink-0 w-12" />
+            <div aria-hidden className="shrink-0 w-14" />
             {categories.map((c) => {
               // 전체 카테고리인지 확인 (categoryId가 null이거나 name이 '전체'인 경우)
               const isAll = !c.key || c.name === '전체';
-              
+
               return (
                 <button
                   key={c.key || 'all'}
@@ -45,14 +44,15 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                   className="relative w-[72px] flex flex-col items-center touch-pan-x select-none"
                 >
                   <div
-                    className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden border transition ${
-                      isAll 
-                        ? 'bg-gray-900 text-white border-gray-900' 
-                        : 'bg-gray-100 border-gray-200 hover:ring-2 hover:ring-gray-200'
-                    }`}
+                    className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden transition-all duration-200 ${isAll
+                        ? 'bg-gray-900 text-white border border-gray-900'
+                        : active === c.key
+                          ? 'bg-gray-100 border border-gray-900'
+                          : 'bg-gray-100 border border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     {isAll ? (
-                      <span className="text-sm font-bold">ALL</span>
+                      <span className="text-sm font-bold">All</span>
                     ) : (c.imageUrl || c.image) ? (
                       <img
                         src={c.imageUrl || c.image}
@@ -61,10 +61,12 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                         loading="lazy"
                       />
                     ) : (
-                      <span className="text-xs text-gray-400">전체</span>
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
                     )}
                   </div>
-                  <div className="mt-2 text-xs text-gray-800 whitespace-nowrap">{c.name}</div>
+                  <div className="mt-2 text-xs text-gray-800 whitespace-nowrap font-medium">{c.name}</div>
                   {active === c.key && (
                     <motion.div
                       layoutId="category-underline"
@@ -76,7 +78,7 @@ export default function CategoryBar({ categories, active, onSelect, expanded, on
                 </button>
               );
             })}
-            <div aria-hidden className="shrink-0 w-12" />
+            <div aria-hidden className="shrink-0 w-14" />
           </div>
         </div>
 
