@@ -141,19 +141,19 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   const [recommends, setRecommends] = useState([]);
   const [showToast, setShowToast] = useState(false);
 
-  const { addRecentProduct } = useRecentProducts();
+  // const { addRecentProduct } = useRecentProducts();
 
-  useEffect(() => {
-    if (productData) {
-      addRecentProduct({
-        id: productData.id,
-        name: productData.name,
-        price: productData.price,
-        image: productData.imageUrl,
-        brand: productData.brandName
-      });
-    }
-  }, [productData, addRecentProduct]);
+  // useEffect(() => {
+  //   if (productData) {
+  //     addRecentProduct({
+  //       id: productData.id,
+  //       name: productData.name,
+  //       price: productData.price,
+  //       image: productData.imageUrl,
+  //       brand: productData.brandName
+  //     });
+  //   }
+  // }, [productData, addRecentProduct]);
 
   useEffect(() => {
     if (!productId) {
