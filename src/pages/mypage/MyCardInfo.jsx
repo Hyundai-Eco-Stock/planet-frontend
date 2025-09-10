@@ -18,48 +18,46 @@ const MyCardInfo = () => {
         setTitle("내 카드 관리");
     }, [setTitle]);
 
-    const [cardCompanies, setCardCompanies] = useState([]);
     const [myCards, setMyCards] = useState([]);
 
-    const [cardNumber, setCardNumber] = useState("");
-    const [cardCompanyId, setCardCompanyId] = useState("");
     const [showForm, setShowForm] = useState(false);
-
-    const loadCards = async () => {
-        const data = await fetchMyCardInfo();
-        setMyCards(data.memberCardInfoList || []);
-    };
+    const [cardNumber, setCardNumber] = useState("");
 
     useEffect(() => {
-        searchAllCardCompanies().then((data) => setCardCompanies(data));
         loadCards();
     }, []);
+    
+    // 내 카드 정보 가져오기
+    const loadCards = () => {
+        fetchMyCardInfo()
+            .then(({ memberCardInfoList }) => {
+                setMyCards(memberCardInfoList || []);
+                console.log(memberCardInfoList);
+            })
+    }
 
+    // 카드 등록
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!cardCompanyId) {
-            Swal.fire("카드사 선택", "카드사를 선택해주세요.", "warning");
-            return;
-        }
 
         if (cardNumber.length !== 16) {
             Swal.fire("카드번호 확인", "카드번호 16자리를 입력해주세요.", "warning");
             return;
         }
 
-        try {
-            await registerMyCardInfo({ cardCompanyId, cardNumber });
-            Swal.fire("등록 완료", "카드가 정상적으로 등록되었습니다.", "success");
-            setCardNumber("");
-            setCardCompanyId("");
-            setShowForm(false);
-            loadCards();
-        } catch {
-            Swal.fire("에러", "카드 등록 중 오류가 발생했습니다.", "error");
-        }
+        registerMyCardInfo({ cardNumber })
+            .then(() => {
+                Swal.fire("등록 완료", "카드가 정상적으로 등록되었습니다.", "success");
+                setCardNumber("");
+                setShowForm(false);
+                loadCards();
+            }).catch((err) => {
+                console.log(err);
+                Swal.fire("에러", "카드 등록 중 오류가 발생했습니다.", "error");
+            })
     };
 
+    // 카드 삭제
     const handleDelete = async (memberCardId) => {
         Swal.fire({
             title: "정말 삭제하시겠습니까?",
@@ -104,7 +102,7 @@ const MyCardInfo = () => {
                     >
                         {/* 카드사 */}
                         <div className="flex justify-between items-start">
-                            <span className="text-lg font-semibold">{card.memberCardCompanyName}</span>
+                            <span className="text-lg font-semibold">현대백화점 카드</span>
                             <button
                                 onClick={() => handleDelete(card.memberCardId)}
                                 className="text-white hover:text-red-200"
@@ -112,7 +110,6 @@ const MyCardInfo = () => {
                                 <Trash2 size={20} />
                             </button>
                         </div>
-
                         {/* 카드번호 */}
                         <div className="mt-8 text-xl tracking-widest font-mono">
                             {maskCardNumber(card.cardNumber)}
@@ -139,19 +136,6 @@ const MyCardInfo = () => {
             {/* 카드 등록 폼 */}
             {showForm && (
                 <form onSubmit={handleSubmit} className="space-y-6 border-t pt-6">
-                    <div>
-                        <label className="block mb-2 font-medium text-gray-700">카드사</label>
-                        <SimpleSelect
-                            value={cardCompanyId}
-                            onChange={(e) => setCardCompanyId(e.target.value)}
-                            options={cardCompanies.map((c) => ({
-                                value: c.cardCompanyId,
-                                label: c.name,
-                            }))}
-                            placeholder="-- 카드사를 선택하세요 --"
-                        />
-                    </div>
-
                     <div>
                         <label className="block mb-2 font-medium text-gray-700">카드번호</label>
                         <CardNumberInput value={cardNumber} onChange={setCardNumber} />
