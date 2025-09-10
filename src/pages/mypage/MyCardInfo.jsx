@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 import { Trash2, PlusCircle } from "lucide-react";
 
 import { CardNumberInput } from "@/components/_custom/CustomInputs";
-import { SimpleSelect } from "@/components/_custom/CustomSelect";
 
-import { searchAllCardCompanies } from "@/api_department_core_backend/card/cardCompany.api";
 import { deleteMyCardInfo, fetchMyCardInfo, registerMyCardInfo } from "@/api/member_card/memberCard.api";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { useOutletContext } from "react-router-dom";
@@ -26,7 +24,7 @@ const MyCardInfo = () => {
     useEffect(() => {
         loadCards();
     }, []);
-    
+
     // 내 카드 정보 가져오기
     const loadCards = () => {
         fetchMyCardInfo()
@@ -124,39 +122,46 @@ const MyCardInfo = () => {
             </div>
 
             {/* 카드 등록 버튼 */}
-            {!showForm && (
-                <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
-                    <CustomCommonButton
-                        onClick={() => setShowForm(true)}
-                        children="+ 새 카드 등록"
-                    />
-                </div>
-            )}
+            {/* {!showForm && ( */}
+            <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
+                <CustomCommonButton
+                    onClick={() => setShowForm(true)}
+                    children="+ 새 카드 등록"
+                />
+            </div>
+            {/* )} */}
 
             {/* 카드 등록 폼 */}
             {showForm && (
-                <form onSubmit={handleSubmit} className="space-y-6 border-t pt-6">
-                    <div>
-                        <label className="block mb-2 font-medium text-gray-700">카드번호</label>
-                        <CardNumberInput value={cardNumber} onChange={setCardNumber} />
-                    </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
+                        <h2 className="text-lg font-semibold mb-4">새 카드 등록</h2>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div>
+                                <label className="block mb-2 font-medium text-gray-700">카드번호</label>
+                                <CardNumberInput value={cardNumber} onChange={setCardNumber} />
+                            </div>
 
-                    <div className="flex gap-2">
-                        <CustomCommonButton
-                            type="submit"
-                            children="등록"
-                            className="flex-1"
-                        />
-                        <CustomCommonButton
-                            onClick={() => setShowForm(false)}
-                            children="취소"
-                            className="flex-1 bg-gray-300 hover:bg-gray-400 !text-black"
-                        />
+                            <div className="flex gap-2">
+                                <CustomCommonButton
+                                    type="submit"
+                                    children="등록"
+                                    className="flex-1"
+                                />
+                                <CustomCommonButton
+                                    onClick={() => setShowForm(false)}
+                                    children="취소"
+                                    className="flex-1 bg-gray-300 hover:bg-gray-400 !text-black"
+                                />
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             )}
         </>
     );
 };
+
+
 
 export default MyCardInfo;
