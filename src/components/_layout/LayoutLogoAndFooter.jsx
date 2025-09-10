@@ -29,7 +29,7 @@ const LayoutLogoAndFooter = () => {
             <main className="px-4 flex-1 overflow-y-auto scrollbar-hide">
                 <Outlet />
             </main>
-            <footer className="flex-shrink-0 bg-white border-t border-gray-200" style={{ height: '65px' }}>
+            <footer className="flex-shrink-0 bg-white border-t border-gray-200" style={{ height: '85px' }}>
                 <Footer />
             </footer>
         </div>
