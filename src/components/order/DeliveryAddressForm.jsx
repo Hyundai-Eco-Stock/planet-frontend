@@ -137,16 +137,16 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="py-6 border-b border-gray-100">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">배송지 정보</h2>
+        <h2 className="text-lg font-semibold text-gray-900">배송지 정보</h2>
         <div className="flex space-x-2">
           {!isEditing && (
             <button
               onClick={handleUseNewAddress}
               className="text-green-600 hover:text-green-700 text-sm font-medium"
             >
-              새 배송지 입력
+              새 배송지
             </button>
           )}
           {isEditing && formData.isDefaultAddress === false && (
@@ -154,62 +154,44 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
               onClick={handleUseDefaultAddress}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
-              기본 배송지 사용
+              기본 배송지
             </button>
           )}
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               받는 분 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.recipientName}
               onChange={(e) => handleInputChange('recipientName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="받는 분 이름을 입력하세요"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              placeholder="받는 분 이름"
               disabled={!isEditing && formData.isDefaultAddress}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              연락처 (선택)
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              연락처
             </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="연락처를 입력하세요 (선택사항)"
-              // 연락처는 항상 입력 가능하도록 disabled 속성 제거
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              placeholder="연락처 (선택)"
             />
           </div>
         </div>
 
-        {/* 우편번호 */}
-        {formData.zipCode && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                우편번호
-              </label>
-              <input
-                type="text"
-                value={formData.zipCode}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-              />
-            </div>
-          </div>
-        )}
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             주소 <span className="text-red-500">*</span>
           </label>
           <div className="flex space-x-2">
@@ -217,14 +199,14 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
               type="text"
               value={formData.address}
               readOnly
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
               placeholder="주소 검색 버튼을 클릭하세요"
             />
             {(isEditing || !formData.isDefaultAddress) && (
               <button
                 type="button"
                 onClick={handleAddressSearch}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 whitespace-nowrap"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm whitespace-nowrap"
               >
                 주소 검색
               </button>
@@ -233,7 +215,7 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             상세주소
           </label>
           <input
@@ -241,55 +223,32 @@ const DeliveryAddressForm = ({ deliveryInfo, defaultDeliveryInfo, onUpdate }) =>
             type="text"
             value={formData.detailAddress}
             onChange={(e) => handleInputChange('detailAddress', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            placeholder="상세주소를 입력하세요 (동, 호수 등)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+            placeholder="동, 호수 등"
             disabled={!isEditing && formData.isDefaultAddress}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            배송 메시지 (선택)
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            배송 메시지
           </label>
           <select
             value={formData.message}
             onChange={(e) => handleInputChange('message', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
           >
             <option value="">배송 메시지를 선택하세요</option>
             <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
             <option value="직접 받을게요">직접 받을게요</option>
             <option value="경비실에 맡겨주세요">경비실에 맡겨주세요</option>
             <option value="택배함에 넣어주세요">택배함에 넣어주세요</option>
-            <option value="부재 시 안전한 곳에 놓아주세요">부재 시 안전한 곳에 놓아주세요</option>
           </select>
-        </div>
-
-        {formData.isDefaultAddress && !isEditing && (
-          <div className="bg-green-50 p-3 rounded-lg">
-            <p className="text-sm text-green-700">
-              기본 배송지로 배송됩니다.
-            </p>
-          </div>
-        )}
-
-        {isEditing && (
-          <div className="bg-yellow-50 p-3 rounded-lg">
-            <p className="text-sm text-yellow-700">
-              새로운 배송지 정보를 입력해주세요. 필수 항목(*)은 반드시 입력해야 합니다.
-            </p>
-          </div>
-        )}
-
-        {/* 주소 검색 안내 */}
-        <div className="text-xs text-gray-500">
-          <p>• 정확한 배송을 위해 주소 검색을 이용해주세요.</p>
-          <p>• 상세주소에는 동, 호수 등 구체적인 위치를 입력해주세요.</p>
-          <p>• 연락처는 배송 관련 연락이 필요할 때 사용되며, 선택사항입니다.</p>
         </div>
       </div>
     </div>
   )
+
 }
 
 export default DeliveryAddressForm

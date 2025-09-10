@@ -48,6 +48,20 @@ const PickupOrderPage = () => {
     product.ecoDealStatus || product.isEcoDeal
   ) || false
 
+  // 부모 헤더 숨기기
+  useEffect(() => {
+    const parentHeader = document.querySelector('header');
+    if (parentHeader) {
+      parentHeader.style.display = 'none';
+    }
+
+    return () => {
+      if (parentHeader) {
+        parentHeader.style.display = '';
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const initializeOrder = async () => {
       // CartMain에서 넘어온 데이터 확인
@@ -93,7 +107,7 @@ const PickupOrderPage = () => {
       // 매장별로 상품 그룹핑
       const groupProductsByStore = (products) => {
         const storeGroups = {}
-        const storeOrder = [] // 매장이 처음 나타난 순서를 기록
+        const storeOrder = []
 
         products.forEach((product, index) => {
           if (product.selectedStore) {
@@ -102,18 +116,17 @@ const PickupOrderPage = () => {
               storeGroups[storeId] = {
                 store: product.selectedStore,
                 products: [],
-                firstAppearanceIndex: index // 해당 매장 상품이 처음 나타난 순서
+                firstAppearanceIndex: index
               }
-              storeOrder.push(storeId) // 매장 등장 순서 기록
+              storeOrder.push(storeId)
             }
             storeGroups[storeId].products.push({
               ...product,
-              originalIndex: index // 원래 순서 보존
+              originalIndex: index
             })
           }
         })
 
-        // 매장이 처음 나타난 순서대로 정렬
         return storeOrder.map(storeId => ({
           store: storeGroups[storeId].store,
           products: storeGroups[storeId].products.sort((a, b) => a.originalIndex - b.originalIndex),
@@ -145,9 +158,6 @@ const PickupOrderPage = () => {
 
       // 다중 매장 픽업 정보 생성
       const pickupInfo = {
-        // 백엔드 호환성을 위한 대표 매장 정보
-        // 현재 DB 구조상 하나의 매장 ID만 저장 가능하므로 첫 번째 매장을 대표로 사용
-        // 추후 DB 구조 변경 시 이 부분을 수정하면 됨
         departmentStoreId: storeGroups[0].store.id,
         departmentStoreName: storeGroups[0].store.name,
         pickupDate: getTodayKST(),
@@ -155,7 +165,6 @@ const PickupOrderPage = () => {
           ? `다중 매장 픽업: ${storeGroups.map(g => g.store.name).join(', ')}`
           : '',
 
-        // UI 표시용 모든 매장 그룹 정보
         storeGroups: storeGroups.map(group => ({
           store: {
             id: group.store.id,
@@ -172,7 +181,6 @@ const PickupOrderPage = () => {
           }))
         })),
 
-        // 결제 시 필요한 매장별 상세 정보
         storeDetails: storeGroups.map(group => ({
           storeId: group.store.id,
           storeName: group.store.name,
@@ -182,7 +190,6 @@ const PickupOrderPage = () => {
         }))
       }
 
-      // 주문서 생성 데이터
       const cartData = {
         selectedProducts: convertedProducts.map(product => ({
           ...product,
@@ -198,10 +205,8 @@ const PickupOrderPage = () => {
         pickupInfo
       }
 
-      // 주문서 생성 시도
       const success = await createOrderDraft(cartData, 'PICKUP')
 
-      // 로그인이 필요한 경우 주문서 생성하지 않음
       if (!success && needLogin) {
         return
       }
@@ -214,8 +219,6 @@ const PickupOrderPage = () => {
 
     initializeOrder()
   }, [location.state, pickupCart, navigate, createOrderDraft, updatePointUsage, updateDonationAmount, needLogin])
-
-  // needLogin 상태는 별도 useEffect 불필요 (이미 초기화에서 처리됨)
 
   const handleLoginRedirect = () => {
     navigate('/login', {
@@ -242,7 +245,6 @@ const PickupOrderPage = () => {
           if (!mounted) return
           widgetRef.current = widget
 
-          // 결제수단 영역 렌더 (전체 위젯으로 표시)
           methodsRef.current = widget.renderPaymentMethods(
             '#payment-widget',
             { value: orderDraft.payment.finalAmount, currency: 'KRW' },
@@ -262,7 +264,6 @@ const PickupOrderPage = () => {
     try {
       methodsRef.current.updateAmount(orderDraft.payment.finalAmount, 'KRW')
     } catch (error) {
-      // 위젯이 아직 준비되지 않은 경우 - 다음 렌더링에서 처리됨
       console.debug('위젯 업데이트 실패 (정상적인 초기화 과정):', error.message)
     }
   }, [orderDraft?.payment?.finalAmount])
@@ -275,18 +276,25 @@ const PickupOrderPage = () => {
     }
   }
 
+  const handleUserInfoUpdate = (updatedUserInfo) => {
+    const updatedOrderDraft = {
+      ...orderDraft,
+      orderUser: updatedUserInfo
+    }
+    updateOrderDraft(updatedOrderDraft)
+  }
+
   // 기부금 계산
   const calculateRecommendedDonation = () => {
     if (!orderDraft) return 0
 
-    // 기부금 제외한 실제 결제 금액
     const baseAmount = orderDraft.payment.productTotal - orderDraft.payment.pointUsage
     const remainder = baseAmount % 1000
 
     return remainder === 0 ? 0 : (1000 - remainder)
   }
 
-  // 에코딜 상품이 없으면 자동으로 동의 상태로 설정 (기존 useEffect들 뒤에 추가)
+  // 에코딜 상품이 없으면 자동으로 동의 상태로 설정
   useEffect(() => {
     if (!hasEcoDeals) {
       setAgreeNoCancel(true)
@@ -305,9 +313,10 @@ const PickupOrderPage = () => {
       return
     }
 
-    // 유효성 검사 (다중 매장 지원)
-    if (!orderDraft.pickupInfo?.storeGroups || orderDraft.pickupInfo.storeGroups.length === 0) {
-      alert('픽업 매장 정보를 확인해주세요.')
+    // 유효성 검사
+    const validation = validateOrder()
+    if (!validation.isValid) {
+      alert(validation.message)
       return
     }
 
@@ -327,7 +336,6 @@ const PickupOrderPage = () => {
     setIsSubmitting(true)
 
     try {
-      // 주문서 최종 업데이트
       const finalOrderDraft = {
         ...orderDraft,
         pickupInfo: {
@@ -342,17 +350,14 @@ const PickupOrderPage = () => {
 
       updateOrderDraft(finalOrderDraft)
 
-      // 성공 페이지 금액 검증용
       sessionStorage.setItem('expectedAmount', String(amount))
 
-      // 주문 ID/이름 확정
       const finalOrderId = orderDraft.orderId || `PICKUP-${Date.now()}`;
       const orderName =
         (finalOrderDraft.products?.length ?? 0) > 1
           ? `${finalOrderDraft.products[0].name} 외 ${finalOrderDraft.products.length - 1}건`
           : finalOrderDraft.products?.[0]?.name || '주문 상품';
 
-      // 다중 매장 픽업 정보 포함한 결제 데이터
       const orderDataForPayment = {
         orderType: 'PICKUP',
         orderId: finalOrderId,
@@ -364,18 +369,15 @@ const PickupOrderPage = () => {
           price: product.originalPrice || product.paidPrice || product.price,
           salePercent: product.salePercent || 0,
           ecoDealStatus: product.ecoDealStatus || product.isEcoDeal || false,
-          // 각 상품의 매장 정보 포함
           storeId: product.selectedStore?.id,
           storeName: product.selectedStore?.name
         })),
         deliveryInfo: null,
         pickupInfo: {
-          // 기본 정보 (백엔드 호환성)
           departmentStoreId: finalOrderDraft.pickupInfo.departmentStoreId,
           departmentStoreName: finalOrderDraft.pickupInfo.departmentStoreName,
           pickupDate,
           pickupMemo: finalOrderDraft.pickupInfo.pickupMemo ?? '',
-          // 다중 매장 상세 정보
           isMultiStore: finalOrderDraft.pickupInfo.storeGroups.length > 1,
           storeCount: finalOrderDraft.pickupInfo.storeGroups.length,
           storeDetails: finalOrderDraft.pickupInfo.storeDetails || [],
@@ -390,7 +392,6 @@ const PickupOrderPage = () => {
 
       sessionStorage.setItem('paymentOrderDraft', JSON.stringify(orderDataForPayment));
 
-      // 결제위젯 인스턴스 확보
       let widget = widgetRef.current
       if (!widget) {
         const customerKey =
@@ -401,7 +402,6 @@ const PickupOrderPage = () => {
         widgetRef.current = widget
       }
 
-      // methods 영역이 이미 렌더링 되어 있지 않다면 최소 렌더
       if (!methodsRef.current) {
         methodsRef.current = widget.renderPaymentMethods(
           '#payment-widget',
@@ -418,7 +418,6 @@ const PickupOrderPage = () => {
         .replace(/^\+?82/, '0')
         .replace(/\D/g, '')
 
-      // 결제위젯으로 바로 결제창 오픈 - 다중 매장 정보가 포함된 주문명
       const finalOrderName = finalOrderDraft.pickupInfo.storeGroups.length > 1
         ? `${orderName} (${finalOrderDraft.pickupInfo.storeGroups.length}개 매장 픽업)`
         : orderName;
@@ -441,7 +440,7 @@ const PickupOrderPage = () => {
     }
   }
 
-  // 주문 유효성 검사 (픽업은 매장 정보만)
+  // 주문 유효성 검사
   const validateOrder = () => {
     if (!orderDraft.pickupInfo || !orderDraft.pickupInfo.storeGroups || orderDraft.pickupInfo.storeGroups.length === 0) {
       return { isValid: false, message: '픽업 매장을 선택해주세요.' }
@@ -453,7 +452,6 @@ const PickupOrderPage = () => {
   if (needLogin) {
     return (
       <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-        {/* 헤더 */}
         <div className="bg-white border-b flex-shrink-0">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center">
@@ -473,7 +471,6 @@ const PickupOrderPage = () => {
           </div>
         </div>
 
-        {/* 로그인 필요 메시지 */}
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-sm w-full">
             <div className="bg-white rounded-lg shadow-sm p-8">
@@ -513,7 +510,7 @@ const PickupOrderPage = () => {
     )
   }
 
-  // 에러가 있는 경우 에러 처리
+  // 에러가 있는 경우
   if (error && !orderDraft) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -531,7 +528,6 @@ const PickupOrderPage = () => {
     )
   }
 
-  // needLogin이 true이거나 orderDraft가 없으면 렌더링하지 않음
   if (!orderDraft) {
     return null
   }
@@ -539,29 +535,34 @@ const PickupOrderPage = () => {
   const isPaymentDisabled = hasEcoDeals ? !agreeNoCancel : false
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* 헤더 */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center">
-            <button
-              onClick={handleGoBack}
-              className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div>
-              <h1 className="text-xl font-bold">주문서</h1>
-              <span className="text-sm text-gray-500">픽업 배송</span>
-            </div>
-          </div>
+      <header
+        className="px-4 sticky top-0 z-50 bg-white border-b border-gray-200"
+        style={{ backgroundColor: '#ffffff', height: '48px' }}
+      >
+        <div className="flex items-center justify-between h-full">
+          <button
+            onClick={handleGoBack}
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="뒤로가기"
+          >
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <h1 className="font-semibold text-lg text-gray-900 absolute left-1/2 transform -translate-x-1/2">
+            주문/결제
+          </h1>
+
+          <div className="w-8 h-8"></div>
         </div>
-      </div>
+      </header>
 
       {/* 메인 컨텐츠 */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-32">
+      <div className="max-w-4xl mx-auto px-4 pb-32">
+        
         {/* 주문 상품 목록 */}
         <OrderProductList products={orderDraft.products} />
 
@@ -570,32 +571,30 @@ const PickupOrderPage = () => {
           storeGroups={orderDraft.pickupInfo?.storeGroups || []}
         />
 
-        {/* QR 코드 안내 (백엔드 연동 전 임시) */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center mb-2">
-            <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="text-blue-800 font-medium">픽업 안내</h3>
-          </div>
-          <div className="text-sm text-blue-700 space-y-1">
-            <p>• 결제 완료 후, QR 코드가 생성됩니다.</p>
-            <p>• 선택한 매장에서 QR 코드를 제시하시면 상품을 받으실 수 있습니다.</p>
-            <p>• 픽업 가능 시간: 매장 운영시간 내</p>
-            {orderDraft.pickupInfo?.storeGroups?.length > 1 && (
-              <p>• <strong>여러 매장 픽업 시 각 매장을 모두 방문하셔야 합니다.</strong></p>
-            )}
+        {/* QR 코드 안내 */}
+        <div className="py-6 border-b border-gray-100">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center mb-2">
+              <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-blue-800 font-medium">픽업 안내</h3>
+            </div>
+            <div className="text-sm text-blue-700 space-y-1">
+              <p>• 결제 완료 후, QR 코드가 생성됩니다.</p>
+              <p>• 선택한 매장에서 QR 코드를 제시하시면 상품을 받으실 수 있습니다.</p>
+              <p>• 픽업 가능 시간: 매장 운영시간 내</p>
+              {orderDraft.pickupInfo?.storeGroups?.length > 1 && (
+                <p>• <strong>여러 매장 픽업 시 각 매장을 모두 방문하셔야 합니다.</strong></p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* 주문자 정보 */}
-        <OrderUserInfo userInfo={orderDraft.orderUser} />
-
-        {/* 기부 옵션 */}
-        <DonationForm
-          recommendedAmount={calculateRecommendedDonation()}
-          currentAmount={orderDraft.payment.donationAmount}
-          onUpdate={updateDonationAmount}
+        <OrderUserInfo 
+          userInfo={orderDraft.orderUser}
+          onUpdate={handleUserInfoUpdate}
         />
 
         {/* 포인트 사용 */}
@@ -604,6 +603,13 @@ const PickupOrderPage = () => {
           currentUsage={orderDraft.payment.pointUsage}
           maxUsage={(orderDraft.payment.productTotal || 0) + (orderDraft.payment.donationAmount || 0)}
           onUpdate={updatePointUsage}
+        />
+
+        {/* 기부 옵션 */}
+        <DonationForm
+          recommendedAmount={calculateRecommendedDonation()}
+          currentAmount={orderDraft.payment.donationAmount}
+          onUpdate={updateDonationAmount}
         />
 
         {/* 에코딜 경고 박스 */}
@@ -617,7 +623,7 @@ const PickupOrderPage = () => {
         />
 
         {/* 결제 위젯 */}
-        <div className="bg-white rounded-lg shadow-sm">
+        <div className="py-6 border-b border-gray-100">
           <div id="payment-widget" />
         </div>
 

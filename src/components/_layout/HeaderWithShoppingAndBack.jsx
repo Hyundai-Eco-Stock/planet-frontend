@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faArrowLeft, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
+import { ChevronLeft } from "lucide-react";
+import CartIcon from '@/assets/navigation_icon/Cart.svg';
 
 const HeaderWithShopping = ({ onBackClick }) => {
     const navigate = useNavigate();
@@ -12,13 +14,13 @@ const HeaderWithShopping = ({ onBackClick }) => {
         try {
             const cartData = localStorage.getItem('cart-storage');
             if (!cartData) return 0;
-            
+
             const parsedData = JSON.parse(cartData);
             const state = parsedData.state || parsedData;
-            
+
             const deliveryCount = state.deliveryCart ? state.deliveryCart.length : 0;
             const pickupCount = state.pickupCart ? state.pickupCart.length : 0;
-            
+
             return deliveryCount + pickupCount;
         } catch (error) {
             console.error('Error reading cart from localStorage:', error);
@@ -76,43 +78,39 @@ const HeaderWithShopping = ({ onBackClick }) => {
     };
 
     return (
-        <header className="px-4 sticky top-0 z-50 bg-white text-[#0b1020]">
-            <div className="flex items-center justify-between py-3 h-16">
+        <header 
+            className="px-4 sticky top-0 z-50 bg-white border-b border-gray-200" 
+            style={{backgroundColor: '#ffffff', height: '48px'}}
+        >
+            <div className="flex items-center justify-between h-full">
                 {/* 왼쪽: 로고 텍스트 */}
                 <button
-                    type="button"
                     onClick={handleBack}
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="뒤로가기"
-                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
                 >
-                    <FontAwesomeIcon icon={faArrowLeft} className="text-lg" />
-                    <span className="sr-only">뒤로가기</span>
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
                 </button>
 
                 {/* 오른쪽: 검색/장바구니 아이콘 */}
                 <div className="flex items-center gap-6">
-                    {/* <button
-                        type="button"
-                        onClick={onSearchClick}
-                        aria-label="검색 열기"
-                        className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
-                    >
-                        <FontAwesomeIcon icon={faMagnifyingGlass} className="text-lg" />
-                        <span className="sr-only">검색</span>
-                    </button> */}
-
                     <button
                         type="button"
                         onClick={onCartClick}
                         aria-label="장바구니 보기"
-                        className="relative flex items-center justify-center w-9 h-9 rounded-lg text-gray-900 hover:bg-gray-200 transition-transform transform hover:-translate-y-[1px]"
+                        className="relative flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-all duration-200"
                     >
-                        <FontAwesomeIcon icon={faShoppingCart} className="text-lg" />
+                        <img
+                            src={CartIcon}
+                            className="w-5 h-5 transition-all duration-200"
+                            style={{
+                                filter: 'brightness(0) saturate(100%) invert(7%) sepia(7%) saturate(1065%) hue-rotate(202deg) brightness(99%) contrast(88%)'
+                            }}
+                        />
                         <span className="sr-only">장바구니</span>
 
-                        {/* 장바구니 개수 배지 */}
                         {totalCartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                            <span className="absolute -top-0.5 -right-0.5 bg-emerald-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                                 {totalCartCount > 99 ? "99+" : totalCartCount}
                             </span>
                         )}

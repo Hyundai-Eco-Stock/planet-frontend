@@ -25,14 +25,11 @@ const PaymentSuccessPage = () => {
   const formatOrderNumber = (orderNumber) => {
     if (!orderNumber) return 'N/A'
 
-    // draft_ 제거하고 언더스코어로 분리된 부분들 처리
-    let cleanNumber = orderNumber.replace(/^draft_/, '') // "draft_" 접두사 제거
+    let cleanNumber = orderNumber.replace(/^draft_/, '')
 
-    // 타임스탬프_랜덤문자열 형태에서 뒤의 랜덤 문자열만 사용
     if (cleanNumber.includes('_')) {
       const parts = cleanNumber.split('_')
       if (parts.length >= 2) {
-        // 마지막 부분(랜덤 문자열)만 사용하고 대문자로 변환
         cleanNumber = parts[parts.length - 1].toUpperCase()
       }
     }
@@ -42,13 +39,13 @@ const PaymentSuccessPage = () => {
 
   const handleGoBack = () => {
     if (orderResult?.qrCodeData) {
-      navigate('/eco-deal/main')  // 픽업
+      navigate('/eco-deal/main')
     } else {
-      // 일반 배송이면 쇼핑 메인으로
       navigate('/shopping/main')
     }
   }
 
+  // 기존 useEffect 로직 유지...
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
       alert('결제 정보가 올바르지 않습니다.');
@@ -79,12 +76,10 @@ const PaymentSuccessPage = () => {
       try {
         let orderData = null;
 
-        // DeliveryOrderPage에서 저장한 데이터 확인
         const savedPaymentData = sessionStorage.getItem('paymentOrderDraft');
         if (savedPaymentData) {
           orderData = JSON.parse(savedPaymentData);
         } else {
-          // fallback: orderDraft에서 데이터 추출 시도
           const products = Array.isArray(orderDraft?.products) ? orderDraft.products : [];
           orderData = {
             orderType: orderDraft?.orderType || 'DELIVERY',
@@ -123,7 +118,6 @@ const PaymentSuccessPage = () => {
 
         const orderName = orderData?.orderName ?? computedOrderName;
 
-        // 백엔드 승인 요청 
         const payload = {
           paymentKey,
           orderId,
@@ -176,9 +170,9 @@ const PaymentSuccessPage = () => {
 
   if (isProcessing) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
           <p className="text-gray-600">결제를 처리하고 있습니다...</p>
         </div>
       </div>
@@ -186,85 +180,117 @@ const PaymentSuccessPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-md mx-auto px-4">
-        {/* 성공 메시지 */}
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center mb-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">결제 완료</h1>
-          <p className="text-gray-600 text-sm">주문이 성공적으로 처리되었습니다</p>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="bg-white px-6 pt-12 pb-8 text-center">
+        {/* 성공 아이콘 */}
+        <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
         </div>
 
-        {/* 주문 정보 */}
-        {!!orderResult && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div className="space-y-4">
-              {/* 주문번호 */}
-              <div className="text-center pb-4 border-b">
-                <p className="text-gray-600 text-sm mb-1">주문번호</p>
-                <p className="font-mono text-lg font-bold text-gray-900">
-                  {formatOrderNumber(orderResult.orderNumber ?? orderResult.orderId)}
-                </p>
-              </div>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">결제요청 처리완료</h1>
+      </div>
 
-              {/* 결제 정보 */}
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">결제금액</span>
-                  <span className="font-semibold">{Number(amount || 0).toLocaleString()}원</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">배송방식</span>
-                  <span className="font-semibold">
-                    {orderResult?.qrCodeData ? '픽업' : '일반 배송'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">결제수단</span>
-                  <span className="font-semibold">{orderResult.paymentMethod ?? '카드'}</span>
-                </div>
-              </div>
+      {/* 구분선 */}
+      <div className="border-t border-dashed border-gray-300 mx-6"></div>
+
+      {/* 결제 정보 */}
+      {!!orderResult && (
+        <div className="flex-1 px-6 py-6 pb-24">
+          <div className="space-y-4">
+            {/* 주문번호 */}
+            <div className="text-center pb-4 border-b border-gray-200">
+              <p className="text-gray-600 text-sm mb-1">주문번호</p>
+              <p className="font-mono text-lg font-bold text-gray-900">
+                {formatOrderNumber(orderResult.orderNumber ?? orderResult.orderId)}
+              </p>
+            </div>
+
+            {/* 가맹점 */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">가맹점</span>
+              <span className="font-medium text-sm">planet</span>
+            </div>
+
+            {/* 결제금액 */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">결제금액</span>
+              <span className="font-bold text-black text-lg">
+                {Number(amount || 0).toLocaleString()} 원
+              </span>
+            </div>
+
+            {/* 구분선 */}
+            <div className="border-t border-gray-200 my-4"></div>
+
+            {/* 결제일시 */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">결제일시</span>
+              <span className="text-gray-500 text-sm">
+                {new Date().toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit'
+                }).replace(/\./g, '-').slice(0, -1)} {new Date().toLocaleTimeString('ko-KR', {
+                  hour12: false,
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })}
+              </span>
+            </div>
+
+            {/* 배송방식 */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">배송방식</span>
+              <span className="font-semibold text-sm">
+                {orderResult?.qrCodeData ? '픽업' : '일반 배송'}
+              </span>
+            </div>
+
+            {/* 결제수단 */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">결제수단</span>
+              <span className="font-semibold text-sm">{orderResult.paymentMethod ?? '카드'}</span>
             </div>
           </div>
-        )}
 
-        {/* QR 코드 (픽업 주문시만) */}
-        {orderResult?.qrCodeData && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6 text-center">
-            <h3 className="font-semibold text-gray-900 mb-4">픽업 QR 코드</h3>
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <img
-                src={orderResult.qrCodeData}
-                alt="픽업용 QR코드"
-                className="w-48 h-48 mx-auto"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'block';
-                }}
-              />
-              <div className="hidden text-gray-500 py-12">
-                QR코드를 불러올 수 없습니다
+          {/* QR 코드 (픽업 주문시만) */}
+          {orderResult?.qrCodeData && (
+            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+              <h3 className="font-medium text-gray-900 mb-4">픽업 QR 코드</h3>
+              <div className="bg-gray-50 rounded-lg p-6 mb-4">
+                <img
+                  src={orderResult.qrCodeData}
+                  alt="픽업용 QR코드"
+                  className="w-40 h-40 mx-auto"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+                <div className="hidden text-gray-500 py-12 text-sm">
+                  QR코드를 불러올 수 없습니다
+                </div>
               </div>
+              <p className="text-sm text-gray-600">
+                매장 방문 시 QR 코드를 제시해 주세요
+              </p>
             </div>
-            <p className="text-sm text-gray-600">
-              매장 방문 시 QR 코드를 제시해 주세요
-            </p>
-          </div>
-        )}
-
-        {/* 버튼 */}
-        <div className="space-y-3">
-          <button
-            onClick={handleGoBack}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
-          >
-            쇼핑 계속하기
-          </button>
+          )}
         </div>
+      )}
+
+      {/* 확인 버튼 - 하단 고정 */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white p-4 border-t border-gray-200">
+        <button
+          onClick={handleGoBack}
+          className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+        >
+          쇼핑 계속하기
+        </button>
       </div>
     </div>
   );

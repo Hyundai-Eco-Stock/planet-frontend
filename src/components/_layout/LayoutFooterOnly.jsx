@@ -7,7 +7,7 @@ const LayoutFooterOnly = () => {
             <main className="px-4 min-h-full pb-24 overflow-y-auto scrollbar-hide flex-1">
                 <Outlet />
             </main>
-            <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 h-24 w-full max-w-xl bg-white">
+            <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl bg-white border-t border-gray-200" style={{ height: '65px' }}>
                 <Footer />
             </footer>
         </div>

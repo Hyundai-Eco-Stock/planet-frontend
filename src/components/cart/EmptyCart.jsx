@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CustomCommonButton } from '@/components/_custom/CustomButtons'
+import emptyCartImage from '@/assets/empty-cart-character.png'
 
 const EmptyCart = () => {
   const navigate = useNavigate()
@@ -9,8 +10,12 @@ const EmptyCart = () => {
     <div className="flex flex-col items-center justify-center h-full py-20 px-4">
       
       {/* 빈 장바구니 아이콘 - 사진이나 더 예쁜 걸로 대체하면 좋을 듯 이것도 나쁘지 않고 */}
-      <div className="text-8xl mb-4 opacity-50">
-        🛒
+      <div className="mb-6">
+        <img 
+          src={emptyCartImage} 
+          alt="빈 장바구니"
+          className="w-60 h-60 object-contain"
+        />
       </div>
       
       {/* 메인 메시지 */}
@@ -36,18 +41,8 @@ const EmptyCart = () => {
           onClick={() => navigate('/eco-deal/main')}
           className="w-full py-4 border border-emerald-500 text-emerald-600 rounded-xl hover:bg-emerald-50 font-semibold transition"
         >
-          에코딜 상품 보기
+          푸드딜 상품 보기
         </button>
-      </div>
-      
-      {/* 하단 안내 메시지 */}
-      <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg max-w-sm">
-        <div className="flex items-start gap-2">
-          <div className="text-sm text-green-700">
-            <p className="font-medium mb-1">에코딜이란?</p>
-            <p>신선 식품을 매장에서 픽업하면 할인을 받을 수 있는 서비스입니다(일단 이렇게 적어봤습니다).</p>
-          </div>
-        </div>
       </div>
     </div>
   )

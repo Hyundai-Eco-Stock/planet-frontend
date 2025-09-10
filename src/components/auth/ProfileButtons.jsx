@@ -6,19 +6,23 @@ import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 
 import useAuthStore from "@/store/authStore";
 
-
-
 /**
  * @components 헤더에 사용하는 프로필 이미지
  * @returns 
  */
-const ProfileButton = () => {
-
-    const size = '80px';
-
+const ProfileButton = ({ size = "default" }) => {
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
     const profile = useAuthStore((s) => s.profile);
+
+    // 크기별 클래스 정의
+    const sizeClasses = {
+        default: "w-20 h-20", // 80px
+        large: "w-16 h-16",   // 64px (마이페이지용)
+        small: "w-12 h-12"    // 48px
+    };
+
+    const currentSize = sizeClasses[size] || sizeClasses.default;
 
     return (
         <>
@@ -27,13 +31,13 @@ const ProfileButton = () => {
                     src={profile}
                     alt={name ?? email ?? "profile"}
                     referrerPolicy="no-referrer"
-                    className={`w-[${size}] h-[${size}] rounded-full object-cover`}
+                    className={`${currentSize} rounded-full object-cover`}
                 />
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
                     style={{ color: "#ccc" }}
-                    className={`w-[${size}] h-[${size}]`}
+                    className={`${currentSize}`}
                 />
             )}
         </>
@@ -41,13 +45,10 @@ const ProfileButton = () => {
 }
 
 /**
- * @components 헤더에 사용하는 프로필 이미지
+ * @components 관리자용 프로필 이미지
  * @returns 
  */
 const AdminProfileButton = () => {
-
-    const size = '50px';
-
     const name = useAuthStore((s) => s.name);
     const email = useAuthStore((s) => s.email);
     const profile = useAuthStore((s) => s.profile);
@@ -59,18 +60,17 @@ const AdminProfileButton = () => {
                     src={profile}
                     alt={name ?? email ?? "profile"}
                     referrerPolicy="no-referrer"
-                    className={`w-[${size}] h-[${size}] rounded-full object-cover`}
+                    className="w-12 h-12 rounded-full object-cover"
                 />
             ) : (
                 <FontAwesomeIcon
                     icon={faUserCircle}
                     style={{ color: "#ccc" }}
-                    className={`w-[${size}] h-[${size}]`}
+                    className="w-12 h-12"
                 />
             )}
         </>
     );
 }
-
 
 export { ProfileButton, AdminProfileButton };

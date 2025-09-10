@@ -234,10 +234,24 @@ const Home = () => {
 
                     {/* 당첨자 오버레이 */}
                     {r.winnerName && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <div className="text-center text-white">
-                          <div className="text-xl font-bold mb-2">당첨자 발표</div>
-                          <div className="text-lg">{r.winnerName}</div>
+                          {r.winnerName === 'NoWin' ? (
+                            <>
+                              <div className="text-lg font-bold mb-1">당첨자가 없습니다</div>
+                              <div className="text-sm">응모자가 없어 당첨자가 선정되지 않았습니다</div>
+                            </>
+                          ) : r.winnerName === 'working' ? (
+                            <>
+                              <div className="text-lg font-bold mb-1">당첨자 선정 중</div>
+                              <div className="text-sm">당첨자 선정 작업이 진행 중입니다</div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="text-lg font-bold mb-1">당첨자 발표</div>
+                              <div className="text-sm">{r.winnerName}</div>
+                            </>
+                          )}
                         </div>
                       </div>
                     )}
@@ -316,8 +330,8 @@ const Home = () => {
           {/* 메뉴 옵션들 */}
           <div
             className={`flex flex-col items-end gap-2 transition-all duration-300 ${fabOpen
-                ? "opacity-100 translate-y-0 pointer-events-auto"
-                : "opacity-0 translate-y-2 pointer-events-none"
+              ? "opacity-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 translate-y-2 pointer-events-none"
               }`}
           >
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-w-[120px]">
@@ -357,8 +371,8 @@ const Home = () => {
             aria-expanded={fabOpen}
             onClick={() => setFabOpen((v) => !v)}
             className={`pointer-events-auto w-12 h-12 rounded-full shadow-lg transition-all duration-200 flex items-center justify-center ${fabOpen
-                ? "bg-gray-600 rotate-45"
-                : "bg-gray-800 hover:bg-gray-700"
+              ? "bg-gray-600 rotate-45"
+              : "bg-gray-800 hover:bg-gray-700"
               }`}
           >
             <span className="text-white text-xl font-light">

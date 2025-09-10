@@ -133,19 +133,22 @@ function App() {
 
 				{/* 로고만 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutLogoAndFooter />}>
+					{/* <Route path="/my-page/main" element={<MyPageMain />} /> */}
+					<Route path="/raffle" element={<RaffleListPage />} />
+					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
+					<Route path="/eco-stock/main" element={<EcoStockMain />} />
 					<Route path="/my-page/main" element={<MyPageMain />} />
-				  <Route path="/raffle" element={<RaffleListPage />} />
-				  <Route path="/eco-stock/main" element={<EcoStockMain />} />
-				  {/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
+					{/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
 				</Route>
-    
-        {/* 뒤로가기 Layout (헤더 + 푸터) */}
-			  <Route element={<LayoutBack />}>
-			  </Route>
+
+				{/* 뒤로가기 Layout (헤더 + 푸터) */}
+				<Route element={<LayoutBack />}>
+
+				</Route>
 
 				{/* 로고 + 설정 */}
 				<Route element={<LayoutLogoAndSetting />}>
-					<Route path="/my-page/main" element={<MyPageMain />} />
+				
 				</Route>
 
 				{/* 뒤로가기 Layout (헤더 + 푸터) */}
@@ -183,16 +186,17 @@ function App() {
 
 				{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutLogoAndClose />}>
-					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
+					{/* <Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} /> */}
 				</Route>
 
 				{/* 로고만 있는 Layout (헤더만) */}
 				<Route element={<LayoutLogoOnly />}>
+					<Route path="/login" element={<Login />} />
 				</Route>
 
 				{/* 푸터만 있는 Layout (푸터만) */}
 				<Route element={<LayoutFooterOnly />}>
-					<Route path="/login" element={<Login />} />
+
 				</Route>
 
 				{/* 아무것도 없는 Layout */}
