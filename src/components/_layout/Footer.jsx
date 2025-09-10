@@ -34,16 +34,16 @@ const Footer = () => {
                             src={menu.icon}
                             className="w-6 h-6 mb-1 transition-all duration-200"
                             style={{
-                                filter: isActive 
-                                    ? 'brightness(0) saturate(100%) invert(44%) sepia(78%) saturate(2476%) hue-rotate(141deg) brightness(97%) contrast(86%)'
-                                    : 'brightness(0) saturate(100%) invert(7%) sepia(7%) saturate(1065%) hue-rotate(202deg) brightness(99%) contrast(88%)'
+                                // 모든 아이콘을 검정색으로 통일
+                                filter: 'brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)'
                             }}
                         />
                         <span
-                            className={`transition-all duration-200 font-normal ${
-                                isActive ? "text-eco" : "text-primary"
-                            }`}
-                            style={{ fontSize: '10px' }}
+                            className="transition-all duration-200 text-black"
+                            style={{ 
+                                fontSize: '10px',
+                                fontWeight: isActive ? '600' : '400' // 활성상태는 굵게만
+                            }}
                         >
                             {menu.name}
                         </span>
