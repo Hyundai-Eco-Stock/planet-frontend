@@ -176,19 +176,19 @@ const RaffleDetailPage = () => {
     showSuccessModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] p-4">
         <div className="bg-white rounded-2xl max-w-sm w-full shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4">
             <h3 className="text-lg font-bold text-white text-center">응모 완료</h3>
           </div>
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <p className="text-gray-600 mb-6">래플 참여가 완료되었습니다</p>
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="w-full py-3 px-4 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200"
+              className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200"
             >
               확인
             </button>
@@ -458,8 +458,18 @@ const RaffleDetailPage = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">응모 가능 여부</span>
-                <span className={`font-medium ${hasEnoughStock ? 'text-green-600' : 'text-red-600'}`}>
-                  {hasEnoughStock ? '응모 가능' : '에코스톡 부족'}
+                <span className={`font-medium ${entryStatus
+                    ? 'text-orange-600'
+                    : hasEnoughStock
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}>
+                  {entryStatus
+                    ? '응모 완료'
+                    : hasEnoughStock
+                      ? '응모 가능'
+                      : '에코스톡 부족'
+                  }
                 </span>
               </div>
             </div>
@@ -501,17 +511,17 @@ const RaffleDetailPage = () => {
                   : handleEnterRaffle
             }
             disabled={isSubmitting || entryStatus || winnerName || (!hasEnoughStock && !isRaffleActive())}
-            className={`w-full py-3 rounded-lg font-medium text-base transition-all duration-200 ${isSubmitting
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            className={`w-full py-3 rounded-lg font-medium text-base transition-all duration-200 border ${isSubmitting
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
               : entryStatus
-                ? 'bg-green-50 text-green-700 cursor-not-allowed border border-green-200'
+                ? 'bg-gray-100 text-gray-600 border-black cursor-not-allowed' // 검정 테두리 + 회색 내부
                 : winnerName
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
                   : !isRaffleActive()
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300'
                     : hasEnoughStock
-                      ? 'bg-black text-white hover:bg-gray-800 active:bg-gray-900'
-                      : 'bg-black text-white hover:bg-gray-800 active:bg-gray-900'
+                      ? 'bg-black text-white hover:bg-gray-800 active:bg-gray-900 border-black'
+                      : 'bg-black text-white hover:bg-gray-800 active:bg-gray-900 border-black'
               }`}
           >
             {isSubmitting
