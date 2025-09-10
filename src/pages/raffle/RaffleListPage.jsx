@@ -29,11 +29,11 @@ const RaffleListPage = () => {
     [navigate, personalStockInfoList]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  // fetchData를 밖으로 빼서 재시도/새로고침 버튼에서 재사용
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
 
         const raffleResponse = await getRaffleList();
         setRaffleList(raffleResponse || []);
@@ -50,8 +50,10 @@ const RaffleListPage = () => {
       } finally {
         setLoading(false);
       }
-    };
-
+    }
+  );
+    
+  useEffect(() => {
     fetchData();
   }, [loginStatus]);
 
@@ -115,6 +117,7 @@ const RaffleListPage = () => {
     );
   }
 
+  // 기본 리스트
   return (
     <div className="min-h-screen bg-white relative">
       {/* 상단 헤더 배너 */}
