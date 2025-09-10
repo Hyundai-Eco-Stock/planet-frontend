@@ -7,6 +7,7 @@ import { CardNumberInput } from "@/components/_custom/CustomInputs";
 import { deleteMyCardInfo, fetchMyCardInfo, registerMyCardInfo } from "@/api/member_card/memberCard.api";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import { useOutletContext } from "react-router-dom";
+import Card from "@/components/card/Card";
 
 
 const MyCardInfo = () => {
@@ -80,44 +81,17 @@ const MyCardInfo = () => {
 
     };
 
-    // 카드번호 마스킹 처리
-    const maskCardNumber = (num) => {
-        return num.replace(/\d(?=\d{4})/g, "•");
-    };
-
     return (
         <>
             {/* 등록된 카드 리스트 */}
-            <div className="space-y-4 pb-6">
+            <div className="space-y-4 pb-24">
                 {myCards.map((card) => (
-                    <div
-                        key={card.memberCardId}
-                        className="w-full p-5 
-                            relative aspect-[1.585/1]
-                            rounded-2xl shadow-lg text-white 
-                            bg-gradient-to-r from-emerald-500 to-teal-400
-                            "
-                    >
-                        {/* 카드사 */}
-                        <div className="flex justify-between items-start">
-                            <span className="text-lg font-semibold">현대백화점 카드</span>
-                            <button
-                                onClick={() => handleDelete(card.memberCardId)}
-                                className="text-white hover:text-red-200"
-                            >
-                                <Trash2 size={20} />
-                            </button>
-                        </div>
-                        {/* 카드번호 */}
-                        <div className="mt-8 text-xl tracking-widest font-mono">
-                            {maskCardNumber(card.cardNumber)}
-                        </div>
+                    <Card
+                        card={card}
+                        bgImage="/assets/cards/the_hyundae_1.png"
+                        onDelete={handleDelete}
+                    />
 
-                        {/* 소유자/기타 */}
-                        <div className="absolute bottom-4 left-5 text-sm opacity-80">
-                            {/* 등록 카드 ID: {card.memberCardId} */}
-                        </div>
-                    </div>
                 ))}
             </div>
 
@@ -161,6 +135,8 @@ const MyCardInfo = () => {
         </>
     );
 };
+
+
 
 
 
