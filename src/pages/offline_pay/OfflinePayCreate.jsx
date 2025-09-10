@@ -19,7 +19,7 @@ const OfflinePayCreate = () => {
 
     const [shopId, setShopId] = useState(101);
     const [cardCompanyId, setCardCompanyId] = useState(1);
-    const [cardNumber, setCardNumber] = useState("1234123412341234");
+    const [cardNumber, setCardNumber] = useState("1111111111111111");
     const [items, setItems] = useState([]);
 
     useEffect(() => {
@@ -61,8 +61,8 @@ const OfflinePayCreate = () => {
         }
 
         const payload = {
-            posId: 69,
-            dailySeq: 948732,
+            posId: 69, // 임의로 넣음
+            dailySeq: 948732, // 임의로 넣음
             shopId: Number(shopId),
             cardCompanyId,
             cardNumber: cardNumber.replace(/\s/g, ""),
@@ -71,13 +71,40 @@ const OfflinePayCreate = () => {
             summary: { subtotal, discounts, total },
         };
 
-        try {
-            await createOfflinePay(payload);
-            Swal.fire("결제 완료", `총 ${total.toLocaleString()}원이 결제되었습니다.`, "success");
-            setItems([]);
-        } catch {
-            Swal.fire("결제 실패", "결제 처리 중 오류가 발생했습니다.", "error");
-        }
+        // 1) 승인중 모달 먼저 띄우기 (닫기 버튼 없음)
+        await Swal.fire({
+            title: "카드 승인중...",
+            text: "잠시만 기다려주세요.",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            timer: 1200, // 1.2초 뒤 자동 닫힘
+            showConfirmButton: false,
+        }).then(() => {
+            createOfflinePay(payload)
+                .then(() => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "결제 완료",
+                        text: `총 ${total.toLocaleString()}원이 결제되었습니다.`,
+                        confirmButtonText: "확인",
+                        confirmButtonColor: "#10b981",
+                        timer: 2000, // 2초 뒤 자동 닫힘
+                    });
+                    setItems([]);
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "결제 실패",
+                        text: "결제 처리 중 오류가 발생했습니다.",
+                        confirmButtonText: "확인",
+                        confirmButtonColor: "#ef4444",
+                    });
+                });
+        })
+
     };
 
     return (
