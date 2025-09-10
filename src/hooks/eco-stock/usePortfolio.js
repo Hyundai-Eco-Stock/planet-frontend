@@ -2,11 +2,13 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { getPersonalStockInfo } from '@/api/memberStockInfo/memberStockInfo.api';
 import { stockSell } from '@/api/stockSell/stockSell.api';
+import useAuthStore from '@/store/authStore';
 
 // 개인 주식 정보 조회 훅
 export const usePersonalStockInfo = (stockId) => {
     const [memberStockInfo, setMemberStockInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { loginStatus } = useAuthStore(); 
 
     const fetchPersonalStockInfo = useCallback(async () => {
         if (!stockId) {
@@ -14,10 +16,16 @@ export const usePersonalStockInfo = (stockId) => {
             setIsLoading(false);
             return;
         }
+        if(!loginStatus){
+            return;
+        }
 
         setIsLoading(true);
         try {
             const stockData = await getPersonalStockInfo(stockId);
+
+            console.log("디버깅",stockData);
+            
             setMemberStockInfo(stockData);
         } catch (err) {
             console.error('주식 정보 조회 실패:', err);
@@ -147,8 +155,16 @@ export const useStockSell = (stockInfo, stock, onSell, onSuccess) => {
 
 // 포맷팅 함수들
 export const formatCurrency = (amount) => {
-    if (amount === undefined || amount === null || isNaN(amount)) return '0';
-    return new Intl.NumberFormat('ko-KR').format(Math.round(amount));
+  if (amount === undefined || amount === null || isNaN(amount)) return '0.00';
+
+  // 소수점 둘째 자리까지 반올림
+  const rounded = Math.round(amount * 100) / 100;
+
+  // 항상 2자리 소수점 표시
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(rounded);
 };
 
 export const formatPercent = (percent) => {

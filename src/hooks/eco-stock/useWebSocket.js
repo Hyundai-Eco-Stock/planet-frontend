@@ -24,8 +24,6 @@ export const useWebSocket = (selectedStock, onStockDataUpdate) => {
 
     // 단일 주식 구독
     const subscribeToSingleStock = useCallback(async (stockId) => {
-        if (!isConnected()) return;
-
         // 같은 주식이면 재구독하지 않음
         if (prevStockIdRef.current === stockId) return;
 
