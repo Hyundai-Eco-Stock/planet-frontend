@@ -7,125 +7,72 @@ import Toast from "@/components/common/Toast";
 const MAX_INITIAL_INFO_IMAGES = 1; // 초기 노출할 상품정보 이미지 개수 (상품 더보기 버튼)
 
 const EcoBadge = () => (
-  <span className="absolute top-4 right-4 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none bg-emerald-50 text-emerald-700 border border-emerald-200">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+  <span className="absolute top-2 right-2 z-10 px-2 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="inline mr-1">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
     </svg>
     Re.Green
   </span>
 );
 
-// 배지 생성 함수
-const generateBadges = (productName, categoryName) => {
+// 배지 생성 함수 - ProductComponent와 동일
+const generateBadges = (productName, price) => {
   const badgeOptions = [
-    { text: 'BEST', color: 'bg-blue-50 text-blue-600' },
-    { text: '인기', color: 'bg-red-50 text-red-600' },
-    { text: '추천', color: 'bg-green-50 text-green-600' },
-    { text: 'HOT', color: 'bg-orange-50 text-orange-600' },
-    { text: '신상', color: 'bg-purple-50 text-purple-600' },
-    { text: 'MD추천', color: 'bg-pink-50 text-pink-600' }
+    { text: 'BEST', color: 'bg-blue-50 text-blue-600 border-blue-200' },
+    { text: '인기', color: 'bg-red-50 text-red-600 border-red-200' },
+    { text: '추천', color: 'bg-green-50 text-green-600 border-green-200' },
+    { text: 'HOT', color: 'bg-orange-50 text-orange-600 border-orange-200' },
+    { text: '신상', color: 'bg-purple-50 text-purple-600 border-purple-200' }
   ];
 
-  const hash = productName?.length || 0;
-  const selectedBadges = [];
-
-  // 최대 2개의 배지만 선택
-  const badgeCount = 1 + (hash % 2); // 1-2개
-  for (let i = 0; i < badgeCount; i++) {
-    const index = (hash + i) % badgeOptions.length;
-    if (!selectedBadges.find(b => b.text === badgeOptions[index].text)) {
-      selectedBadges.push(badgeOptions[index]);
-    }
+  const hash = (productName?.length || 0) + (price || 0);
+  
+  // 30% 확률로 배지 표시 (ProductComponent와 동일)
+  if (hash % 10 < 3) {
+    const index = hash % badgeOptions.length;
+    return [badgeOptions[index]]; // 단일 배지만 반환
   }
-
-  return selectedBadges;
+  return [];
 };
 
-// 카테고리별 리뷰 생성 함수
-const generateReviews = (categoryName, brandName) => {
-  const category = categoryName?.toLowerCase() || '';
-  const brand = brandName?.toLowerCase() || '';
-
-  if (category.includes('뷰티') || category.includes('beauty')) {
-    return [
-      { id: 1, rating: 5, text: "피부에 정말 잘 맞아요! 효과도 빠르게 나타나네요", author: "김**", date: "2025.09.15" },
-      { id: 2, rating: 4, text: "자극 없이 부드럽고 촉촉해져요. 민감한 피부에도 좋아요", author: "이**", date: "2025.09.12" },
-      { id: 3, rating: 5, text: "화장이 더 잘 받고 피부가 매끄러워졌어요", author: "박**", date: "2025.09.10" },
-      { id: 4, rating: 4, text: "가격 대비 성능이 훌륭해요. 재구매 의사 있습니다", author: "최**", date: "2025.09.08" },
-      { id: 5, rating: 5, text: "친구가 추천해줘서 샀는데 정말 만족해요!", author: "정**", date: "2025.09.05" },
-      { id: 6, rating: 4, text: "사용법이 간단하고 효과가 좋네요", author: "한**", date: "2025.09.02" },
-      { id: 7, rating: 5, text: "포장도 예쁘고 제품도 훌륭합니다", author: "윤**", date: "2025.08.28" },
-      { id: 8, rating: 4, text: "꾸준히 사용하니 피부톤이 밝아진 느낌이에요", author: "조**", date: "2025.08.25" }
-    ];
-  }
-
-  if (category.includes('옷') || category.includes('의류')) {
-    return [
-      { id: 1, rating: 5, text: "원단이 정말 좋고 착용감이 편안해요!", author: "정**", date: "2025.09.16" },
-      { id: 2, rating: 4, text: "사이즈도 딱 맞고 디자인이 깔끔하네요", author: "한**", date: "2025.09.13" },
-      { id: 3, rating: 5, text: "세탁해도 형태가 유지되고 색상도 안 바래요", author: "윤**", date: "2025.09.11" },
-      { id: 4, rating: 4, text: "친환경 소재라서 더 만족스러워요", author: "조**", date: "2025.09.09" },
-      { id: 5, rating: 5, text: "활동하기 편하고 스타일도 좋아요", author: "송**", date: "2025.09.06" },
-      { id: 6, rating: 4, text: "가성비 좋은 제품이네요. 추천합니다", author: "임**", date: "2025.09.03" },
-      { id: 7, rating: 5, text: "배송도 빠르고 품질이 기대 이상이에요", author: "안**", date: "2025.08.30" }
-    ];
-  }
-
-  if (category.includes('향수') || category.includes('perfume')) {
-    return [
-      { id: 1, rating: 5, text: "향이 정말 고급스럽고 지속력도 좋아요!", author: "송**", date: "2025.09.17" },
-      { id: 2, rating: 4, text: "은은하면서도 매력적인 향이에요. 칭찬 많이 받아요", author: "임**", date: "2025.09.14" },
-      { id: 3, rating: 5, text: "하루 종일 향이 지속되네요. 재구매 예정입니다", author: "안**", date: "2025.09.12" },
-      { id: 4, rating: 4, text: "포장이 고급스럽고 향도 만족스러워요", author: "강**", date: "2025.09.07" },
-      { id: 5, rating: 5, text: "선물용으로도 좋을 것 같아요", author: "오**", date: "2025.09.04" },
-      { id: 6, rating: 4, text: "가격대가 있지만 그만한 가치가 있어요", author: "서**", date: "2025.09.01" }
-    ];
-  }
-
-  if (category.includes('비누') || category.includes('soap')) {
-    return [
-      { id: 1, rating: 5, text: "천연 성분이라 안심되고 거품도 풍성해요", author: "강**", date: "2025.09.15" },
-      { id: 2, rating: 4, text: "세정력 좋고 건조하지 않아서 만족해요", author: "오**", date: "2025.09.13" },
-      { id: 3, rating: 5, text: "환경친화적이면서 효과도 좋네요. 온 가족이 써요", author: "서**", date: "2025.09.10" },
-      { id: 4, rating: 4, text: "향이 은은하고 피부에 자극이 없어요", author: "노**", date: "2025.09.08" },
-      { id: 5, rating: 5, text: "아이들도 잘 사용해요. 순한 제품 같아요", author: "배**", date: "2025.09.05" },
-      { id: 6, rating: 4, text: "포장재도 친환경이고 제품도 좋네요", author: "신**", date: "2025.09.02" }
-    ];
-  }
-
-  if (category.includes('헤어') || category.includes('hair')) {
-    return [
-      { id: 1, rating: 5, text: "모발이 정말 부드러워지고 윤기가 생겼어요!", author: "노**", date: "2025.09.16" },
-      { id: 2, rating: 4, text: "손상된 모발 관리에 효과적이에요. 꾸준히 쓸게요", author: "배**", date: "2025.09.14" },
-      { id: 3, rating: 5, text: "향도 좋고 사용감이 훌륭해요. 강력 추천!", author: "신**", date: "2025.09.11" },
-      { id: 4, rating: 4, text: "컬링이 더 오래 지속되는 느낌이에요", author: "홍**", date: "2025.09.09" },
-      { id: 5, rating: 5, text: "염색한 모발에도 좋은 것 같아요", author: "유**", date: "2025.09.06" },
-      { id: 6, rating: 4, text: "사용법이 간단하고 효과가 확실해요", author: "문**", date: "2025.09.03" },
-      { id: 7, rating: 5, text: "미용실에서 쓰는 것처럼 고급스러워요", author: "양**", date: "2025.08.31" }
-    ];
-  }
-
-  if (category.includes('식기') || category.includes('주방')) {
-    return [
-      { id: 1, rating: 5, text: "친환경 소재로 만들어져서 안심되고 내구성도 좋아요", author: "홍**", date: "2025.09.17" },
-      { id: 2, rating: 4, text: "디자인이 깔끔하고 실용적이에요. 세척도 쉬워요", author: "유**", date: "2025.09.15" },
-      { id: 3, rating: 5, text: "환경 생각하면서 쓸 수 있어서 기분 좋아요", author: "문**", date: "2025.09.12" },
-      { id: 4, rating: 4, text: "가볍고 사용하기 편해요", author: "양**", date: "2025.09.10" },
-      { id: 5, rating: 5, text: "아이들이 사용하기에도 안전해요", author: "구**", date: "2025.09.07" },
-      { id: 6, rating: 4, text: "색상도 예쁘고 품질도 만족스러워요", author: "권**", date: "2025.09.04" }
-    ];
-  }
-
-  // 기본 리뷰
-  return [
-    { id: 1, rating: 5, text: "품질이 정말 좋고 만족스러워요!", author: "김**", date: "2025.09.15" },
-    { id: 2, rating: 4, text: "친환경 제품이라서 더 의미 있게 사용해요", author: "이**", date: "2025.09.12" },
-    { id: 3, rating: 5, text: "가격 대비 훌륭한 제품입니다. 추천해요", author: "박**", date: "2025.09.10" },
-    { id: 4, rating: 4, text: "배송도 빠르고 포장도 친환경적이네요", author: "최**", date: "2025.09.08" },
-    { id: 5, rating: 5, text: "재구매 의사 있어요. 정말 마음에 듭니다", author: "정**", date: "2025.09.05" },
-    { id: 6, rating: 4, text: "사용법이 간단하고 효과도 좋아요", author: "한**", date: "2025.09.02" },
-    { id: 7, rating: 5, text: "선물로도 좋을 것 같은 제품이에요", author: "윤**", date: "2025.08.29" }
+// 리뷰 시스템을 더 간단하게 - productId 기반으로 일관된 데이터 생성
+const generateReviews = (productId, productName) => {
+  // productId를 시드로 사용해서 항상 동일한 리뷰 생성
+  const seed = (productId || 0) + (productName?.length || 0);
+  
+  const reviewTemplates = [
+    { rating: 5, text: "품질이 정말 좋고 만족스러워요!" },
+    { rating: 4, text: "친환경 제품이라서 더 의미 있게 사용해요" },
+    { rating: 5, text: "가격 대비 훌륭한 제품입니다. 추천해요" },
+    { rating: 4, text: "배송도 빠르고 포장도 친환경적이네요" },
+    { rating: 5, text: "재구매 의사 있어요. 정말 마음에 듭니다" },
+    { rating: 4, text: "사용법이 간단하고 효과도 좋아요" },
+    { rating: 5, text: "선물로도 좋을 것 같은 제품이에요" },
+    { rating: 4, text: "생각보다 훨씬 만족스러운 품질이네요" }
   ];
+
+  const authors = ["김**", "이**", "박**", "최**", "정**", "한**", "윤**", "조**"];
+  const dates = ["2025.09.15", "2025.09.12", "2025.09.10", "2025.09.08", "2025.09.05", "2025.09.02", "2025.08.29", "2025.08.26"];
+
+  // seed 기반으로 5-8개의 리뷰 생성
+  const reviewCount = 5 + (seed % 4);
+  const reviews = [];
+
+  for (let i = 0; i < reviewCount; i++) {
+    const templateIndex = (seed + i) % reviewTemplates.length;
+    const authorIndex = (seed + i * 2) % authors.length;
+    const dateIndex = (seed + i * 3) % dates.length;
+
+    reviews.push({
+      id: i + 1,
+      rating: reviewTemplates[templateIndex].rating,
+      text: reviewTemplates[templateIndex].text,
+      author: authors[authorIndex],
+      date: dates[dateIndex]
+    });
+  }
+
+  return reviews;
 };
 
 export default function ShoppingDetail({ productId: productIdProp, onRequestNavigate, isFullScreen = false } = {}) {
@@ -177,9 +124,8 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
   const name = main?.productName ?? "상품명";
   const brand = main?.brandName ?? "브랜드명";
   const price = main?.price;
-  const categoryName = main?.categoryName ?? '';
 
-  const reviews = useMemo(() => generateReviews(categoryName, brand), [categoryName, brand]);
+  const reviews = useMemo(() => generateReviews(productId, name), [productId, name]);
   const averageRating = useMemo(() => {
     if (reviews.length === 0) return 0;
     return (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1);
@@ -319,7 +265,23 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
             </div>
           )}
         </div>
+        
+        {/* Re.Green 배지 - 상단 오른쪽 */}
         <EcoBadge />
+        
+        {/* 할인 배지 - Re.Green 배지 아래 */}
+        {main?.salePercent > 0 && (
+          <div className="absolute top-12 right-2 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+            {main.salePercent}%
+          </div>
+        )}
+
+        {/* 일반 배지들 - 상단 왼쪽 */}
+        {generateBadges(name, price).map((badge, index) => (
+          <span key={index} className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>
+            {badge.text}
+          </span>
+        ))}
       </div>
 
       {/* 상품 기본 정보 */}
@@ -354,16 +316,8 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
           </div>
         </div>
 
-        {/* 배지들 + 수량 선택 */}
-        <div className="flex items-center justify-between">
-          <div className="flex gap-1 flex-wrap">
-            {generateBadges(name, categoryName).map((badge, index) => (
-              <span key={index} className={`${badge.color} px-2 py-1 rounded text-xs font-medium`}>
-                {badge.text}
-              </span>
-            ))}
-          </div>
-
+        {/* 수량 선택 (배지는 이미지에서 표시) */}
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500">수량</span>
             <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
@@ -395,7 +349,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="border-b border-gray-200 sticky top-0 bg-white z-10">
+      <div className="border-b border-gray-200 sticky top-0 bg-white z-10 -mx-4">
         <div className="flex">
           <button
             onClick={() => setActiveTab('info')}
@@ -414,7 +368,7 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
         </div>
       </div>
 
-      {/* 탭 콘텐츠 */}
+      {/* 탭 컨텐츠 */}
       <div className="p-4">
         {activeTab === 'info' && (
           <section className="space-y-4">
@@ -534,10 +488,10 @@ export default function ShoppingDetail({ productId: productIdProp, onRequestNavi
         </div>
       </section>
 
-      {/* 하단 여백: 고정 바와 겹침 방지 - 65px로 조정 */}
+      {/* 하단 여백: 고정 바와 겹침 방지 */}
       <div className="h-16" />
 
-      {/* 하단 고정 버튼 바 - 65px 위로 올리기 */}
+      {/* 하단 고정 버튼 바 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50">
         <div className="max-w-screen-md mx-auto">
           <div className="flex gap-2">
