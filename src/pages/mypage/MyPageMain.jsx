@@ -38,8 +38,8 @@ const MyPageMain = () => {
         { title: 'ECO STOCK 인증 / 보유 / 사용', path: 'TITLE' },
         { title: '에코스톡 발급 & 포인트 교환 내역', path: '/my-page/my-assets' },
         // { title: '오프라인 활동 인증', path: '/eco-stock/certificate' },
-        { title: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
-        { title: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
+        { title: '오프라인 친환경 활동 인증', path: '/eco-stock/certificate/receipt' },
+        // { title: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
 
         { title: '', path: 'LINE' },
