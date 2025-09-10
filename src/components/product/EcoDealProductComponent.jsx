@@ -2,31 +2,39 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CartIcon from '@/assets/navigation_icon/Cart.svg';
 
-const FoodDealBadge = React.memo(() => (
-  <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
-    </svg>
-    푸드딜
-  </span>
-));
+const generateFoodBadges = (productName, price) => {
+  const badgeOptions = [
+    { text: '품질보장', color: 'bg-blue-50 text-blue-600 border-blue-200' },
+    { text: '한정수량', color: 'bg-red-50 text-red-600 border-red-200' },
+    { text: '엄선상품', color: 'bg-indigo-50 text-indigo-600 border-indigo-200' },
+    { text: '프리미엄', color: 'bg-amber-50 text-amber-600 border-amber-200' }
+  ];
+  
+  const hash = (productName?.length || 0) + (price || 0);
+  
+  // 60% 확률로 배지 표시
+  if (hash % 10 < 6) {
+    const index = hash % badgeOptions.length;
+    return badgeOptions[index];
+  }
+  return null;
+};
 
-// Named export (so `import { EcoDealProductComponent } from ...` works)
 export function EcoDealProductComponent({ items = [], loading = false, error = null }) {
   const navigate = useNavigate();
   
-  // 에코딜 상품은 장바구니 담기 대신 바로 상세 페이지로 이동 (매장 선택 필요)
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
-    // 매장 선택이 필요하므로 상세 페이지로 이동
     navigate(`/eco-deal/detail?productId=${product.productId}`);
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/eco-deal/detail?productId=${productId}`);
   };
   
   return (
-    // 중앙 컨텐츠
     <main className="pt-4">
       <div className="w-full max-w-screen-md mx-auto">
-        {/* 상태 표시 */}
         {loading && (
           <div className="h-56 flex items-center justify-center text-gray-400">
             <svg className="animate-spin h-6 w-6 mr-2" viewBox="0 0 24 24">
@@ -51,19 +59,38 @@ export function EcoDealProductComponent({ items = [], loading = false, error = n
               const name = p.name || p.productName || "상품명";
               const brand = p.brandName;
               const price = p.price;
+              const salePercent = p.salePercent || 0;
+              const discountedPrice = price ? price * (1 - salePercent / 100) : 0;
               const img = p.imageUrl;
-              const salePercent = p.salePercent;
+              const badge = generateFoodBadges(name, price);
               
               return (
-                <div key={p.productId} className="cursor-pointer">
-                  {/* 이미지 부분 - 회색 테두리만 */}
+                <div key={p.productId} className="group">
+                  {/* 이미지 부분 */}
                   <div 
-                    className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative border border-gray-200 rounded-lg mb-3"
-                    onClick={() => navigate(`/eco-deal/detail?productId=${p.productId}`)}
+                    className="aspect-[1/1] bg-gray-50 flex items-center justify-center overflow-hidden relative border border-gray-200 rounded-xl mb-3 cursor-pointer hover:shadow-lg transition-all duration-300 group-hover:border-gray-300"
+                    onClick={() => handleProductClick(p.productId)}
                   >
-                    <FoodDealBadge />
+                    {/* 상품 배지 */}
+                    {badge && (
+                      <div className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>
+                        {badge.text}
+                      </div>
+                    )}
+                    
+                    {/* 할인 배지 */}
+                    {salePercent > 0 && (
+                      <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        {salePercent}%
+                      </div>
+                    )}
+
                     {img ? (
-                      <img src={img} alt={name} className="w-full h-full object-cover" />
+                      <img 
+                        src={img} 
+                        alt={name} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      />
                     ) : (
                       <span className="text-gray-300">이미지 없음</span>
                     )}
@@ -71,46 +98,43 @@ export function EcoDealProductComponent({ items = [], loading = false, error = n
                   
                   {/* 정보 부분 */}
                   <div className="space-y-2">
-                    {/* 장바구니 담기 버튼 - 매장 선택을 위해 상세 페이지로 이동 */}
-                    <button
-                      onClick={(e) => handleAddToCart(e, p)}
-                      className="w-full py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-200 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <img src={CartIcon} className="w-4 h-4" />
-                      매장선택 후 담기
-                    </button>
-                    
-                    {/* 브랜드명 / 무료배송 */}
-                    <div className="text-xs font-normal text-gray-500 flex justify-between">
-                      <span>픽업전용</span>
-                    </div>
-                    
+                    {/* 브랜드명 */}
+                    <div className="text-xs text-gray-500 font-medium">픽업전용</div>
+
                     {/* 상품명 */}
-                    <div className="text-sm font-normal text-gray-900 line-clamp-2">
+                    <div 
+                      className="text-sm font-medium text-gray-900 line-clamp-2 cursor-pointer hover:text-gray-700 transition-colors"
+                      onClick={() => handleProductClick(p.productId)}
+                    >
                       {name}
                     </div>
-                    
-                    {/* 가격 - 원래가격 → 다음줄에 할인율+할인가격 */}
-                    {price != null && (
-                      <div className="space-y-1">
-                        {salePercent > 0 && (
-                          <div className="text-gray-400 line-through text-xs">
+
+                    {/* 가격 */}
+                    <div className="space-y-1">
+                      {salePercent > 0 ? (
+                        <div className="space-y-1">
+                          <div className="text-xs text-gray-400 line-through">
                             {Number(price).toLocaleString()}원
                           </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                          {salePercent > 0 && (
-                            <span className="text-red-500 font-bold text-sm">{salePercent}%</span>
-                          )}
-                          <div className="text-sm font-bold text-gray-900">
-                            {salePercent > 0 
-                              ? Math.floor(price * (1 - salePercent / 100)).toLocaleString()
-                              : Number(price).toLocaleString()
-                            }원
+                          <div className="text-base font-bold text-black">
+                            {Math.floor(discountedPrice).toLocaleString()}원
                           </div>
                         </div>
-                      </div>
-                    )}
+                      ) : price != null ? (
+                        <div className="text-base font-bold text-black">
+                          {Number(price).toLocaleString()}원
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* 매장 선택 버튼 */}
+                    <button
+                      onClick={(e) => handleAddToCart(e, p)}
+                      className="w-full py-2.5 text-sm font-semibold text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-xl border-0 transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-sm active:scale-[0.98]"
+                    >
+                      <img src={CartIcon} className="w-4 h-4" />
+                      매장 선택 후 담기
+                    </button>
                   </div>
                 </div>
               );
