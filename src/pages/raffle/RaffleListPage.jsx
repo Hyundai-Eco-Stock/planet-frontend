@@ -5,6 +5,7 @@ import { getRaffleList } from "@/api/raffleList/raffleList.api";
 import { getMemberStockInfoAll } from "@/api/memberStockInfoAll/memberStockInfoAll.api";
 import RaffleCard from "@/components/raffle/RaffleCard";
 import useAuthStore from "@/store/authStore";
+import heendyRaffle from '@/assets/heendy-raffle.png'
 
 const RaffleListPage = () => {
   const [raffleList, setRaffleList] = useState([]);
@@ -95,7 +96,14 @@ const RaffleListPage = () => {
       <div className="min-h-screen bg-white">
         <div className="flex flex-col items-center justify-center py-20">
           <div className="text-center">
-            <div className="text-xl font-bold text-gray-900 mb-2">진행중인 래플이 없습니다</div>
+            <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+              <img
+                src={heendyRaffle}
+                alt="흰디 래플"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-xl font-bold text-gray-900 mb-2">진행 중인 래플이 없습니다</div>
             <div className="text-gray-500">새로운 래플을 기다려주세요</div>
           </div>
         </div>
@@ -111,7 +119,7 @@ const RaffleListPage = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">래플 응모하기</h1>
             <p className="text-gray-600 mb-6">에코스톡으로 무료 응모 가능!</p>
-            
+
             <div className="flex items-center justify-center gap-8 text-sm">
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-orange-500 rounded-full animate-pulse shadow-sm"></div>
@@ -131,25 +139,22 @@ const RaffleListPage = () => {
         <div className="grid grid-cols-3 gap-2 mb-8">
           <button
             onClick={() => setFilter('all')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             전체 {raffleList.length}개
           </button>
           <button
             onClick={() => setFilter('active')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'active' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'active' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             진행중 {activeRaffles.length}개
           </button>
           <button
             onClick={() => setFilter('ended')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'ended' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'ended' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             종료 {endedRaffles.length}개
           </button>
