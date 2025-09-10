@@ -84,7 +84,7 @@ const MyCardInfo = () => {
     return (
         <>
             {/* 등록된 카드 리스트 */}
-            <div className="space-y-4 pb-24">
+            <div className="space-y-4 pt-4 pb-24">
                 {myCards.map((card) => (
                     <Card
                         card={card}
