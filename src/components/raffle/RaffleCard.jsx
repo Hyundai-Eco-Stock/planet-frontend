@@ -5,8 +5,11 @@ import useAuthStore from "@/store/authStore";
 const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
     const [imgFailed, setImgFailed] = useState(false);
     const { loginStatus } = useAuthStore.getState();
+    
+    // 정확한 종료 시간 계산
     const endDateObj = useMemo(() => {
-        const date = new Date(item.endDate + ' 23:59:59');
+        const date = new Date(item.endDate);
+        date.setHours(23, 59, 59, 999); // 23:59:59.999로 설정
         return date;
     }, [item.endDate]);
     
@@ -55,9 +58,9 @@ const RaffleCard = ({ item, onButtonClick, personalStockInfoList }) => {
                     </span>
                 </div>
 
-                {/* 타이머를 사진 하단에 뱃지로 배치 */}
+                {/* 타이머를 사진 하단에 배지로 배치 */}
                 <div className="absolute bottom-3 left-3 right-3">
-                    <CountdownTimer endDate={endDateObj} large={false} isActive={isActive} />
+                    <CountdownTimer endDate={item.endDate} large={false} isActive={isActive} />
                 </div>
 
                 {/* 오버레이 */}

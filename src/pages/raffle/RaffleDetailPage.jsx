@@ -32,13 +32,11 @@ const RaffleDetailPage = () => {
 
   // 컴포넌트 마운트 시 푸터 숨기기, 언마운트 시 다시 보이기
   useEffect(() => {
-    // 푸터 숨기기
     const footer = document.querySelector('footer');
     if (footer) {
       footer.style.display = 'none';
     }
 
-    // 컴포넌트 언마운트 시 푸터 다시 보이기
     return () => {
       const footer = document.querySelector('footer');
       if (footer) {
@@ -47,7 +45,6 @@ const RaffleDetailPage = () => {
     };
   }, []);
 
-  // personalStockInfoList를 API로 가져오는 useEffect 추가
   useEffect(() => {
     const fetchPersonalStockInfo = async () => {
       if (!loginStatus) {
@@ -75,7 +72,6 @@ const RaffleDetailPage = () => {
       try {
         const entryStatus = await getRaffleEntryStatus(raffleId);
         if (entryStatus.status === true) {
-          console.log(entryStatus);
           setEntryStatus(true);
         }
       } catch (err) {
@@ -107,58 +103,69 @@ const RaffleDetailPage = () => {
     );
   };
 
+  // 래플 상태 확인
+  const isRaffleActive = () => {
+    if (!raffle?.endDate) return false;
+    const now = new Date();
+    const endDate = new Date(raffle.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return endDate > now && !winnerName;
+  };
+
   // 모달 컴포넌트들
   const EntryModal = () => (
     showEntryModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] p-4">
-        <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-xl">
-          <div className="text-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">래플 응모 조건</h3>
+        <div className="bg-white rounded-2xl max-w-sm w-full shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4">
+            <h3 className="text-lg font-bold text-white text-center">래플 응모 조건</h3>
           </div>
-
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-gray-700 text-sm">1인 1회 응모 가능</span>
+          <div className="p-6">
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-700 text-sm">1인 1회 응모 가능</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-700 text-sm">당첨 시 본인 확인 필요</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-700 text-sm">배송비 무료</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span className="text-gray-700 text-sm">응모 취소 불가</span>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-gray-700 text-sm">당첨 시 본인 확인 필요</span>
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl mb-6 border border-orange-100">
+              <div className="text-center">
+                <p className="text-gray-700 font-medium text-sm">
+                  {raffle.ecoStockName} 에코스톡 {raffle.ecoStockAmount}개 필요
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  보유: {currentQuantity}개 / 필요: {raffle.ecoStockAmount}개
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-gray-700 text-sm">배송비 무료</span>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEntryModal(false)}
+                className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  setShowEntryModal(false);
+                  handleConfirmEntry();
+                }}
+                className="flex-1 py-3 px-4 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 shadow-lg"
+              >
+                응모하기
+              </button>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span className="text-gray-700 text-sm">응모 취소 불가</span>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            <div className="text-center">
-              <p className="text-gray-700 font-medium text-sm">
-                {raffle.ecoStockName} 에코스톡 {raffle.ecoStockAmount}개 필요
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowEntryModal(false)}
-              className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-            >
-              취소
-            </button>
-            <button
-              onClick={() => {
-                setShowEntryModal(false);
-                handleConfirmEntry();
-              }}
-              className="flex-1 py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
-            >
-              응모하기
-            </button>
           </div>
         </div>
       </div>
@@ -168,13 +175,20 @@ const RaffleDetailPage = () => {
   const SuccessModal = () => (
     showSuccessModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] p-4">
-        <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-xl">
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">응모 완료</h3>
+        <div className="bg-white rounded-2xl max-w-sm w-full shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+            <h3 className="text-lg font-bold text-white text-center">응모 완료</h3>
+          </div>
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
             <p className="text-gray-600 mb-6">래플 참여가 완료되었습니다</p>
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              className="w-full py-3 px-4 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200"
             >
               확인
             </button>
@@ -187,13 +201,20 @@ const RaffleDetailPage = () => {
   const ErrorModal = () => (
     showErrorModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] p-4">
-        <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-xl">
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{errorTitle}</h3>
+        <div className="bg-white rounded-2xl max-w-sm w-full shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-red-500 to-pink-500 px-6 py-4">
+            <h3 className="text-lg font-bold text-white text-center">{errorTitle}</h3>
+          </div>
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
             <p className="text-gray-600 mb-6">{errorMessage}</p>
             <button
               onClick={() => setShowErrorModal(false)}
-              className="w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              className="w-full py-3 px-4 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-200"
             >
               확인
             </button>
@@ -204,17 +225,11 @@ const RaffleDetailPage = () => {
   );
 
   const showErrorPopup = (error) => {
-    console.log('전체 에러 객체:', error);
-    console.log('에러 응답 데이터:', error.response?.data);
-    console.log('에러 응답 상태:', error.response?.status);
-
     let title = '응모 실패';
     let message = '응모 처리 중 오류가 발생했습니다.';
 
     if (error.response?.data) {
       const { errorCode, message: errorMessage } = error.response.data;
-      console.log('errorCode:', errorCode);
-      console.log('errorMessage:', errorMessage);
 
       switch (errorCode) {
         case 'RAFFLE_NOT_FOUND':
@@ -230,7 +245,6 @@ const RaffleDetailPage = () => {
           title = '시스템 오류';
           break;
       }
-
       message = errorMessage || message;
     }
 
@@ -239,7 +253,6 @@ const RaffleDetailPage = () => {
     setShowErrorModal(true);
   };
 
-  // raffleId 바뀔 때마다 API 호출
   useEffect(() => {
     const fetchRaffleDetail = async () => {
       try {
@@ -267,46 +280,26 @@ const RaffleDetailPage = () => {
   };
 
   const handleConfirmEntry = async () => {
-    console.log('handleConfirmEntry 시작');
+    if (isSubmitting) return;
 
-    if (isSubmitting) {
-      console.log('이미 처리 중이라 리턴');
-      return;
-    }
-
-    console.log('try 블록 진입');
     try {
       setIsSubmitting(true);
       setParticipateLoading(true);
-      console.log('상태 설정 완료');
 
-      console.log('raffleParticipate 호출 전, raffleId:', raffleId);
       const result = await raffleParticipate(raffleId);
-      console.log('raffleParticipate 성공, 결과:', result);
 
-      // 성공 시 에코스톡 수량 업데이트
       if (result && result.result === 1 && result.remainingQuantity !== undefined && result.ecoStockId) {
         updatePersonalStockInfo(result.ecoStockId, result.remainingQuantity);
-
-        // 응모 성공 시 entryStatus를 true로 설정
         setEntryStatus(true);
-
         setShowSuccessModal(true);
       } else {
-        // 응모 성공 시 entryStatus를 true로 설정 (fallback)
         setEntryStatus(true);
-
         setShowSuccessModal(true);
       }
-
-      console.log('성공 팝업 완료');
-
     } catch (error) {
-      console.log('=== CATCH 블록 실행됨 ===');
       console.error("래플 참여 실패:", error);
       showErrorPopup(error);
     } finally {
-      console.log('finally 블록 실행');
       setIsSubmitting(false);
       setParticipateLoading(false);
     }
@@ -316,7 +309,7 @@ const RaffleDetailPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-3 border-gray-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">불러오는 중...</p>
         </div>
       </div>
@@ -327,12 +320,17 @@ const RaffleDetailPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4">
         <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
           <p className="text-gray-600 mb-4">
             {error?.message || "래플 데이터를 불러오지 못했습니다."}
           </p>
           <button
             onClick={() => navigate("/raffle")}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors"
           >
             목록으로 돌아가기
           </button>
@@ -342,20 +340,19 @@ const RaffleDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 로딩 오버레이 */}
+    <div className="min-h-screen bg-white max-w-xl mx-auto">
       {participateLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
-          <div className="bg-white rounded-lg p-6 shadow-xl">
+          <div className="bg-white rounded-2xl p-6 shadow-xl">
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mb-3"></div>
+              <div className="w-8 h-8 border-2 border-gray-200 border-t-orange-500 rounded-full animate-spin mb-3"></div>
               <p className="text-gray-700">처리 중...</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 상품 이미지  */}
+      {/* 상품 이미지 */}
       <div className="relative bg-gray-50 -mx-4">
         <div className="aspect-square overflow-hidden">
           <img
@@ -371,153 +368,166 @@ const RaffleDetailPage = () => {
             }}
           />
         </div>
+
+        {/* 상태 배지 */}
+        <div className="absolute top-4 left-4">
+          {isRaffleActive() ? (
+            <div className="bg-orange-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              진행 중
+            </div>
+          ) : (
+            <div className="bg-gray-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold">
+              종료
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 상품 정보 */}
-      <div className="px-4 py-6">
+      <div className="px-4 py-6 pb-24">
         {/* 브랜드 및 상품명 */}
-        <div className="mb-4">
-          <p className="text-gray-500 text-sm mb-1">{raffle.brandName}</p>
-          <h1 className="text-xl font-bold text-gray-900 leading-tight mb-4">{raffle.productName}</h1>
+        <div className="mb-6">
+          <p className="text-gray-500 text-sm mb-2">{raffle.brandName}</p>
+          <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-1">{raffle.productName}</h1>
+          <div className="w-12 h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
         </div>
 
         {/* 가격 정보 */}
         <div className="mb-6">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-center gap-2 mb-1">
             <span className="text-gray-400 line-through text-lg">
               {raffle.price?.toLocaleString()}원
             </span>
-            <span className="text-2xl font-bold text-black">0원</span>
             <span className="text-red-500 font-bold text-lg">100%</span>
           </div>
+          <span className="text-3xl font-bold text-black">0원</span>
         </div>
 
-        {/* 래플 기간 정보 테이블 */}
-        <div className="space-y-3 mb-6">
-          <div className="flex">
-            <div className="w-24 text-gray-600 text-sm">래플 응모기간</div>
-            <div className="flex-1 text-sm text-gray-900">
-              {new Date(raffle.startDate).toLocaleDateString('ko-KR', {
-                month: 'numeric',
-                day: 'numeric'
-              })} ({new Date(raffle.startDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 11:00 ~ {new Date(raffle.endDate).toLocaleDateString('ko-KR', {
-                month: 'numeric',
-                day: 'numeric'
-              })} ({new Date(raffle.endDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 11:00
-            </div>
-          </div>
-
-          <div className="flex">
-            <div className="w-24 text-gray-600 text-sm">당첨자 발표일</div>
-            <div className="flex-1 text-sm text-gray-900">
-              {new Date(raffle.endDate).toLocaleDateString('ko-KR', {
-                month: 'numeric',
-                day: 'numeric'
-              })} ({new Date(raffle.endDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 12:00
-            </div>
-          </div>
-
+        {/* 카운트다운 타이머 */}
+        <div className="mb-6">
+          <CountdownTimer
+            endDate={raffle.endDate}
+            large={true}
+            isActive={isRaffleActive()}
+          />
         </div>
 
-        {/* 당첨자 정보 또는 안내 사항 */}
-        {winnerName ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-700 font-medium">당첨자: {winnerName}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3 mb-6">
+        {/* 래플 기간 정보 */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-3">래플 일정</h3>
+          <div className="space-y-2 text-sm">
             <div className="flex">
-              <div className="w-24 text-gray-600 text-sm">안내 사항</div>
-              <div className="flex-1 text-sm text-gray-900">
-                당첨자가 구매하지 않을 시, 예비 당첨자에게 기회를 드립니다.
+              <span className="w-16 text-gray-600">응모기간</span>
+              <span className="text-gray-900">
+                {new Date(raffle.startDate).toLocaleDateString('ko-KR', {
+                  month: 'numeric',
+                  day: 'numeric'
+                })} ({new Date(raffle.startDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 11:00 ~ {new Date(raffle.endDate).toLocaleDateString('ko-KR', {
+                  month: 'numeric',
+                  day: 'numeric'
+                })} ({new Date(raffle.endDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 23:59
+              </span>
+            </div>
+            <div className="flex">
+              <span className="w-16 text-gray-600">당첨발표</span>
+              <span className="text-gray-900">
+                {new Date(raffle.endDate).toLocaleDateString('ko-KR', {
+                  month: 'numeric',
+                  day: 'numeric'
+                })} ({new Date(raffle.endDate).toLocaleDateString('ko-KR', { weekday: 'short' }).slice(0, 1)}) 다음날 12:00
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 응모 조건 */}
+        {!winnerName && (
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-3">에코스톡 응모 조건</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">필요한 에코스톡</span>
+                <span className="font-medium text-gray-900">{raffle.ecoStockName} {raffle.ecoStockAmount}개</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">보유 중인 수량</span>
+                <span className={`font-medium ${hasEnoughStock ? 'text-green-600' : 'text-red-600'}`}>
+                  {currentQuantity}개
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">응모 가능 여부</span>
+                <span className={`font-medium ${hasEnoughStock ? 'text-green-600' : 'text-red-600'}`}>
+                  {hasEnoughStock ? '응모 가능' : '에코스톡 부족'}
+                </span>
               </div>
             </div>
           </div>
         )}
 
-        {/* 참여 가능 여부 */}
-        {!winnerName && (
-          <div className="border-t pt-4 mb-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-900 font-medium">예비 당첨자 구매기간 안내</span>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              당첨자가 구매하지 않을 시, 추가 당첨 기회를 드립니다.
-            </p>
-          </div>
-        )}
-
-        {/* 참여 조건 표시 */}
-        {!winnerName && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="text-center">
-              <p className="text-gray-700 font-medium text-sm mb-2">
-                {hasEnoughStock ? `${raffle.ecoStockName} 참여 가능` : `${raffle.ecoStockName} 에코스톡 부족`}
-              </p>
-              <p className="text-xs text-gray-500">
-                보유: {currentQuantity}개 / 필요: {raffle.ecoStockAmount}개
-              </p>
+        {/* 상세 이미지 */}
+        {raffle.images && raffle.images.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-bold mb-4 text-gray-900">상품 상세</h3>
+            <div className="space-y-4">
+              {raffle.images
+                .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                .map((image, index) => (
+                  <img
+                    key={image.imageId || index}
+                    src={image.imageUrl}
+                    alt={image.altText || `상품 상세 이미지 ${index + 1}`}
+                    className="w-full rounded-xl shadow-sm"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ))}
             </div>
           </div>
         )}
-
-        {/* 카운트다운 타이머 */}
-        <div className="mb-6">
-          <CountdownTimer endDate={new Date(raffle.endDate)} large={true} />
-        </div>
       </div>
 
-      {/* 상세 이미지 */}
-      {raffle.images && raffle.images.length > 0 && (
-        <div className="bg-white px-4 py-6 mb-20">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">상품 상세</h3>
-          <div className="space-y-4">
-            {raffle.images
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((image, index) => (
-                <img
-                  key={image.imageId || index}
-                  src={image.imageUrl}
-                  alt={image.altText || `상품 상세 이미지 ${index + 1}`}
-                  className="w-full rounded-lg"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-              ))}
-          </div>
-        </div>
-      )}
-
       {/* 하단 고정 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white px-4 py-4 border-t z-50">
-        <button
-          onClick={winnerName ? undefined : handleEnterRaffle}
-          disabled={isSubmitting || entryStatus || winnerName}
-          className={`w-full py-4 rounded-lg font-semibold transition-colors ${isSubmitting
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : entryStatus
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white border-t border-gray-200 z-50" style={{ height: '85px' }}>
+        <div className="px-4 pt-3 pb-6 h-full flex items-start">
+          <button
+            onClick={
+              winnerName
+                ? undefined
+                : !hasEnoughStock && isRaffleActive() && !entryStatus
+                  ? () => navigate('/eco-stock/main')
+                  : handleEnterRaffle
+            }
+            disabled={isSubmitting || entryStatus || winnerName || (!hasEnoughStock && !isRaffleActive())}
+            className={`w-full py-3 rounded-lg font-medium text-base transition-all duration-200 ${isSubmitting
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : winnerName
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : hasEnoughStock
-                  ? 'bg-black text-white hover:bg-gray-800'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-        >
-          {isSubmitting
-            ? '처리 중...'
-            : winnerName
-              ? '마감된 래플'
               : entryStatus
-                ? '이미 참여한 래플입니다'
-                : hasEnoughStock
-                  ? '응모하기'
-                  : `${raffle.ecoStockName} 에코스톡 부족`
-          }
-        </button>
+                ? 'bg-green-50 text-green-700 cursor-not-allowed border border-green-200'
+                : winnerName
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : !isRaffleActive()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : hasEnoughStock
+                      ? 'bg-black text-white hover:bg-gray-800 active:bg-gray-900'
+                      : 'bg-black text-white hover:bg-gray-800 active:bg-gray-900'
+              }`}
+          >
+            {isSubmitting
+              ? '응모 중...'
+              : winnerName
+                ? '래플 종료'
+                : entryStatus
+                  ? '참여 완료'
+                  : !isRaffleActive()
+                    ? '응모 마감'
+                    : hasEnoughStock
+                      ? '래플 응모하기'
+                      : `에코스톡 부족 · ${raffle.ecoStockName} ${raffle.ecoStockAmount}개 필요`
+            }
+          </button>
+        </div>
       </div>
 
       {/* 모달들 */}

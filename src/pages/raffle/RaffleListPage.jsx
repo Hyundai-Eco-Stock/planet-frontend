@@ -1,4 +1,3 @@
-// RaffleListPage.js
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRaffleList } from "@/api/raffleList/raffleList.api";
@@ -59,13 +58,16 @@ const RaffleListPage = () => {
   const now = new Date();
   const activeRaffles = raffleList.filter(r => {
     if (r.winnerName) return false;
-    const endDateTime = new Date(r.endDate + ' 23:59:59');
-    return now <= endDateTime;
+    const endDate = new Date(r.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return now <= endDate;
   });
+  
   const endedRaffles = raffleList.filter(r => {
     if (r.winnerName) return true;
-    const endDateTime = new Date(r.endDate + ' 23:59:59');
-    return now > endDateTime;
+    const endDate = new Date(r.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return now > endDate;
   });
 
   // 필터링된 래플
@@ -74,10 +76,7 @@ const RaffleListPage = () => {
   if (loading) return (
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3 text-gray-500">
-        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-        </svg>
+        <div className="w-6 h-6 border-2 border-gray-200 border-t-orange-500 rounded-full animate-spin"></div>
         불러오는 중...
       </div>
     </div>
@@ -86,6 +85,11 @@ const RaffleListPage = () => {
   if (error) return (
     <div className="flex items-center justify-center py-20">
       <div className="text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
         <div className="text-red-500 font-medium">{error}</div>
       </div>
     </div>
@@ -99,7 +103,7 @@ const RaffleListPage = () => {
             <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
               <img
                 src={heendyRaffle}
-                alt="흰디 래플"
+                alt="헨디 래플"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -123,7 +127,7 @@ const RaffleListPage = () => {
             <div className="flex items-center justify-center gap-8 text-sm">
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-orange-500 rounded-full animate-pulse shadow-sm"></div>
-                <span className="text-gray-700 font-medium">진행중 <span className="font-bold text-orange-600">{activeRaffles.length}개</span></span>
+                <span className="text-gray-700 font-medium">진행 중 <span className="font-bold text-orange-600">{activeRaffles.length}개</span></span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-gray-400 rounded-full shadow-sm"></div>
@@ -139,22 +143,31 @@ const RaffleListPage = () => {
         <div className="grid grid-cols-3 gap-2 mb-8">
           <button
             onClick={() => setFilter('all')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'all' 
+                ? 'bg-gray-900 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
             전체 {raffleList.length}개
           </button>
           <button
             onClick={() => setFilter('active')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'active' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'active' 
+                ? 'bg-orange-500 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
-            진행중 {activeRaffles.length}개
+            진행 중 {activeRaffles.length}개
           </button>
           <button
             onClick={() => setFilter('ended')}
-            className={`py-3 rounded-lg text-sm font-medium transition-colors ${filter === 'ended' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'ended' 
+                ? 'bg-gray-500 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
             종료 {endedRaffles.length}개
           </button>
