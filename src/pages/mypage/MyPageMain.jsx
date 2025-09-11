@@ -29,28 +29,21 @@ const MyPageMain = () => {
     const navigations = [
         { title: 'MY / 설정', path: 'TITLE' },
         { title: '내 정보 수정', path: '/my-page/profile' },
-        { title: '내 차량번호 관리 및 입/출차 내역 조회', path: '/my-page/my-car' },
+        { title: '친환경 차 등록', path: '/my-page/my-car' },
         { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
-        // { title: '앱 설정', path: '/my-page/settings' },
 
-        { title: '', path: 'LINE' },
+        { title: '', path: 'LINE' }, // 라인
 
         { title: 'ECO STOCK 인증 / 보유 / 사용', path: 'TITLE' },
         { title: '에코스톡 발급 & 포인트 교환 내역', path: '/my-page/my-assets' },
-        // { title: '오프라인 활동 인증', path: '/eco-stock/certificate' },
-        { title: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
-        { title: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
+        { title: '오프라인 친환경 활동 인증', path: '/eco-stock/certificate/receipt' },
         { title: '래플 응모 내역', path: '/my-page/raffle-history' },
 
-        { title: '', path: 'LINE' },
+        { title: '', path: 'LINE' }, // 라인
 
         { title: '구매 / 결제', path: 'TITLE' },
         { title: '상품 구매 내역', path: '/my-page/my-buy-history' },
         { title: '에코딜 예약 내역', path: '/my-page/eco-deal-reservation' },
-
-        // { title: '', path: 'LINE' },
-
-        // { title: '설정', path: 'TITLE' },
     ]
 
     return (

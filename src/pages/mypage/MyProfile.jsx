@@ -137,26 +137,28 @@ const MyProfile = () => {
         const _handleSubmit = async (oldPassword) => {
             const birth = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
 
-            try {
-                await updateProfile({
-                    email,
-                    name,
-                    profileImageFile,
-                    sex,
-                    birth,
-                    address,
-                    detailAddress,
-                    oldPassword,
-                });
+            updateProfile({
+                email,
+                name,
+                profileImageFile,
+                sex,
+                birth,
+                address,
+                detailAddress,
+                oldPassword,
+            }).then(({ profileImgUrl }) => {
+                console.log(profileImgUrl);
+                if (profileImgUrl) {
+                    useAuthStore.getState().setProfile(profileImgUrl);
+                }
                 Swal.fire({
                     icon: "success",
                     title: "프로필이 수정되었습니다.",
                     timer: 1500
                 }).then(() => {
                     navigate("/my-page/main");
-                    useAuthStore.getState().setProfile(profileImageUrl);
                 })
-            } catch (err) {
+            }).catch((err) => {
                 console.log(err);
                 Swal.fire({
                     icon: "error",
@@ -164,7 +166,7 @@ const MyProfile = () => {
                     text: err.response?.data.message || "알 수 없는 오류",
                     confirmButtonText: "확인",
                 });
-            }
+            })
         };
 
         const { value: oldPassword } = await Swal.fire({
@@ -227,22 +229,20 @@ const MyProfile = () => {
                                 <button
                                     type="button"
                                     onClick={() => setSex("M")}
-                                    className={`py-3 rounded-lg border font-medium transition-all ${
-                                        sex === "M"
-                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                                            : "border-gray-300 hover:border-gray-400"
-                                    }`}
+                                    className={`py-3 rounded-lg border font-medium transition-all ${sex === "M"
+                                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                        : "border-gray-300 hover:border-gray-400"
+                                        }`}
                                 >
                                     남자
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setSex("F")}
-                                    className={`py-3 rounded-lg border font-medium transition-all ${
-                                        sex === "F"
-                                            ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                                            : "border-gray-300 hover:border-gray-400"
-                                    }`}
+                                    className={`py-3 rounded-lg border font-medium transition-all ${sex === "F"
+                                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                        : "border-gray-300 hover:border-gray-400"
+                                        }`}
                                 >
                                     여자
                                 </button>
@@ -260,7 +260,7 @@ const MyProfile = () => {
                                         onChange={(e) => setBirthYear(e.target.value)}
                                         className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
                                     >
-                                        <option value="" style={{color: '#9CA3AF'}}>년도</option>
+                                        <option value="" style={{ color: '#9CA3AF' }}>년도</option>
                                         {Array.from({ length: 100 }, (_, i) => {
                                             const year = new Date().getFullYear() - i;
                                             return (
@@ -284,7 +284,7 @@ const MyProfile = () => {
                                         onChange={(e) => setBirthMonth(e.target.value)}
                                         className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
                                     >
-                                        <option value="" style={{color: '#9CA3AF'}}>월</option>
+                                        <option value="" style={{ color: '#9CA3AF' }}>월</option>
                                         {Array.from({ length: 12 }, (_, i) => {
                                             const month = String(i + 1).padStart(2, "0");
                                             return (
@@ -308,7 +308,7 @@ const MyProfile = () => {
                                         onChange={(e) => setBirthDay(e.target.value)}
                                         className="w-full py-3 px-4 pr-8 bg-white border border-gray-200 rounded-lg focus:border-emerald-500 outline-none transition-all appearance-none text-gray-700"
                                     >
-                                        <option value="" style={{color: '#9CA3AF'}}>일</option>
+                                        <option value="" style={{ color: '#9CA3AF' }}>일</option>
                                         {Array.from({ length: 31 }, (_, i) => {
                                             const day = String(i + 1).padStart(2, "0");
                                             return (
@@ -372,11 +372,10 @@ const MyProfile = () => {
                     <button
                         onClick={handleSubmitWithPassword}
                         disabled={!isChanged || isSubmitDisabled}
-                        className={`w-full py-3 rounded-lg font-bold text-base transition-all duration-200 ${
-                            (!isChanged || isSubmitDisabled)
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-gradient-to-r from-gray-900 to-black text-white hover:from-black hover:to-gray-900"
-                        }`}
+                        className={`w-full py-3 rounded-lg font-bold text-base transition-all duration-200 ${(!isChanged || isSubmitDisabled)
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-gradient-to-r from-gray-900 to-black text-white hover:from-black hover:to-gray-900"
+                            }`}
                     >
                         {!isChanged ? "변경사항이 없습니다" : isSubmitDisabled ? "정보를 모두 입력해주세요" : "수정 완료"}
                     </button>
@@ -454,9 +453,8 @@ const InputField = ({ label, type, value, placeholder, onChange, readOnly = fals
             placeholder={placeholder}
             onChange={onChange}
             readOnly={readOnly}
-            className={`w-full py-3 px-4 border border-gray-300 rounded-lg focus:border-emerald-500 outline-none transition-all placeholder-gray-400 ${
-                readOnly ? 'bg-gray-50 text-gray-600' : ''
-            }`}
+            className={`w-full py-3 px-4 border border-gray-300 rounded-lg focus:border-emerald-500 outline-none transition-all placeholder-gray-400 ${readOnly ? 'bg-gray-50 text-gray-600' : ''
+                }`}
         />
     </div>
 );

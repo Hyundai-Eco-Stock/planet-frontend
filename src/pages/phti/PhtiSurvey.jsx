@@ -3,7 +3,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { useEffect, useState } from "react";
 import { fetchPhtiQuestinosAndChoices, submitPhtiSurvey } from "@/api/phti/phti.api";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import Swal from "sweetalert2";
 
@@ -23,6 +23,13 @@ const variants = {
 };
 
 const PhtiSurvey = () => {
+
+    const { setTitle } = useOutletContext();
+
+    useEffect(() => {
+        setTitle("PHTI 설문");
+    }, [setTitle]);
+
     const navigate = useNavigate();
 
     const [questions, setQuestions] = useState([]);
