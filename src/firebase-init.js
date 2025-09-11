@@ -67,7 +67,7 @@ const showInAppNotification = (payload) => {
     // const forceMobile = import.meta.env.DEV && true
     // const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
     // 운영 환경: 모바일, 브라우저 환경 구분
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
     if (document.visibilityState === 'visible') {
