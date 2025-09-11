@@ -14,7 +14,7 @@ const MyCarInfo = () => {
     const { setTitle } = useOutletContext();
 
     useEffect(() => {
-        setTitle("내 차량 관리");
+        setTitle("친환경 차 등록");
     }, [setTitle]);
 
     const [carNumberLeft, setCarNumberLeft] = useState(null);
@@ -173,9 +173,9 @@ const MyCarInfo = () => {
                 </div>
 
                 {/* 입출차 기록 섹션 */}
-                {carHistories.length > 0 && (
-                    <div className="w-full">
-                        <div className="px-2 text-start font-semibold mb-4">입/출차 기록</div>
+                <div className="w-full">
+                    <div className="px-2 text-start font-semibold mb-4">입/출차 기록</div>
+                    {carHistories.length > 0 ? (
                         <div className="divide-y divide-gray-200 border rounded-lg bg-white shadow max-h-80 overflow-y-auto">
                             {carHistories.map((h) => (
                                 <div
@@ -201,8 +201,13 @@ const MyCarInfo = () => {
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    ): (
+                        <div>
+                            최근 주차 내역이 없습니다.
+                        </div>
+                    )
+                }
+                </div>
 
                 {/* 하단 고정 버튼 */}
                 <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">

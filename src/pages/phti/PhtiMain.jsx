@@ -3,17 +3,27 @@ import { fetchAllPhtiList } from "@/api/phti/phti.api";
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { CustomCommonButton } from "@/components/_custom/CustomButtons";
+import CustomModal from "@/components/_custom/CustomModal";
 
 const PhtiMain = () => {
-    const { setTitle } = useOutletContext();
+    const navigate = useNavigate();
+
+    const { setTitle, setOnClose } = useOutletContext();
 
     useEffect(() => {
-        setTitle("🌱 PHTI 검사");
-    }, [setTitle]);
+        setTitle("PHTI 결과");
+
+        setOnClose(() => () => {
+            navigate("/home/main");
+        });
+
+        return () => setOnClose(null);
+    }, [setTitle, setOnClose]);
 
     const [result, setResult] = useState(null);
     const [phtiList, setPhtiList] = useState([]);
-    const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(false);
+
 
     useEffect(() => {
         const load = async () => {
@@ -43,12 +53,16 @@ const PhtiMain = () => {
         load();
     }, []);
 
+    const handleSurveyClick = () => {
+        if (!result) {
+            setShowModal(true);  // 결과가 없으면 마케팅/홍보 안내 모달
+        } else {
+            navigate("/phti/survey");
+        }
+    };
+
     return (
         <div className="pb-24 max-w-xl mx-auto space-y-8">
-            {/* <h1 className="text-2xl font-bold text-emerald-600 text-center">
-                🌱 PHTI 검사
-            </h1> */}
-
             {/* 최근 결과 */}
             {result ? (
                 <div>
@@ -176,15 +190,30 @@ const PhtiMain = () => {
 
             {/* 설문 버튼 */}
             <div className="max-w-xl w-full fixed bottom-0 left-1/2 -translate-x-1/2 bg-white p-4 border-t">
-
                 <CustomCommonButton
                     className="w-full btn-primary"
-                    onClick={() => navigate("/phti/survey")}
+                    onClick={handleSurveyClick}
                 >
                     {result ? '다시 설문하러 가기' : '설문하러 가기'}
 
                 </CustomCommonButton>
             </div>
+
+            {/* 모달 */}
+            {showModal && (
+                <CustomModal
+                    title="마케팅 및 홍보 활용 동의"
+                    onClose={() => setShowModal(false)}
+                    onConfirm={() => {
+                        setShowModal(false);
+                        navigate("/phti/survey");
+                    }}
+                >
+                    PHTI 설문 결과는 맞춤형 혜택 제공, 마케팅 및 홍보 목적으로
+                    활용될 수 있습니다.
+                    계속 진행하시겠습니까?
+                </CustomModal>
+            )}
         </div>
     );
 };
