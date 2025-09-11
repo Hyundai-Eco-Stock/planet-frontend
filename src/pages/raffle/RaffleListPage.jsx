@@ -121,7 +121,7 @@ const RaffleListPage = () => {
   return (
     <div className="min-h-screen bg-white relative">
       {/* 상단 헤더 배너 */}
-      <div className="absolute top-0 left-0 right-0 -mx-4">
+      <div className="top-0 left-0 right-0 z-40 -mx-4">
         <div className="bg-gradient-to-b from-orange-200/40 via-orange-100/20 to-transparent px-6 py-8 h-48">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">래플 응모하기</h1>
@@ -141,7 +141,7 @@ const RaffleListPage = () => {
         </div>
       </div>
 
-      <main className="relative z-10 px-4 pb-20 pt-56">
+      <main className="relative z-10 px-4 pb-20 pt-4">
         {/* 필터 버튼 */}
         <div className="grid grid-cols-3 gap-2 mb-8">
           <button
