@@ -43,11 +43,7 @@ export default defineConfig({
         ],
       },
       pwaAssets: {
-        disabled: false,
-        config: {
-          preset: 'minimal-2023',
-          images: ['public/planet-logo-512.png'],
-        },
+        images: ['public/planet-logo-512.png'],
       },
       devOptions: {
         enabled: false,
