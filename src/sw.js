@@ -10,7 +10,7 @@ import { ExpirationPlugin } from 'workbox-expiration';
 // 알림 표시 로직을 일원화합니다.
 self.addEventListener('push', (event) => {
     const payload = event.data.json();
-    console.log('[src/sw.js] Push 이벤트 수신:', payload);
+    console.log('[Push 이벤트 수신] ', payload);
 
     const notificationTitle = payload.notification?.title || '새로운 알림';
     const notificationOptions = {

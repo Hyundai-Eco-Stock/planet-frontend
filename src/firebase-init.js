@@ -64,10 +64,10 @@ const showInAppNotification = (payload) => {
     const path = payload.data?.path || "/";
 
     // 개발 환경: 강제 모바일 테스트
-    const forceMobile = import.meta.env.DEV && true
-    const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
+    // const forceMobile = import.meta.env.DEV && true
+    // const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
     // 운영 환경: 모바일, 브라우저 환경 구분
-    // const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
     // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
     if (document.visibilityState === 'visible') {
