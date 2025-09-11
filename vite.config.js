@@ -43,6 +43,7 @@ export default defineConfig({
         ],
       },
       pwaAssets: {
+        preset: 'minimal-2023',
         images: ['public/planet-logo-512.png'],
       },
       devOptions: {
