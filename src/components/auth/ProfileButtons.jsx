@@ -17,9 +17,10 @@ const ProfileButton = ({ size = "default" }) => {
 
     // 크기별 클래스 정의
     const sizeClasses = {
-        default: "w-20 h-20", // 80px
-        large: "w-16 h-16",   // 64px (마이페이지용)
-        small: "w-12 h-12"    // 48px
+        default: "w-20 h-20",
+        large: "w-16 h-16",
+        "extra-large": "w-32 h-32",
+        small: "w-12 h-12"
     };
 
     const currentSize = sizeClasses[size] || sizeClasses.default;
