@@ -22,6 +22,8 @@ const MyCardInfo = () => {
     const [showForm, setShowForm] = useState(false);
     const [cardNumber, setCardNumber] = useState("");
 
+    const [expanded, setExpanded] = useState(false);
+
     useEffect(() => {
         loadCards();
     }, []);
@@ -82,22 +84,35 @@ const MyCardInfo = () => {
     };
 
     return (
-        <>
+        <div className="pt-4">
             {/* 등록된 카드 리스트 */}
-            <div className="space-y-4 pt-4 pb-24">
-                {myCards.map((card) => (
-                    <Card
-                        card={card}
-                        bgImage="/assets/cards/the_hyundae_1.png"
-                        onDelete={handleDelete}
-                    />
-
+            <div className={`
+                    relative w-full max-w-xl mx-auto pt-8 pb-24 cursor-pointer
+                    transition-all duration-500
+                    ${expanded ? "overflow-y-auto" : "overflow-hidden"}
+                `}
+                style={{
+                    height: expanded ? "85vh" : "85vh", // 접혔을 때/펼쳤을 때 높이 동일, 대신 scroll on/off
+                }}
+                onClick={() => setExpanded(!expanded)}
+            >
+                {myCards.map((card, index) => (
+                    <div
+                        key={card.memberCardId}
+                        className="absolute left-0 right-0 transition-all duration-500 ease-in-out"
+                        style={{
+                            top: expanded ? `${index * 60}vw` : `${index * 17}vw`,
+                            zIndex: myCards.length - index,
+                        }}
+                    >
+                        <Card card={card} onDelete={handleDelete} />
+                    </div>
                 ))}
             </div>
 
             {/* 카드 등록 버튼 */}
             {/* {!showForm && ( */}
-            <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t">
+            <div className="fixed w-full max-w-xl bottom-0 left-1/2 -translate-x-1/2 p-4 bg-white border-t z-50">
                 <CustomCommonButton
                     onClick={() => setShowForm(true)}
                     children="+ 새 카드 등록"
@@ -132,7 +147,7 @@ const MyCardInfo = () => {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

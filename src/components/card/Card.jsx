@@ -24,7 +24,6 @@ const Card = ({ card, onDelete }) => {
                 alt="Card background"
                 className="absolute inset-0 w-full h-full object-cover"
             />
-
             {/* 오버레이 */}
             <div className="absolute inset-0 flex flex-col justify-between p-5 text-white">
                 {/* 상단: 카드사 이름 + 삭제 버튼 */}
@@ -34,9 +33,8 @@ const Card = ({ card, onDelete }) => {
                         <Trash2 size={20} />
                     </button>
                 </div>
-
                 {/* 하단: 카드번호 */}
-                <div className="text-xl tracking-widest font-mono">
+                <div className="text-2xl tracking-widest font-mono pl-2 pb-2">
                     {maskCardNumber(card.cardNumber)}
                 </div>
             </div>
