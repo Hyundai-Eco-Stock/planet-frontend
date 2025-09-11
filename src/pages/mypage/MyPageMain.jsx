@@ -123,7 +123,7 @@ const MyPageMain = () => {
             <div className="bg-white px-4 py-8">
                 {loginStatus ? (
                     <div className="flex flex-col items-center text-center">
-                        <div className="relative mb-12">
+                        <div className={`relative ${phtiResult?.primaryPhti ? 'mb-6' : 'mb-2'}`}>
                             {phtiResult?.primaryPhti ? (
                                 <div
                                     className="w-32 h-32 relative cursor-pointer"
@@ -134,8 +134,8 @@ const MyPageMain = () => {
 
                                     {/* 프로필 */}
                                     <div className={`absolute inset-0 transition-all duration-500 ${isProfileFront
-                                            ? 'z-20 scale-100 opacity-100'
-                                            : 'z-10 scale-95 opacity-40 rotate-3'
+                                        ? 'z-20 scale-100 opacity-100'
+                                        : 'z-10 scale-95 opacity-40 rotate-3'
                                         }`}>
                                         {/* 프로필 그림자 효과 */}
                                         {isProfileFront && (
@@ -146,8 +146,8 @@ const MyPageMain = () => {
 
                                     {/* PHTI 캐릭터 */}
                                     <div className={`absolute inset-0 bg-gradient-to-br ${phtiColors.gradient} rounded-full shadow-lg border-2 border-${phtiColors.secondary} flex items-center justify-center transition-all duration-500 ${!isProfileFront
-                                            ? 'z-20 scale-100 opacity-100'
-                                            : 'z-10 scale-95 opacity-40 -rotate-3'
+                                        ? 'z-20 scale-100 opacity-100'
+                                        : 'z-10 scale-95 opacity-40 -rotate-3'
                                         }`}>
                                         {/* 캐릭터 뒤 그라데이션 배경 */}
                                         <div className={`absolute inset-0 bg-gradient-to-br from-white/80 to-${phtiColors.secondary}/20 rounded-full`}></div>
@@ -174,7 +174,7 @@ const MyPageMain = () => {
                                 </div>
                             ) : (
                                 // PHTI가 없을 때: 프로필만 표시
-                                <div className="w-32 h-32 relative">
+                                <div className="w-32 h-32 relative mb-6">
                                     {/* 기본 배경 효과 */}
                                     <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-100 rounded-full blur-xl scale-110 opacity-30"></div>
                                     <ProfileButton size="extra-large" />
