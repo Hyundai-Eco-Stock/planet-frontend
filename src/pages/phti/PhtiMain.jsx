@@ -6,17 +6,24 @@ import { CustomCommonButton } from "@/components/_custom/CustomButtons";
 import CustomModal from "@/components/_custom/CustomModal";
 
 const PhtiMain = () => {
-    const { setTitle } = useOutletContext();
+    const navigate = useNavigate();
+
+    const { setTitle, setOnClose } = useOutletContext();
 
     useEffect(() => {
-        setTitle("🌱 PHTI 검사");
-    }, [setTitle]);
+        setTitle("PHTI 결과");
+
+        setOnClose(() => () => {
+            navigate("/home/main");
+        });
+
+        return () => setOnClose(null);
+    }, [setTitle, setOnClose]);
 
     const [result, setResult] = useState(null);
     const [phtiList, setPhtiList] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
-    const navigate = useNavigate();
 
     useEffect(() => {
         const load = async () => {

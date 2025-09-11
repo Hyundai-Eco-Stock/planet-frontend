@@ -169,7 +169,6 @@ function App() {
 						<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 						<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
 						<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
-						<Route path="/phti/main" element={<PhtiMain />} />
 						<Route path="/phti/survey" element={<PhtiSurvey />} />
 					</Route>
 				</Route>
@@ -182,6 +181,7 @@ function App() {
 
 				{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutLogoAndClose />}>
+					<Route path="/phti/main" element={<PhtiMain />} />
 					{/* <Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} /> */}
 				</Route>
 
