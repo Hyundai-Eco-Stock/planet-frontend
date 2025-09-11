@@ -58,61 +58,66 @@ export const requestForToken = async () => {
     }
 };
 
+// 인앱 알림을 표시하는 함수
+const showInAppNotification = (payload) => {
+    const { title, body } = payload.notification || {};
+    const path = payload.data?.path || "/";
+
+    // 개발 환경: 강제 모바일 테스트
+    // const forceMobile = import.meta.env.DEV && true
+    // const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
+    // 운영 환경: 모바일, 브라우저 환경 구분
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
+    if (document.visibilityState === 'visible') {
+        if (isMobile) {
+            Swal.fire({
+                toast: true,
+                position: "top",
+                html: `
+                    <div style="width:100%; display:flex; align-items:center; gap:12px;">
+                        <img src="/planet-logo-512.png" alt="logo" style="width:32px; height:32px; border-radius:8px;" />
+                        <div style="text-align:left;">
+                        <div style="font-weight:600; font-size:14px; color:#111;">${title}</div>
+                        <div style="font-size:12px; color:#555;">${body}</div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                background: "#fff",
+                customClass: {
+                    popup: "shadow-lg rounded-xl",
+                },
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: (popup) => {
+                    popup.addEventListener("click", () => {
+                      window.location.href = path; // 클릭 시 페이지 이동
+                    });
+                },
+            });
+        }
+    }
+};
+
 // 포그라운드 메시지 리스너 초기화 함수
 export const initializeForegroundMessaging = () => {
+    // 1. Firebase onMessage 리스너 (서비스 워커가 제어하지 않을 때)
     onMessage(messaging, (payload) => {
-        console.log('포그라운드 메시지 수신 (중앙 리스너):', payload);
-
-        // 스토어 상태 업데이트 (인앱 UI용)
-        // useNotificationStore.getState().setNotification({
-        //     title: payload.notification.title,
-        //     body: payload.notification.body,
-        // });
-        const { title, body } = payload.notification || {};
-        const path = payload.data?.path || "/";
-
-         // 개발 환경: 강제 모바일 테스트
-        const forceMobile = import.meta.env.DEV && true
-        const isMobile = forceMobile || /Mobi|Android/i.test(navigator.userAgent);
-        // 운영 환경: 모바일, 브라우저 환경 구분
-        // const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-        // 브라우저 알림은 페이지가 활성화 상태일 때만 표시
-        if (document.visibilityState === 'visible') {
-            if (isMobile) {
-                Swal.fire({
-                    toast: true,
-                    position: "top",
-                    html: `
-                        <div style="width:100%; display:flex; align-items:center; gap:12px;">
-                            <img src="/planet-logo-512.png" alt="logo" style="width:32px; height:32px; border-radius:8px;" />
-                            <div style="text-align:left;">
-                            <div style="font-weight:600; font-size:14px; color:#111;">${title}</div>
-                            <div style="font-size:12px; color:#555;">${body}</div>
-                            </div>
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    background: "#fff",
-                    customClass: {
-                        popup: "shadow-lg rounded-xl",
-                    },
-                    timer: 5000,
-                    timerProgressBar: true,
-                    didOpen: (popup) => {
-                        popup.addEventListener("click", () => {
-                          window.location.href = path; // 클릭 시 페이지 이동
-                        });
-                    },
-                });
-            } else {
-                // new Notification(payload.notification.title, {
-                //     body: payload.notification.body,
-                //     icon: "/planet-logo-512.png",
-                // });
-            }
-        }
+        console.log('포그라운드 메시지 수신 (onMessage):', payload);
+        showInAppNotification(payload);
     });
+
+    // 2. 서비스 워커로부터 오는 메시지 리스너 (PWA 포그라운드 상태)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.message === 'Received a push message.') {
+                console.log('포그라운드 메시지 수신 (Service Worker):', event.data.payload);
+                showInAppNotification(event.data.payload);
+            }
+        });
+    }
 };
 
 
