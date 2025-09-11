@@ -82,7 +82,7 @@ const MyPageMain = () => {
         {
             title: "MY / 설정",
             items: [
-                { title: '내 정보 수정', path: '/my-page/profile' },
+                { title: '계정 설정', path: '/my-page/profile' },
                 { title: '내 차량 번호 관리 및 입·출차 내역 조회', path: '/my-page/my-car' },
                 { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
             ]
@@ -209,7 +209,9 @@ const MyPageMain = () => {
             {/* 퀵 액션 카드들 */}
             {loginStatus && (
                 <div className="bg-white px-4 py-6 shadow-sm">
-                    <h2 className="text-lg font-bold text-gray-900 mb-4">빠른 메뉴</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-gray-900">빠른 메뉴</h2>
+                    </div>
                     <div className="grid grid-cols-3 gap-3">
                         {quickActions.map((action, index) => (
                             <Link
