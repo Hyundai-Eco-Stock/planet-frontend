@@ -25,15 +25,15 @@ const AdminHeader = () => {
     return (
         <header className="sticky top-0 z-50 
             bg-white border-b border-gray-200 
-            w-full max-w-7xl mx-auto px-4 h-16
+            w-full mx-auto px-4 h-16
             flex items-center gap-6"
         >
             <div className="">
                 <Link
-                    to="/admin/dashboard/main"
+                    to="/admin/home"
                     className="text-xl text-gray-900
                             inline-flex items-center gap-2 font-extrabold tracking-[.2px] text-[24px] leading-none text-inherit no-underline"
-                    aria-label="planet 홈으로 이동"
+                    aria-label="planet 관리자 홈으로 이동"
                 >
                     planet 관리자
                 </Link>

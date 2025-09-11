@@ -1,19 +1,31 @@
 import './main.css'
 
-// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  RouterProvider,
+  ScrollRestoration,
+} from 'react-router-dom'
 
 import App from './App.jsx'
 import { initializeForegroundMessaging } from './firebase-init.js'
 
 // 포그라운드 리스너 초기화
-initializeForegroundMessaging();
+initializeForegroundMessaging()
+
+// Data Router 구성
+const router = createBrowserRouter([
+  {
+    path: '/*',
+    element: (
+      <>
+        <ScrollRestoration />
+        <App />
+      </>
+    ),
+  },
+])
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  // </StrictMode>,
+  <RouterProvider router={router} />
 )

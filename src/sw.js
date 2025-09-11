@@ -9,25 +9,41 @@ import { ExpirationPlugin } from 'workbox-expiration';
 // 이를 통해 vite-plugin-pwa에 의해 주입된 로직이나 다른 핸들러와의 충돌을 방지하고
 // 알림 표시 로직을 일원화합니다.
 self.addEventListener('push', (event) => {
-    try {
-        const payload = event.data.json();
-        console.log('[src/sw.js] Push 이벤트 수신:', payload);
+    const payload = event.data.json();
+    console.log('[Push 이벤트 수신] ', payload);
 
-        const notificationTitle = payload.notification?.title || '새로운 알림';
-        const notificationOptions = {
-            body: payload.notification?.body || '',
-            icon: '/planet-logo-512.png',
-            // 알림 클릭 시 이동할 URL 등 추가 데이터를 여기에 포함합니다.
-            data: payload.data
-        };
+    const notificationTitle = payload.notification?.title || '새로운 알림';
+    const notificationOptions = {
+        body: payload.notification?.body || '',
+        icon: '/planet-logo-512.png',
+        data: payload.data
+    };
 
-        // 알림을 표시합니다.
-        event.waitUntil(
-            self.registration.showNotification(notificationTitle, notificationOptions)
-        );
-    } catch (e) {
-        console.error('[src/sw.js] Push 이벤트 처리 중 오류:', e);
-    }
+    const promiseChain = clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    }).then(windowClients => {
+        let clientIsVisible = false;
+        for (let i = 0; i < windowClients.length; i++) {
+            const windowClient = windowClients[i];
+            if (windowClient.visibilityState === "visible") {
+                clientIsVisible = true;
+                // 메시지를 클라이언트로 전송
+                windowClient.postMessage({
+                    message: 'Received a push message.',
+                    payload: payload
+                });
+                break;
+            }
+        }
+
+        if (!clientIsVisible) {
+            // 클라이언트가 보이지 않으면 시스템 알림 표시
+            return self.registration.showNotification(notificationTitle, notificationOptions);
+        }
+    });
+
+    event.waitUntil(promiseChain);
 });
 
 

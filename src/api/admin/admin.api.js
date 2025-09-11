@@ -50,3 +50,17 @@ export const testNotification = async () => {
 	const response  = await apiClient.post("/admin/notification/test")
 	return response.data;
 }
+
+// 최근 7일 주문량
+export const fetch7DayOrderCount = async () => {
+	const response  = await apiClient.get("/admin/7days-order-count")
+	console.log(response.data);
+	return response.data;
+}
+
+// 카테고리별 매출
+export const fetchCategorySalesCount = async () => {
+	const response  = await apiClient.get("/admin/category-sales")
+	console.log(response.data);
+	return response.data;
+}

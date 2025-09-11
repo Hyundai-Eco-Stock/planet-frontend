@@ -51,9 +51,7 @@ import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 
 // 에코스톡 인증
-// import EcoStockCertificate from '@/pages/eco_stock_certificate/EcoStockCertificate'
-import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
-import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
+import ReceiptCertificate from '@/pages/eco_stock_certificate/ReceiptCertificate'
 
 // 결제 정보 생성
 import OfflinePayCreate from '@/pages/offline_pay/OfflinePayCreate'
@@ -136,7 +134,7 @@ function App() {
 				<Route element={<LayoutLogoAndFooter />}>\
 					<Route path="/raffle" element={<RaffleListPage />} />
 					<Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} />
-					<Route path="/eco-stock/main" element={<EcoStockMain />} />
+					<Route path="/eco-stock/main" element={<EcoStockMain />} /
 					<Route path="/my-page/main" element={<MyPageMain />} />
 					{/* <Route path="/eco-stock/certificate" element={<EcoStockCertificate />} /> */}
 				</Route>
@@ -171,10 +169,11 @@ function App() {
 						<Route path="/my-page/point" element={<MyPointPage />} />
 						<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 						<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
+						<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
+						<Route path="/eco-stock/certificate/receipt" element={<ReceiptCertificate />} />
 						<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 						<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
 						<Route path="/my-page/eco-deal-reservation" element={<EcoDealReservation />} />
-						<Route path="/phti/main" element={<PhtiMain />} />
 						<Route path="/phti/survey" element={<PhtiSurvey />} />
 					</Route>
 				</Route>
@@ -187,6 +186,7 @@ function App() {
 
 				{/* 로고, 닫기가 있는 헤더와 푸터 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutLogoAndClose />}>
+					<Route path="/phti/main" element={<PhtiMain />} />
 					{/* <Route path="/raffle/detail/:raffleId" element={<RaffleDetailPage />} /> */}
 				</Route>
 
