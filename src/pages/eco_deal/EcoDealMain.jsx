@@ -3,21 +3,38 @@ import { searchTodayAllEcoDealProducts } from "../../api/product/ecoProduct.api"
 import { EcoDealProductComponent } from "../../components/product/EcoDealProductComponent"
 
 export default function EcoDealMain() {
-  // 화면 중앙에 뿌릴 데이터 상태
   const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [selectedStore, setSelectedStore] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /* 초기 렌더링: 카테고리 + 초기 상품 동시 로드 (URL의 category 우선) */
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    Promise.all([
-      searchTodayAllEcoDealProducts().then((data) => (Array.isArray(data) ? data : [])),
-    ])
-      .then(([products]) => {
+    searchTodayAllEcoDealProducts()
+      .then((data) => {
+        const products = Array.isArray(data) ? data : [];
+        setAllItems(products);
         setItems(products);
+        
+        // 매장 목록 추출 (중복 제거)
+        const uniqueStores = products.reduce((acc, product) => {
+          if (product.departmentStoreId && product.departmentStoreName) {
+            const existingStore = acc.find(store => store.id === product.departmentStoreId);
+            if (!existingStore) {
+              acc.push({
+                id: product.departmentStoreId,
+                name: product.departmentStoreName
+              });
+            }
+          }
+          return acc;
+        }, []);
+        
+        setStores(uniqueStores);
       })
       .catch((e) => {
         console.error("초기 로드 실패:", e);
@@ -25,6 +42,17 @@ export default function EcoDealMain() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleStoreFilter = (storeId) => {
+    setSelectedStore(storeId);
+    
+    if (storeId === null) {
+      setItems(allItems);
+    } else {
+      const filteredItems = allItems.filter(item => item.departmentStoreId === storeId);
+      setItems(filteredItems);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -39,7 +67,7 @@ export default function EcoDealMain() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-            {/* 텍스트 오버레이 - 하단 중앙 */}
+            {/* 텍스트 오버레이 */}
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 text-white text-center px-6">
               <div className="inline-block px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm mb-3">
                 매일 저녁 6시 오픈
@@ -49,6 +77,22 @@ export default function EcoDealMain() {
               <p className="text-sm opacity-90 whitespace-nowrap">매일 새로운 상품이 준비됩니다</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="px-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {selectedStore ? stores.find(s => s.id === selectedStore)?.name + ' 특가 상품' : '오늘의 특가 상품'}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">신선한 식품을 합리적인 가격에</p>
+          </div>
+          {items.length > 0 && (
+            <div className="text-sm text-orange-600 font-medium bg-orange-50 px-3 py-1 rounded-full">
+              {items.length}개 상품
+            </div>
+          )}
         </div>
       </div>
 

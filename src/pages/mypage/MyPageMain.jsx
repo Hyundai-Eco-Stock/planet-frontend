@@ -1,20 +1,32 @@
 import { Link, useNavigate } from "react-router-dom";
-
+import { useState, useEffect } from "react";
 import useAuthStore from "@/store/authStore";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
-
 import { ProfileButton } from "@/components/auth/ProfileButtons";
-
 import { logout } from "@/api/auth/auth.api";
-
+import { fetchMemberPhtiResult } from "@/api/member/member.api";
 
 const MyPageMain = () => {
     const navigate = useNavigate();
-
     const name = useAuthStore((s) => s.name);
     const loginStatus = useAuthStore((s) => s.loginStatus);
+    const [phtiResult, setPhtiResult] = useState(null);
+    const [isProfileFront, setIsProfileFront] = useState(true);
+
+    useEffect(() => {
+        const fetchPhtiResult = async () => {
+            if (!loginStatus) return;
+            try {
+                const result = await fetchMemberPhtiResult();
+                setPhtiResult(result);
+            } catch (error) {
+                console.error("PHTI 결과 조회 실패:", error);
+            }
+        };
+
+        fetchPhtiResult();
+    }, [loginStatus]);
 
     const handleLogout = async () => {
         await logout();
@@ -26,136 +38,255 @@ const MyPageMain = () => {
         navigate("/login");
     };
 
-    const navigations = [
-        { title: 'MY / 설정', path: 'TITLE' },
-        { title: '내 정보 수정', path: '/my-page/profile' },
-        { title: '친환경 차 등록', path: '/my-page/my-car' },
-        { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
+    const handleProfileSwitch = () => {
+        setIsProfileFront(!isProfileFront);
+    };
 
-        { title: '', path: 'LINE' }, // 라인
+    // PHTI별 컬러 매핑 - 4가지 타입으로 수정
+    const getPhtiColors = (primaryPhti) => {
+        const phtiPrefix = primaryPhti.substring(0, 2).toUpperCase();
+        const colorMap = {
+            'EG': { primary: 'green-500', secondary: 'green-300', gradient: 'from-green-200 to-green-100' },
+            'EP': { primary: 'purple-500', secondary: 'purple-300', gradient: 'from-purple-200 to-purple-100' },
+            'CG': { primary: 'emerald-500', secondary: 'emerald-300', gradient: 'from-emerald-200 to-emerald-100' },
+            'CP': { primary: 'violet-500', secondary: 'violet-300', gradient: 'from-violet-200 to-violet-100' },
+        };
+        return colorMap[phtiPrefix] || { primary: 'gray-500', secondary: 'gray-300', gradient: 'from-gray-200 to-gray-100' };
+    };
 
-        { title: 'ECO STOCK 인증 / 보유 / 사용', path: 'TITLE' },
-        { title: '에코스톡 발급 & 포인트 교환 내역', path: '/my-page/my-assets' },
-        { title: '오프라인 친환경 활동 인증', path: '/eco-stock/certificate/receipt' },
-        { title: '래플 응모 내역', path: '/my-page/raffle-history' },
+    const quickActions = [
+        {
+            title: "포인트 관리",
+            subtitle: "잔액 확인",
+            icon: "💰",
+            path: "/my-page/point",
+            color: "emerald"
+        },
+        {
+            title: "에코스톡",
+            subtitle: "보유 현황",
+            icon: "💎",
+            path: "/my-page/eco-stock",
+            color: "blue"
+        },
+        {
+            title: "주문 관리",
+            subtitle: "구매 내역",
+            icon: "📦",
+            path: "/my-page/my-buy-history",
+            color: "purple"
+        }
+    ];
 
-        { title: '', path: 'LINE' }, // 라인
+    const menuSections = [
+        {
+            title: "MY / 설정",
+            items: [
+                { title: '계정 설정', path: '/my-page/profile' },
+                { title: '내 차량 번호 관리 및 입·출차 내역 조회', path: '/my-page/my-car' },
+                { title: '내 카드 관리 (오프라인 자동 인증용)', path: '/my-page/my-card' },
+            ]
+        },
+        {
+            title: "오프라인 환경 인증",
+            items: [
+                { title: '텀블러 사용 인증', path: '/eco-stock/certificate/tumbler' },
+                { title: '종이백 미사용 인증', path: '/eco-stock/certificate/paper-bag-no-use' },
+            ]
+        },
+        {
+            title: "구매 / 결제",
+            items: [
+                { title: '주문 관리', path: '/my-page/my-buy-history' },
+                { title: '에코딜 예약 내역', path: '/my-page/eco-deal-reservation' },
+            ]
+        },
+        {
+            title: "응모 / 이벤트",
+            items: [
+                { title: '래플 현황', path: '/my-page/raffle-history' },
+            ]
+        }
+    ];
 
-        { title: '구매 / 결제', path: 'TITLE' },
-        { title: '상품 구매 내역', path: '/my-page/my-buy-history' },
-        { title: '에코딜 예약 내역', path: '/my-page/eco-deal-reservation' },
-    ]
+    // PHTI 캐릭터 이미지 경로 생성
+    const getPhtiCharacterImage = (primaryPhti) => {
+        if (!primaryPhti) return null;
+        return `/src/assets/phti/${primaryPhti.toLowerCase()}.png`;
+    };
+
+    const phtiColors = phtiResult?.primaryPhti ? getPhtiColors(phtiResult.primaryPhti) : null;
 
     return (
-        <div>
-            {/* 프로필 헤더 카드 */}
-            <div className="mx-4 mt-4 mb-6 bg-white rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        {/* 네모박스 크기 프로필 버튼 */}
-                        <div className="relative">
-                            <ProfileButton size="large" />
-                            {loginStatus && (
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-white rounded-full"></div>
+        <div className="min-h-screen bg-white relative">
+            {/* 프로필 헤더 */}
+            <div className="bg-white px-4 py-8">
+                {loginStatus ? (
+                    <div className="flex flex-col items-center text-center">
+                        <div className={`relative ${phtiResult?.primaryPhti ? 'mb-6' : 'mb-2'}`}>
+                            {phtiResult?.primaryPhti ? (
+                                <div
+                                    className="w-32 h-32 relative cursor-pointer"
+                                    onClick={handleProfileSwitch}
+                                >
+                                    {/* 배경 그라데이션 효과 */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${phtiColors.gradient} rounded-full blur-xl scale-110 opacity-30`}></div>
+
+                                    {/* 프로필 */}
+                                    <div className={`absolute inset-0 transition-all duration-500 ${isProfileFront
+                                        ? 'z-20 scale-100 opacity-100'
+                                        : 'z-10 scale-95 opacity-40 rotate-3'
+                                        }`}>
+                                        {/* 프로필 그림자 효과 */}
+                                        {isProfileFront && (
+                                            <div className={`absolute inset-0 bg-${phtiColors.primary} rounded-full blur-sm scale-105 opacity-20`}></div>
+                                        )}
+                                        <ProfileButton size="extra-large" />
+                                    </div>
+
+                                    {/* PHTI 캐릭터 */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${phtiColors.gradient} rounded-full shadow-lg border-2 border-${phtiColors.secondary} flex items-center justify-center transition-all duration-500 ${!isProfileFront
+                                        ? 'z-20 scale-100 opacity-100'
+                                        : 'z-10 scale-95 opacity-40 -rotate-3'
+                                        }`}>
+                                        {/* 캐릭터 뒤 그라데이션 배경 */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br from-white/80 to-${phtiColors.secondary}/20 rounded-full`}></div>
+
+                                        {/* 캐릭터 그림자 효과 */}
+                                        {!isProfileFront && (
+                                            <div className="absolute inset-0 bg-gray-400 rounded-full blur-sm scale-105 opacity-20"></div>
+                                        )}
+
+                                        <img
+                                            src={getPhtiCharacterImage(phtiResult.primaryPhti)}
+                                            alt={`PHTI ${phtiResult.primaryPhti}`}
+                                            className="w-20 h-20 object-contain relative z-10 drop-shadow-sm"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* 스위치 힌트 */}
+                                    <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
+                                        탭하여 전환
+                                    </div>
+                                </div>
+                            ) : (
+                                // PHTI가 없을 때: 프로필만 표시
+                                <div className="w-32 h-32 relative mb-6">
+                                    {/* 기본 배경 효과 */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-100 rounded-full blur-xl scale-110 opacity-30"></div>
+                                    <ProfileButton size="extra-large" />
+                                </div>
                             )}
                         </div>
 
-                        <div>
-                            {loginStatus ? (
-                                <>
-                                    <div className="text-lg font-bold text-gray-900">{name}님</div>
-                                    <div className="text-sm text-gray-500">환경을 생각하는 사용자</div>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={goToLogin}
-                                    className="text-left"
-                                >
-                                    <div className="text-lg font-bold text-blue-600">로그인이 필요합니다</div>
-                                    <div className="text-sm text-gray-500">터치하여 로그인하세요</div>
-                                </button>
-                            )}
+                        <div className="text-base font-bold text-gray-900 mb-1">
+                            환경을 생각하는 {name}님 안녕하세요 👋🏻
+                        </div>
+                        <div className="text-sm text-gray-500">
+                            지구를 위한 작은 실천이 큰 변화를 만듭니다
                         </div>
                     </div>
-
-                    {loginStatus && (
+                ) : (
+                    <div className="text-center">
                         <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={goToLogin}
+                            className="text-center"
                         >
-                            로그아웃
+                            <div className="text-base font-bold text-blue-600 mb-1">
+                                로그인이 필요합니다
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                터치하여 로그인하세요
+                            </div>
                         </button>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
-            {/* 퀵 액션 카드들 - 각각 다른 색상 */}
+            {/* 퀵 액션 카드들 */}
             {loginStatus && (
-                <div className="mx-4 mb-6">
+                <div className="bg-white px-4 py-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-gray-900">빠른 메뉴</h2>
+                        <Link
+                            to="/my-page/settings"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-gray-100"
+                        >
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </Link>
+                    </div>
                     <div className="grid grid-cols-3 gap-3">
-                        <Link to="/my-page/my-assets" className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
-                                <span className="text-white">💰</span>
-                            </div>
-                            <div className="text-xs font-medium text-white">포인트</div>
-                            <div className="text-xs text-white/80">관리</div>
-                        </Link>
-
-                        <Link to="/eco-stock/certificate" className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
-                                <span className="text-white">🌱</span>
-                            </div>
-                            <div className="text-xs font-medium text-white">에코스톡</div>
-                            <div className="text-xs text-white/80">인증</div>
-                        </Link>
-
-                        <Link to="/my-page/my-buy-history" className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-2">
-                                <span className="text-white">🛍️</span>
-                            </div>
-                            <div className="text-xs font-medium text-white">구매</div>
-                            <div className="text-xs text-white/80">내역</div>
-                        </Link>
+                        {quickActions.map((action, index) => (
+                            <Link
+                                key={index}
+                                to={action.path}
+                                className="relative group"
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br from-${action.color}-200 to-${action.color}-300 rounded-xl blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
+                                <div className={`relative bg-white/70 backdrop-blur-sm border border-${action.color}-200/40 rounded-xl p-4 text-${action.color}-700 hover:scale-105 hover:bg-white/80 transition-all duration-200 shadow-sm`}>
+                                    <div className={`absolute inset-0 bg-gradient-to-br from-${action.color}-100/30 to-transparent rounded-xl`}></div>
+                                    <div className="relative z-10">
+                                        <div className="flex justify-start mb-3 pl-1">
+                                            <span className="text-2xl">{action.icon}</span>
+                                        </div>
+                                        <div className="text-xs font-bold mb-1 text-left">{action.title}</div>
+                                        <div className="text-xs opacity-80 text-left">{action.subtitle}</div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             )}
 
-            {/* 메뉴 리스트 */}
-            <div className="px-4 space-y-1">
-                {navigations.map((nav, idx) => {
-                    if (nav.path === 'LINE') {
-                        return <div key={idx} className="h-4" />;
-                    }
-
-                    if (nav.path === 'TITLE') {
-                        return (
-                            <div key={idx} className="pt-4 pb-3">
-                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-1">
-                                    {nav.title}
+            {/* 메뉴 섹션들 */}
+            <div className="bg-white px-4 py-6 pb-12 relative">
+                {menuSections.map((section, sectionIndex) => (
+                    <div key={sectionIndex} className="mb-4">
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                            <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 rounded-t-2xl">
+                                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                                    {section.title}
                                 </h3>
                             </div>
-                        );
-                    }
-
-                    // 퀵 액션에 있는 항목들은 제외
-                    if (nav.path === '/my-page/my-assets' ||
-                        nav.path === '/eco-stock/certificate' ||
-                        nav.path === '/my-page/my-buy-history') {
-                        return null;
-                    }
-
-                    return (
-                        <Link to={nav.path} key={idx}>
-                            <div className="flex justify-between items-center py-4 px-1 hover:bg-gray-50 rounded-lg transition-colors">
-                                <span className="text-gray-900 font-medium">{nav.title}</span>
-                                <FontAwesomeIcon
-                                    icon={faChevronRight}
-                                    className="text-gray-400 text-sm"
-                                />
+                            <div className="divide-y divide-gray-100">
+                                {section.items.map((item, itemIndex) => (
+                                    <Link
+                                        key={itemIndex}
+                                        to={item.path}
+                                        className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <span className="text-gray-900 font-medium text-sm leading-relaxed">
+                                            {item.title}
+                                        </span>
+                                        <FontAwesomeIcon
+                                            icon={faChevronRight}
+                                            className="text-gray-400 text-xs"
+                                        />
+                                    </Link>
+                                ))}
                             </div>
-                        </Link>
-                    );
-                })}
+                        </div>
+                    </div>
+                ))}
+
+                {/* 로그아웃 버튼 */}
+                {loginStatus && (
+                    <div className="flex justify-end px-4">
+                        <button
+                            onClick={handleLogout}
+                            className="text-sm text-red-500 hover:text-red-600 hover:underline transition-all duration-200"
+                        >
+                            로그아웃
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

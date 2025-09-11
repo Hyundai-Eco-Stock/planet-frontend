@@ -1,73 +1,17 @@
-// RaffleListPage.js
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRaffleList } from "@/api/raffleList/raffleList.api";
 import { getMemberStockInfoAll } from "@/api/memberStockInfoAll/memberStockInfoAll.api";
 import RaffleCard from "@/components/raffle/RaffleCard";
 import useAuthStore from "@/store/authStore";
-
-const SkeletonCard = () => (
-  <div className="relative rounded-3xl shadow-xl border bg-white border-gray-200 overflow-hidden">
-    <div className="p-6 pb-0">
-      <div className="w-full h-64 rounded-2xl bg-gray-100 animate-pulse" />
-      <div className="absolute top-4 right-4 w-20 h-7 rounded-full bg-gray-200 animate-pulse" />
-    </div>
-    <div className="p-6 space-y-4">
-      <div className="h-6 w-24 bg-gray-200 rounded-full animate-pulse" />
-      <div className="h-8 w-3/4 bg-gray-200 rounded animate-pulse" />
-      <div className="h-5 w-1/2 bg-gray-200 rounded animate-pulse" />
-      <div className="h-10 w-full bg-gray-200 rounded-xl animate-pulse" />
-    </div>
-  </div>
-);
-
-const EmptyState = ({ onRefresh }) => (
-  <div className="max-w-xl mx-auto text-center bg-white rounded-3xl border border-gray-200 p-10 shadow-sm">
-    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-      <span className="text-white text-2xl">🎁</span>
-    </div>
-    <h2 className="text-2xl font-bold text-gray-900 mb-2">현재 진행 중인 래플이 없어요</h2>
-    <p className="text-gray-600">
-      새로운 친환경 래플을 준비 중입니다. 잠시만 기다려 주세요!
-    </p>
-    <button
-      onClick={onRefresh}
-      className="mt-6 px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow"
-    >
-      새로고침
-    </button>
-  </div>
-);
-
-const ErrorState = ({ message, onRetry }) => (
-  <div className="max-w-xl mx-auto">
-    <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-6 text-center">
-      <div className="text-2xl mb-2">⚠️</div>
-      <h3 className="text-lg font-bold text-red-800 mb-1">데이터를 불러오지 못했어요</h3>
-      <p className="text-sm text-red-700">{message || "잠시 후 다시 시도해 주세요."}</p>
-      <div className="mt-4 flex gap-3 justify-center">
-        <button
-          onClick={onRetry}
-          className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold"
-        >
-          다시 시도
-        </button>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-5 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-100 font-semibold"
-        >
-          새로고침
-        </button>
-      </div>
-    </div>
-  </div>
-);
+import heendyRaffle from '@/assets/heendy-raffle.png'
 
 const RaffleListPage = () => {
   const [raffleList, setRaffleList] = useState([]);
   const [personalStockInfoList, setPersonalStockInfoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState('all');
   const { loginStatus } = useAuthStore.getState();
   const navigate = useNavigate();
 
@@ -113,24 +57,61 @@ const RaffleListPage = () => {
     fetchData();
   }, [loginStatus]);
 
+  const now = new Date();
+  const activeRaffles = raffleList.filter(r => {
+    if (r.winnerName) return false;
+    const endDate = new Date(r.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return now <= endDate;
+  });
+  
+  const endedRaffles = raffleList.filter(r => {
+    if (r.winnerName) return true;
+    const endDate = new Date(r.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return now > endDate;
+  });
+
+  // 필터링된 래플
+  const filteredRaffles = filter === 'active' ? activeRaffles : filter === 'ended' ? endedRaffles : raffleList;
+
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="text-gray-500">불러오는 중...</div>
+      <div className="flex items-center gap-3 text-gray-500">
+        <div className="w-6 h-6 border-2 border-gray-200 border-t-orange-500 rounded-full animate-spin"></div>
+        불러오는 중...
+      </div>
     </div>
   );
 
   if (error) return (
     <div className="flex items-center justify-center py-20">
-      <div className="text-red-500">{error}</div>
+      <div className="text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <div className="text-red-500 font-medium">{error}</div>
+      </div>
     </div>
   );
 
   if (raffleList.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="text-gray-400 text-center">
-          <div className="text-lg mb-2">진행중인 래플이 없습니다</div>
-          <div className="text-sm">새로운 래플을 기다려주세요</div>
+      <div className="min-h-screen bg-white">
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+              <img
+                src={heendyRaffle}
+                alt="헨디 래플"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-xl font-bold text-gray-900 mb-2">진행 중인 래플이 없습니다</div>
+            <div className="text-gray-500">새로운 래플을 기다려주세요</div>
+          </div>
         </div>
       </div>
     );
@@ -138,24 +119,66 @@ const RaffleListPage = () => {
 
   // 기본 리스트
   return (
-    <div className="min-h-screen bg-white">
-      <main className="pb-20">
-        {/* 상단 헤더 */}
-        <div className="px-4 pt-6 pb-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">래플 응모하기</h2>
-            <p className="text-sm text-gray-500">
-              진행중 {raffleList.filter(r => !r.winnerName).length}개
-            </p>
+    <div className="min-h-screen bg-white relative">
+      {/* 상단 헤더 배너 */}
+      <div className="top-0 left-0 right-0 z-40 -mx-4">
+        <div className="bg-gradient-to-b from-orange-200/40 via-orange-100/20 to-transparent px-6 py-8 h-48">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">래플 응모하기</h1>
+            <p className="text-gray-600 mb-6">에코스톡으로 무료 응모 가능!</p>
+
+            <div className="flex items-center justify-center gap-8 text-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 bg-orange-500 rounded-full animate-pulse shadow-sm"></div>
+                <span className="text-gray-700 font-medium">진행 중 <span className="font-bold text-orange-600">{activeRaffles.length}개</span></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 bg-gray-400 rounded-full shadow-sm"></div>
+                <span className="text-gray-700 font-medium">종료 <span className="font-bold text-gray-500">{endedRaffles.length}개</span></span>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {/* 구분선 */}
-        <div className="-mx-4 border-b border-gray-200"></div>
+      </div>
+
+      <main className="relative z-10 px-4 pb-20 pt-4">
+        {/* 필터 버튼 */}
+        <div className="grid grid-cols-3 gap-2 mb-8">
+          <button
+            onClick={() => setFilter('all')}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'all' 
+                ? 'bg-gray-900 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            전체 {raffleList.length}개
+          </button>
+          <button
+            onClick={() => setFilter('active')}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'active' 
+                ? 'bg-orange-500 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            진행 중 {activeRaffles.length}개
+          </button>
+          <button
+            onClick={() => setFilter('ended')}
+            className={`py-3 rounded-lg text-sm font-medium transition-colors ${
+              filter === 'ended' 
+                ? 'bg-gray-500 text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            종료 {endedRaffles.length}개
+          </button>
+        </div>
 
         {/* 래플 목록 */}
-        <div className="-mx-4 space-y-6">
-          {raffleList.map((item) => (
+        <div className="space-y-6">
+          {filteredRaffles.map((item) => (
             <RaffleCard
               key={item.raffleId}
               item={item}
