@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import { fetchMyRaffles } from "@/api/member/member.api";
 import { useOutletContext } from "react-router-dom";
 
+// 상태 스타일: WIN / IN_PROGRESS / LOSE
 const statusStyles = {
-  Y: {
-    background: "linear-gradient(90deg, rgba(46,204,113,1) 0%, rgba(39,174,96,1) 100%)",
+  WIN: {
+    background: "linear-gradient(90deg, #ff7a1a 0%, #ff5a1a 100%)",
     color: "#fff",
     label: "당첨",
   },
-  N: {
+  IN_PROGRESS: {
+    background: "linear-gradient(90deg, #ff8a3d 0%, #ff6a3d 100%)",
+    color: "#fff",
+    label: "진행 중",
+  },
+  LOSE: {
     background: "#9aa0a6",
     color: "#fff",
     label: "미당첨",
@@ -19,12 +25,12 @@ const MyRaffleHistory = () => {
   const { setTitle } = useOutletContext();
 
   useEffect(() => {
-      setTitle("래플 응모 내역");
+    setTitle("래플 응모 내역");
   }, [setTitle]);
 
   const [raffles, setRaffles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error,   setError]   = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -43,7 +49,6 @@ const MyRaffleHistory = () => {
   if (loading) {
     return (
       <div style={{ padding: 24 }}>
-        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
         <p style={{ marginTop: 12, color: "#666" }}>불러오는 중…</p>
       </div>
     );
@@ -52,7 +57,6 @@ const MyRaffleHistory = () => {
   if (error) {
     return (
       <div style={{ padding: 24 }}>
-        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
         <p style={{ marginTop: 12, color: "#d93025" }}>{error}</p>
       </div>
     );
@@ -61,15 +65,16 @@ const MyRaffleHistory = () => {
   if (!raffles.length) {
     return (
       <div style={{ padding: 24 }}>
-        {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
-        <div style={{
-          marginTop: 24,
-          padding: 24,
-          border: "1px dashed #e0e0e0",
-          borderRadius: 12,
-          textAlign: "center",
-          color: "#777",
-        }}>
+        <div
+          style={{
+            marginTop: 24,
+            padding: 24,
+            border: "1px dashed #e0e0e0",
+            borderRadius: 12,
+            textAlign: "center",
+            color: "#777",
+          }}
+        >
           아직 응모내역이 없습니다.
         </div>
       </div>
@@ -78,8 +83,6 @@ const MyRaffleHistory = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      {/* <h1 style={{ margin: 0 }}>내 래플 응모내역</h1> */}
-
       <div
         style={{
           display: "grid",
@@ -98,14 +101,29 @@ const MyRaffleHistory = () => {
 
 const RaffleCard = ({ data }) => {
   const {
-    winStatus = "N",
+    // 서버에서 주는 값 가정
+    winStatus = "N",            // "Y" | "N"
     productName,
     productImageUrl,
     startDate,
     endDate,
   } = data || {};
 
-  const s = statusStyles[winStatus] || statusStyles.N;
+  // 상태 계산: endDate(23:59:59) 기준 마감 전이면 진행 중
+  const now = new Date();
+  const end = endDate ? new Date(endDate) : null;
+  if (end) end.setHours(23, 59, 59, 999);
+
+  let displayState = "LOSE";
+  if (winStatus === "Y") {
+    displayState = "WIN";
+  } else if (end && now <= end) {
+    displayState = "IN_PROGRESS";
+  } else {
+    displayState = "LOSE";
+  }
+
+  const s = statusStyles[displayState];
 
   return (
     <div

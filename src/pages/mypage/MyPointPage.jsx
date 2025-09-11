@@ -34,20 +34,18 @@ const MyPointPage = () => {
 
     return (
         <div className="min-h-screen bg-white relative">
-            {/* 상단 헤더 배너 */}
+            {/* 상단 그라데이션 배경만 유지 */}
             <div className="absolute top-0 left-0 right-0 -mx-4">
-                <div className="bg-gradient-to-b from-emerald-200/40 via-emerald-100/20 to-transparent px-6 py-8 h-40">
-                    <div className="text-center">
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">내 포인트</h1>
-                        <p className="text-gray-600">포인트 적립 & 사용 내역을 확인하세요</p>
-                    </div>
+                <div className="bg-gradient-to-b from-emerald-200/40 via-emerald-100/20 to-transparent h-40">
                 </div>
             </div>
 
-            <main className="relative z-10 px-4 pb-20 pt-40">
-                {/* 보유 포인트 - 단순 텍스트 */}
+            <main className="relative z-10 px-4 pb-20 pt-12">
+                {/* 보유 포인트 */}
                 <div className="text-center mb-8">
-                    <div className="text-gray-500 text-sm mb-1">보유 포인트</div>
+                    <div className="flex items-center justify-center gap-2 text-gray-500 text-sm mb-1">
+                        <span>보유 포인트</span>
+                    </div>
                     <div className="text-4xl font-bold text-emerald-600">
                         {currentPoint.toLocaleString("ko-KR")} P
                     </div>

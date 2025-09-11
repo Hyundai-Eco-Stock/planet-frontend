@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
 import { fetchMyEcostocks, fetchEcostockPrices } from "@/api/member/member.api";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const MyEcoStockPage = () => {
     const { setTitle } = useOutletContext();
@@ -64,7 +63,7 @@ const MyEcoStockPage = () => {
             });
     }, [items, priceMap]);
 
-    // 총 가치 계산 - 소숫점 제거
+    // 총 가치 계산
     const totalValue = Math.floor(enrichedStocks.reduce((sum, stock) => {
         const price = stock.stockPrice || 0;
         const quantity = stock.currentTotalQuantity || 0;
@@ -73,47 +72,47 @@ const MyEcoStockPage = () => {
 
     return (
         <div className="min-h-screen bg-white relative">
-            {/* 상단 헤더 배너 */}
+            {/* 상단 그라데이션 배경만 유지 */}
             <div className="absolute top-0 left-0 right-0 -mx-4">
-                <div className="bg-gradient-to-b from-blue-200/40 via-blue-100/20 to-transparent px-6 py-8 h-40">
-                    <div className="text-center">
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">내 에코스톡</h1>
-                        <p className="text-gray-600">보유 중인 에코스톡을 확인하세요</p>
-                    </div>
+                <div className="bg-gradient-to-b from-blue-200/40 via-blue-100/20 to-transparent h-40">
                 </div>
             </div>
 
-            <main className="relative z-10 px-4 pb-20 pt-40">
-                {/* 동기화 버튼 */}
-                <div className="flex justify-center mb-4">
-                    <button
-                        type="button"
-                        onClick={loadEcoStockData}
-                        disabled={loading}
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm border border-blue-300/30 transition-all ${loading
-                                ? 'bg-blue-100/20 text-blue-600/60'
-                                : 'bg-blue-100/30 text-blue-700 hover:bg-blue-100/50 shadow-sm'
-                            }`}
-                    >
-                        {loading ? '동기화 중…' : '시세 동기화'}
-                        <ArrowPathIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
-                </div>
-
-                {/* 총 가치 */}
-                <div className="text-center mb-8">
-                    <div className="text-gray-500 text-sm mb-1">에코스톡 총 가치</div>
+            <main className="relative z-10 px-4 pb-20 pt-8">
+                {/* 에코스톡 총 가치 - 툴팁 상단으로 변경 */}
+                <div className="text-center mb-6">
+                    <div className="flex items-center justify-center gap-2 text-gray-500 text-sm mb-1">
+                        <span>에코스톡 총 가치</span>
+                    </div>
                     <div className="text-4xl font-bold text-blue-600">
                         {totalValue.toLocaleString("ko-KR")} P
                     </div>
                     {lastSyncAt && (
-                        <div className="text-gray-400 text-xs mt-2">
-                            최근 동기화: {lastSyncAt.toLocaleTimeString('ko-KR', {
+                        <div className="text-blue-500 text-xs mt-2">
+                            최근 업데이트: {lastSyncAt.toLocaleTimeString('ko-KR', {
                                 hour: '2-digit',
                                 minute: '2-digit'
                             })}
                         </div>
                     )}
+                </div>
+
+                {/* 새로고침 버튼 - 최근 업데이트 아래로 이동 */}
+                <div className="flex justify-center mb-8">
+                    <button
+                        onClick={loadEcoStockData}
+                        disabled={loading}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                            loading
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:scale-105 shadow-sm'
+                        }`}
+                    >
+                        {loading ? '업데이트 중...' : '시세 업데이트'}
+                        <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
                 </div>
 
                 {/* 에코스톡 보유 현황 */}
@@ -186,7 +185,7 @@ const EcoStockRow = ({ stock }) => {
         if (name?.includes('태양') || name?.includes('태양광')) return '☀️';
         if (name?.includes('바다') || name?.includes('해양')) return '🌊';
         if (name?.includes('대기') || name?.includes('공기')) return '💨';
-        return '🌱'; // 기본 아이콘
+        return '🌱';
     };
 
     const getStockColor = (name) => {
@@ -197,7 +196,7 @@ const EcoStockRow = ({ stock }) => {
         if (name?.includes('태양') || name?.includes('태양광')) return 'orange';
         if (name?.includes('바다') || name?.includes('해양')) return 'cyan';
         if (name?.includes('대기') || name?.includes('공기')) return 'sky';
-        return 'teal'; // 기본 색상
+        return 'teal';
     };
 
     const stockIcon = getStockIcon(ecoStockName);
