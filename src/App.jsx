@@ -44,7 +44,8 @@ import MyProfile from '@/pages/mypage/MyProfile'
 import MyCarInfo from '@/pages/mypage/MyCarInfo'
 import MyCardInfo from '@/pages/mypage/MyCardInfo'
 import Settings from '@/pages/mypage/Settings'
-import MyAssetsPage from '@/pages/mypage/MyAssetsPage'
+import MyEcoStockPage from '@/pages/mypage/MyEcoStockPage'
+import MyPointPage from '@/pages/mypage/MyPointPage'
 import MyBuyHistory from '@/pages/mypage/MyBuyHistory'
 import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
@@ -147,7 +148,7 @@ function App() {
 
 				{/* 로고 + 설정 */}
 				<Route element={<LayoutLogoAndSetting />}>
-				
+
 				</Route>
 
 				{/* 뒤로가기 Layout (헤더 + 푸터) */}
@@ -166,7 +167,8 @@ function App() {
 						<Route path="/my-page/my-car" element={<MyCarInfo />} />
 						<Route path="/my-page/my-card" element={<MyCardInfo />} />
 						<Route path="/my-page/settings" element={<Settings />} />
-						<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
+						<Route path="/my-page/eco-stock" element={<MyEcoStockPage />} />
+						<Route path="/my-page/point" element={<MyPointPage />} />
 						<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 						<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
 						<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />

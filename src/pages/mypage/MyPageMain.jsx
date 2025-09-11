@@ -59,7 +59,7 @@ const MyPageMain = () => {
             title: "포인트 관리",
             subtitle: "잔액 확인",
             icon: "💰",
-            path: "/my-page/my-assets",
+            path: "/my-page/point",
             color: "emerald"
         },
         {
