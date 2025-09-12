@@ -50,7 +50,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="bg-white">
             <div className="w-full flex justify-center">
                 <main className="w-full max-w-[640px]">
                     {/* 제목 */}
