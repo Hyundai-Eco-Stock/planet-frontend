@@ -60,6 +60,7 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                         if (result && !detectedRef.current) {
                             detectedRef.current = true;
                             onDetected(result.getText(), result);
+                            setStatus("success");
                             reader.reset(); // 스캔 성공 → 정리
                             stopStream();
                         }
