@@ -9,7 +9,6 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
     const streamRef = useRef(null);
     const detectedRef = useRef(false);
 
-    const [running, setRunning] = useState(false);
     const [error, setError] = useState("");
     const [status, setStatus] = useState("idle");
     // idle | running | success | error
@@ -24,7 +23,7 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             if (videoRef.current) {
                 videoRef.current.srcObject = null;
             }
-            setRunning(false);
+            setStatus("idle");
         };
 
         const start = async () => {
@@ -37,7 +36,6 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
 
             const reader = new BrowserMultiFormatReader(hints);
             detectedRef.current = false;
-            setRunning(true);
 
             try {
                 setStatus("running");
@@ -69,7 +67,6 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             } catch (e) {
                 setStatus("error");
                 setError(e?.message || "카메라 초기화 실패");
-                setRunning(false);
             }
         };
 
