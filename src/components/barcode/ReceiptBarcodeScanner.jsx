@@ -12,6 +12,20 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
     const [error, setError] = useState("");
 
     useEffect(() => {
+        const stopStream = () => {
+            controlsRef.current?.stop?.();
+            controlsRef.current = null;
+
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+                streamRef.current = null;
+            }
+            if (videoRef.current) {
+                videoRef.current.srcObject = null;
+            }
+            setRunning(false);
+        };
+
         const start = async () => {
             if (!videoRef.current) return;
 
@@ -41,14 +55,11 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                 controlsRef.current = await reader.decodeFromStream(
                     streamRef.current,
                     videoRef.current,
-                    (result, err) => {
+                    (result) => {
                         if (result) {
                             onDetected(result.getText(), result);
-
-                            // 스캔 성공 → 정리
-                            reader.reset();
+                            reader.reset(); // 스캔 성공 → 정리
                             stopStream();
-                            setRunning(false);
                         }
                     }
                 );
@@ -58,25 +69,8 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             }
         };
 
-        const stopStream = () => {
-            controlsRef.current?.stop?.();
-            controlsRef.current = null;
-
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-                streamRef.current = null;
-            }
-            if (videoRef.current) {
-                videoRef.current.srcObject = null;
-            }
-        };
-
         start();
-
-        return () => {
-            stopStream();
-            setRunning(false);
-        };
+        return () => stopStream();
     }, [onDetected]);
 
     return (
