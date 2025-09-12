@@ -7,19 +7,18 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
     const videoRef = useRef(null);
     const controlsRef = useRef(null);
     const streamRef = useRef(null);
+    const detectedRef = useRef(false);
 
     const [running, setRunning] = useState(false);
     const [error, setError] = useState("");
+
 
     useEffect(() => {
         const stopStream = () => {
             controlsRef.current?.stop?.();
             controlsRef.current = null;
-
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-                streamRef.current = null;
-            }
+            streamRef.current?.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
             if (videoRef.current) {
                 videoRef.current.srcObject = null;
             }
@@ -28,25 +27,27 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
 
         const start = async () => {
             if (!videoRef.current) return;
-
             // ZXing 설정
             const hints = new Map();
             hints.set(DecodeHintType.POSSIBLE_FORMATS, [
                 BarcodeFormat.CODE_128,
-                BarcodeFormat.EAN_13,
-                BarcodeFormat.EAN_8,
-                BarcodeFormat.UPC_A,
-                BarcodeFormat.UPC_E,
-                BarcodeFormat.CODE_39,
+                // BarcodeFormat.EAN_13,
+                // BarcodeFormat.EAN_8,
+                // BarcodeFormat.UPC_A,
+                // BarcodeFormat.UPC_E,
+                // BarcodeFormat.CODE_39,
             ]);
 
             const reader = new BrowserMultiFormatReader(hints);
+            detectedRef.current = false;
             setRunning(true);
 
             try {
                 // 카메라 직접 오픈 (명시적으로 streamRef에 저장)
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: "environment" },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
                     audio: false,
                 });
                 videoRef.current.srcObject = streamRef.current;
@@ -56,7 +57,8 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                     streamRef.current,
                     videoRef.current,
                     (result) => {
-                        if (result) {
+                        if (result && !detectedRef.current) {
+                            detectedRef.current = true;
                             onDetected(result.getText(), result);
                             reader.reset(); // 스캔 성공 → 정리
                             stopStream();
