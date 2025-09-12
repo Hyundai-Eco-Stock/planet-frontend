@@ -11,6 +11,8 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
 
     const [running, setRunning] = useState(false);
     const [error, setError] = useState("");
+    const [status, setStatus] = useState("idle");
+    // idle | running | success | error
 
 
     useEffect(() => {
@@ -31,11 +33,6 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             const hints = new Map();
             hints.set(DecodeHintType.POSSIBLE_FORMATS, [
                 BarcodeFormat.CODE_128,
-                // BarcodeFormat.EAN_13,
-                // BarcodeFormat.EAN_8,
-                // BarcodeFormat.UPC_A,
-                // BarcodeFormat.UPC_E,
-                // BarcodeFormat.CODE_39,
             ]);
 
             const reader = new BrowserMultiFormatReader(hints);
@@ -43,10 +40,11 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             setRunning(true);
 
             try {
+                setStatus("running");
                 // 카메라 직접 오픈 (명시적으로 streamRef에 저장)
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: "environment", 
+                        facingMode: "environment",
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
                     },
@@ -68,6 +66,7 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                     }
                 );
             } catch (e) {
+                setStatus("error");
                 setError(e?.message || "카메라 초기화 실패");
                 setRunning(false);
             }
@@ -87,7 +86,13 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
                 autoPlay
             />
             <div className="text-xs text-gray-500">
-                {running ? "스캔 중…" : error ? `오류: ${error}` : "스캔 준비 완료"}
+                {status === "running"
+                    ? "스캔 중…"
+                    : status === "success"
+                        ? "스캔 완료!"
+                        : status === "error"
+                            ? `오류: ${error}`
+                            : "스캔 준비 완료"}
             </div>
         </div>
     );
