@@ -16,6 +16,14 @@ const TumblerCertificate = () => {
 
     const [code, setCode] = useState("");
     const [mode, setMode] = useState("scan");
+    const [running, setRunning] = useState(true);
+
+    // code를 모두 없애면 다시 돌아가게!
+    useEffect(() => {
+        if (code == null || code == "") {
+            setRunning(true);
+        }
+    },[code])
 
     const handleSubmit = () => {
         if (!code) {
@@ -116,7 +124,7 @@ const TumblerCertificate = () => {
                     {/* 스캔/업로드 영역 - 박스 제거 */}
                     {mode === "scan" && (
                         <div className="mb-6">
-                            <ReceiptBarcodeScanner onDetected={(text) => setCode(text)} />
+                            <ReceiptBarcodeScanner onDetected={(text) => setCode(text)} running={running} />
                         </div>
                     )}
 
@@ -136,11 +144,7 @@ const TumblerCertificate = () => {
                     <div className="relative group rounded-xl">
                         <CustomCommonInput
                             value={code}
-                            onChange={(vOrEvent) =>
-                                setCode(
-                                    vOrEvent?.target?.value !== undefined ? vOrEvent.target.value : vOrEvent
-                                )
-                            }
+                            onChange={(code) => setCode(code) }
                             placeholder="영수증 바코드 번호를 입력하세요"
                             className="focus:!ring-2 focus:!ring-blue-200 focus:!border-blue-500"
                         />

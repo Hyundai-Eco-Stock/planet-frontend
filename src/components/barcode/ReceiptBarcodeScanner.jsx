@@ -1,102 +1,96 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { DecodeHintType, BarcodeFormat } from "@zxing/library";
 
-const ReceiptBarcodeScanner = ({ onDetected }) => {
+const ReceiptBarcodeScanner = ({ running, onDetected }) => {
     const videoRef = useRef(null);
     const controlsRef = useRef(null);
     const streamRef = useRef(null);
     const detectedRef = useRef(false);
 
-    const [error, setError] = useState("");
-    const [status, setStatus] = useState("idle");
-    // idle | running | success | error
+    // 스트림 정리
+    const stopStream = () => {
+        try {
+            controlsRef.current?.stop?.();
+        } catch { }
+        controlsRef.current = null;
 
+        try {
+            streamRef.current?.getTracks().forEach((t) => t.stop());
+        } catch { }
+        streamRef.current = null;
+
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
+        }
+    };
 
     useEffect(() => {
-        const stopStream = () => {
-            controlsRef.current?.stop?.();
-            controlsRef.current = null;
-            streamRef.current?.getTracks().forEach(track => track.stop());
-            streamRef.current = null;
-            if (videoRef.current) {
-                videoRef.current.srcObject = null;
-            }
-            setStatus("idle");
-        };
+        if (!running) {
+            stopStream();
+            return;
+        }
 
         const start = async () => {
             if (!videoRef.current) return;
-            // ZXing 설정
+
             const hints = new Map();
-            hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-                BarcodeFormat.CODE_128,
-            ]);
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
 
             const reader = new BrowserMultiFormatReader(hints);
             detectedRef.current = false;
 
             try {
-                setStatus("running");
-                // 카메라 직접 오픈 (명시적으로 streamRef에 저장)
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: "environment",
+                        facingMode: { ideal: "environment" },
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
                     },
                     audio: false,
                 });
+
                 videoRef.current.srcObject = streamRef.current;
 
-                // ZXing에 우리가 연 스트림을 넘김
                 controlsRef.current = await reader.decodeFromStream(
                     streamRef.current,
                     videoRef.current,
                     (result) => {
                         if (result && !detectedRef.current) {
                             detectedRef.current = true;
+                            // 부모 콜백에만 전달
                             onDetected(result.getText(), result);
-                            setStatus("success");
-                            reader.reset(); // 스캔 성공 → 정리
+                            // 자동 종료
                             stopStream();
+                            reader.reset();
                         }
                     }
                 );
             } catch (e) {
-                setStatus("error");
-                setError(e?.message || "카메라 초기화 실패");
+                console.error("카메라 초기화 실패:", e);
+                stopStream();
             }
         };
 
         start();
+
         return () => stopStream();
-    }, [onDetected]);
+    }, [running, onDetected]);
 
     return (
-        <div className="w-full h-full space-y-2">
-            <video
-                ref={videoRef}
-                className="w-full h-full rounded-lg border"
-                muted
-                playsInline
-                autoPlay
-            />
-            <div className="text-xs text-gray-500">
-                {status === "running"
-                    ? "스캔 중…"
-                    : status === "success"
-                        ? "스캔 완료!"
-                        : status === "error"
-                            ? `오류: ${error}`
-                            : "스캔 준비 완료"}
-            </div>
-        </div>
+        <video
+            ref={videoRef}
+            className="w-full h-full rounded-lg border"
+            muted
+            playsInline
+            autoPlay
+        />
     );
 };
 
 ReceiptBarcodeScanner.propTypes = {
+    running: PropTypes.bool.isRequired,   // 부모가 실행 여부 제어
     onDetected: PropTypes.func.isRequired,
 };
 
