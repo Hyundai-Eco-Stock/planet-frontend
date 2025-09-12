@@ -86,7 +86,7 @@ const EcoStockDashboard = () => {
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
                 <div className="mt-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코 스톡 (Eco Stock)</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코스톡 통계</h1>
                     <p className="text-gray-600">에코스톡 발급 현황, 사용자 보유 분포</p>
                 </div>
 
