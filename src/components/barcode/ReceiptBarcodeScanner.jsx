@@ -45,9 +45,11 @@ const ReceiptBarcodeScanner = ({ onDetected }) => {
             try {
                 // 카메라 직접 오픈 (명시적으로 streamRef에 저장)
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+                    video: {
+                        facingMode: "environment", 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                    },
                     audio: false,
                 });
                 videoRef.current.srcObject = streamRef.current;
