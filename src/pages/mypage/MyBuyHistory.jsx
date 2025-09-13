@@ -71,7 +71,7 @@ function groupOrders(rows) {
       quantity: r.quantity,
       discountPrice: r.discountPrice,
       ecoDealStatus: r.ecoDealStatus ?? r.eco_deal_status ?? (r.isEcoDeal ? "Y" : "N"),
-      cancelStatus: r.cancelStatus ?? r.cancel_status ?? r.cancel,
+      cancelStatus: r.cancelStatus ?? r.cancel_status ?? r.cancle_status ?? r.cancel,
     });
   });
   return Array.from(map.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -280,6 +280,12 @@ export default function MyBuyHistory() {
                 return "PENDING";
               })();
 
+              // 모든 상품이 취소(Y)가 아니라면 액션 허용
+              const hasUncancelledItems = order.items.some(p => String(p.cancelStatus).toUpperCase() !== 'Y');
+              // 결제 상태와 무관하게, 주문이 결제완료/부분취소 상태이고 미취소 상품이 남아있으면 액션 노출
+              const canAct = (orderStatusUpper === 'PAID' || orderStatusUpper === 'PARTIAL_CANCELLED')
+                && hasUncancelledItems;
+
               const selectedSet = selectedByOrder[order.orderHistoryId] || new Set();
 
               const toggleSelect = (productId) => {
@@ -367,13 +373,12 @@ export default function MyBuyHistory() {
                         key={item.orderProductId || index}
                         className="flex items-center gap-3 hover:bg-white/50 rounded-lg p-2 -m-2 transition-colors"
                       >
-                        {headerStatus === 'PAID' ? (
+                        {canAct && String(item.cancelStatus).toUpperCase() !== 'Y' ? (
                           <input
                             type="checkbox"
                             className="w-4 h-4 accent-emerald-600 ml-2 mr-1"
                             checked={selectedSet instanceof Set ? selectedSet.has(item.orderProductId) : (selectedSet || []).includes(item.orderProductId)}
                             onChange={() => toggleSelect(item.orderProductId)}
-                            disabled={String(item.cancelStatus).toUpperCase() === 'Y'}
                           />
                         ) : null}
                         <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
@@ -443,8 +448,8 @@ export default function MyBuyHistory() {
                     </div>
                   </div>
 
-                  {/* 액션 버튼: 결제완료 상태에서만 노출 */}
-                  {headerStatus === 'PAID' && (
+                  {/* 액션 버튼: 결제완료/부분취소 상태에서, 취소되지 않은 상품이 남아있을 때 노출 */}
+                  {canAct && (
                     <div className="mt-4 flex gap-2">
                       <button
                         className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
