@@ -1,6 +1,6 @@
 import './App.css'
 
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 // 로그인 유저만 접근 가능한 Route
 import PrivateRoute from '@/PrivateRoute'
@@ -52,7 +52,6 @@ import EcoDealReservation from '@/pages/mypage/EcoDealReservation'
 import MyRaffleHistory from '@/pages/mypage/MyRaffleHistory'
 import PaperBagNoUseCertificate from '@/pages/eco_stock_certificate/PaperBagNoUseCertificate'
 import TumblerCertificate from '@/pages/eco_stock_certificate/TumblerCertificate'
-import MyAssetsPage from '@/pages/mypage/MyAssetsPage'
 
 // 에코스톡 인증
 import ReceiptCertificate from '@/pages/eco_stock_certificate/ReceiptCertificate'
@@ -127,6 +126,8 @@ function App() {
 				<Route path="/admin" element={<Navigate to="/admin/dashboard/main" />} />
 				<Route path="/admin/dashboard" element={<Navigate to="/admin/dashboard/main" />} />
 
+				<Route path="/my-page" element={<Navigate to="/my-page/main" />} />
+
 				{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutShopping />}>
 					<Route path="/home/main" element={<HomeMain />} />
@@ -173,7 +174,6 @@ function App() {
 						<Route path="/my-page/point" element={<MyPointPage />} />
 						<Route path="/eco-stock/certificate/tumbler" element={<TumblerCertificate />} />
 						<Route path="/eco-stock/certificate/paper-bag-no-use" element={<PaperBagNoUseCertificate />} />
-						<Route path="/my-page/my-assets" element={<MyAssetsPage />} />
 						<Route path="/eco-stock/certificate/receipt" element={<ReceiptCertificate />} />
 						<Route path="/my-page/raffle-history" element={<MyRaffleHistory />} />
 						<Route path="/my-page/my-buy-history" element={<MyBuyHistory />} />
