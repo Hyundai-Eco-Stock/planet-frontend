@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 
 // 로그인 유저만 접근 가능한 Route
 import PrivateRoute from '@/PrivateRoute'
+import SignUpRequiredRoute from '@/SignUpRequiredRoute'
 
 // Layouts
 import LayoutShopping from '@/components/_layout/LayoutShopping' // 헤더 + 푸터
@@ -94,7 +95,7 @@ import EcoStockDashboard from '@/pages/admin/EcoStockDashboard'
 import OrderProductDashboard from '@/pages/admin/OrderProductDashboard'
 import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
-import SignUpRequiredRoute from './SignUpRequiredRoute'
+import RaffleDashboard from '@/pages/admin/RaffleDashboard'
 
 
 // -------------------------- 라우팅 끝 --------------------------
@@ -229,6 +230,7 @@ function App() {
 					<Route path="/admin/dashboard/order-product" element={<OrderProductDashboard />} />
 					<Route path="/admin/dashboard/phti" element={<PhtiDashboard />} />
 					<Route path="/admin/dashboard/donation" element={<DonationDashboard />} />
+					<Route path="/admin/dashboard/raffle" element={<RaffleDashboard />} />
 					<Route path="/receipt/create" element={<div>영수증 생성</div>} />
 					<Route path="/car-access-history/create" element={<CarAccessHistoryCreate />} />
 					<Route path="/offline-pay/create" element={<OfflinePayCreate />} />
