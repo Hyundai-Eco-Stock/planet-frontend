@@ -54,7 +54,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     response => {
         // 토큰 재발급 성공 응답 처리
-        if (response.config.url === '/auth/access-token/regenerate' && response.headers['x-error-code'] === 'REFRESH_TOKEN_REGENERATE_SUCCESS') {
+        if (response.config.url === '/auth/access-token/regenerate' && response.headers['x-error-code'] === 'ACCESS_TOKEN_REGENERATE_SUCCESS') {
             const newAccessToken = response.headers['authorization']?.split(' ')[1]; // Assuming Bearer token
             if (newAccessToken) {
                 useAuthStore.getState().setAccessToken(newAccessToken);
