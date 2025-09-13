@@ -128,33 +128,27 @@ export default function ShoppingMain() {
       {/* 고정 바의 높이만큼 공간 확보 (검색 영역이 가려지지 않도록) */}
       <div className="h-[96px]" />
 
-      {/* 검색 바: CategoryBar 아래 */}
+      {/* 검색 바 */}
       <div className="mt-6">
-        <form onSubmit={handleSearchSubmit} className="flex gap-3">
-          <div className="relative flex-1">
+        <form onSubmit={handleSearchSubmit} className="relative">
+          <div className="relative">
             <input
               type="text"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               placeholder="상품명·브랜드 검색"
-              className="w-full h-9 rounded-lg border border-gray-200 px-4 pr-10 text-base focus:outline-none focus:border-gray-900"
+              className="w-full h-12 rounded-2xl border border-gray-200 px-6 pr-16 text-base bg-gray-50/50 focus:outline-none focus:border-gray-900 focus:bg-white transition-all"
             />
-            <svg 
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+              aria-label="검색"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
           </div>
-          <button
-            type="submit"
-            className="h-9 px-6 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
-            aria-label="검색"
-          >
-            검색
-          </button>
         </form>
       </div>
 

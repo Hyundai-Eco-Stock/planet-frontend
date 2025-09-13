@@ -34,7 +34,10 @@ export const updateProfile = async ({
 	}
 
 	const response = await apiClient.put("/members/me", multipartForm, {
-		headers: { "Content-Type": "multipart/form-data" },
+		headers: { 
+			"Content-Type": "multipart/form-data",
+			"X-Skip-Global-Error": "true" // 글로벌 에러 처리 스킵
+		},
 	});
 	return response.data;
 };

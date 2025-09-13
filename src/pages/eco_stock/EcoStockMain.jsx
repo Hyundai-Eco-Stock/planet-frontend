@@ -45,7 +45,7 @@ const EcoStockMain = () => {
     };
 
     return (
-        <div>
+        <div className="min-h-screen bg-white">
             {/* 웹소켓 연결 */}
             <StockConnection
                 stockListLoading={stockListLoading}
@@ -54,26 +54,44 @@ const EcoStockMain = () => {
                 selectedStock={selectedStock}
                 onStockChange={handleStockChange}
             />
-            {/* 차트 헤더 */}
-            <StockChartHeader
-                stockList={stockList}
-                stockId={selectedStock}
-                onStockChange={handleStockChange}
-                getStockName={getStockName}
-                currentData={currentStockData}
-                previousStockData={previousStockData}
-            />
-            {/* 차트  */}
-            <StockChart
-                currentData={currentStockData}
-                initialData={initialChartData[selectedStock]} // 초기 데이터만
-                loading={historyLoading}
-                previousStockData={previousStockData}
-            />
-            {/* 해당 차트의 포폴  */}
-            <MyPortfolio currentData={currentStockData} stockInfo={currentStockInfo} />
+            
+            {/* 메인 컨텐츠 컨테이너 */}
+            <div className="flex flex-col min-h-screen">
+                {/* 차트 헤더 */}
+                <div className="flex-shrink-0">
+                    <StockChartHeader
+                        stockList={stockList}
+                        stockId={selectedStock}
+                        onStockChange={handleStockChange}
+                        getStockName={getStockName}
+                        currentData={currentStockData}
+                        previousStockData={previousStockData}
+                    />
+                </div>
+
+                {/* 스크롤 가능한 컨텐츠 영역 */}
+                <div className="flex-1 overflow-y-auto pb-20">
+                    {/* 차트 */}
+                    <div className="px-4 mb-6">
+                        <StockChart
+                            currentData={currentStockData}
+                            initialData={initialChartData[selectedStock]} // 초기 데이터만
+                            loading={historyLoading}
+                            previousStockData={previousStockData}
+                        />
+                    </div>
+
+                    {/* 포트폴리오 */}
+                    <div className="px-4">
+                        <MyPortfolio 
+                            currentData={currentStockData} 
+                            stockInfo={currentStockInfo} 
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
     );
-}
+};
 
 export default EcoStockMain;
