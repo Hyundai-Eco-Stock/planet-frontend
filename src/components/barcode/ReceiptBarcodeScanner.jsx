@@ -36,7 +36,14 @@ const ReceiptBarcodeScanner = ({ running, onDetected }) => {
             if (!videoRef.current) return;
 
             const hints = new Map();
-            hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+                BarcodeFormat.CODE_128,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.EAN_8,
+                BarcodeFormat.UPC_A,
+                BarcodeFormat.UPC_E,
+                BarcodeFormat.CODE_39,
+            ]);
 
             const reader = new BrowserMultiFormatReader(hints);
             detectedRef.current = false;
@@ -44,9 +51,9 @@ const ReceiptBarcodeScanner = ({ running, onDetected }) => {
             try {
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: { ideal: "environment" },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
+                        facingMode: { ideal: "user" },
+                        width: { min: 640, ideal: 1280 },
+                        height: { min: 480, ideal: 720 },
                     },
                     audio: false,
                 });

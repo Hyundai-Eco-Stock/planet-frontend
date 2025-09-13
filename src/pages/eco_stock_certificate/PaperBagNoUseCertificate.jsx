@@ -22,6 +22,8 @@ const PaperBagNoUseCertificate = () => {
     useEffect(() => {
         if (code == null || code == "") {
             setRunning(true);
+        } else {
+            setRunning(false);
         }
     }, [code])
 
@@ -145,9 +147,10 @@ const PaperBagNoUseCertificate = () => {
 
                     <CustomCommonInput
                         value={code}
-                        onChange={(code) => setCode(code)}
+                        onChange={(e) => setCode(e.target.value)}
                         placeholder="영수증 바코드 번호를 입력하세요"
                         className="border-blue-300 focus:border-blue-500 focus:ring-blue-200"
+                        readOnly={mode != "personal"}
                     />
                 </div>
             </main>
