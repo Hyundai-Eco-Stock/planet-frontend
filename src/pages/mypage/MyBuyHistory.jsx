@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchMyOrders } from "@/api/member/member.api";
+import { confirmOrder } from "@/api/order/order.api";
+import { cancelPartialOrder } from "@/api/payment/payment.api";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 /** utils */
@@ -117,6 +119,8 @@ export default function MyBuyHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  // 주문별 선택된 상품 상태: { [orderHistoryId]: Set<orderProductId> }
+  const [selectedByOrder, setSelectedByOrder] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -276,6 +280,67 @@ export default function MyBuyHistory() {
                 return "PENDING";
               })();
 
+              const selectedSet = selectedByOrder[order.orderHistoryId] || new Set();
+
+              const toggleSelect = (productId) => {
+                setSelectedByOrder(prev => {
+                  const current = new Set(prev[order.orderHistoryId] || []);
+                  if (current.has(productId)) current.delete(productId); else current.add(productId);
+                  return { ...prev, [order.orderHistoryId]: Array.from(current) };
+                });
+              };
+
+              const getSelectedIds = () => Array.from(selectedByOrder[order.orderHistoryId] || []);
+
+              const resetSelection = () => setSelectedByOrder(prev => ({ ...prev, [order.orderHistoryId]: [] }));
+
+              const handleConfirm = async () => {
+                const selectedIds = getSelectedIds();
+                if (selectedIds.length === 0) {
+                  alert('구매확정할 상품을 선택하세요.');
+                  return;
+                }
+                try {
+                  await confirmOrder(order.orderHistoryId, selectedIds);
+                  alert('구매확정이 완료되었습니다.');
+                  resetSelection();
+                  setLoading(true);
+                  const res = await fetchMyOrders();
+                  setRows(Array.isArray(res) ? res : []);
+                } catch (e) {
+                  alert(e?.message || '구매확정 중 오류가 발생했습니다.');
+                } finally {
+                  setLoading(false);
+                }
+              };
+
+              const handleCancel = async () => {
+                const selectedIds = getSelectedIds();
+                if (selectedIds.length === 0) {
+                  alert('취소할 상품을 선택하세요.');
+                  return;
+                }
+                // 에코딜 상품은 취소 불가 처리
+                const ecoSelected = order.items.filter(p => selectedIds.includes(p.orderProductId)).some(p => String(p.ecoDealStatus).toUpperCase() === 'Y');
+                if (ecoSelected) {
+                  alert('에코딜 상품은 결제 후 취소가 불가능합니다.');
+                  return;
+                }
+                if (!window.confirm('선택한 상품을 취소하시겠습니까?')) return;
+                try {
+                  await cancelPartialOrder(order.orderHistoryId, selectedIds);
+                  alert('선택한 상품 취소가 완료되었습니다.');
+                  resetSelection();
+                  setLoading(true);
+                  const res = await fetchMyOrders();
+                  setRows(Array.isArray(res) ? res : []);
+                } catch (e) {
+                  alert(e?.message || '취소 처리 중 오류가 발생했습니다.');
+                } finally {
+                  setLoading(false);
+                }
+              };
+
               return (
                 <div
                   key={order.orderHistoryId}
@@ -300,9 +365,17 @@ export default function MyBuyHistory() {
                     {order.items.map((item, index) => (
                       <div
                         key={item.orderProductId || index}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-white/50 rounded-lg p-2 -m-2 transition-colors"
-                        onClick={() => navigate(`/shopping/main?detail=${item.productId}`)}
+                        className="flex items-center gap-3 hover:bg-white/50 rounded-lg p-2 -m-2 transition-colors"
                       >
+                        {headerStatus === 'PAID' ? (
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 accent-emerald-600 ml-2 mr-1"
+                            checked={selectedSet instanceof Set ? selectedSet.has(item.orderProductId) : (selectedSet || []).includes(item.orderProductId)}
+                            onChange={() => toggleSelect(item.orderProductId)}
+                            disabled={String(item.cancelStatus).toUpperCase() === 'Y'}
+                          />
+                        ) : null}
                         <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
@@ -312,7 +385,7 @@ export default function MyBuyHistory() {
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/shopping/main?detail=${item.productId}`)}>
                           <div className="font-medium text-gray-900 text-sm truncate">
                             {item.productName}
                           </div>
@@ -320,6 +393,9 @@ export default function MyBuyHistory() {
                             {item.quantity}개 • {currency(item.finalProductPrice || item.price)}
                           </div>
                         </div>
+                        {String(item.cancelStatus).toUpperCase() === 'Y' && (
+                          <span className="text-xs text-red-500 ml-auto">취소됨</span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -366,6 +442,24 @@ export default function MyBuyHistory() {
                       </div>
                     </div>
                   </div>
+
+                  {/* 액션 버튼: 결제완료 상태에서만 노출 */}
+                  {headerStatus === 'PAID' && (
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        onClick={handleCancel}
+                      >
+                        취소
+                      </button>
+                      <button
+                        className="flex-1 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                        onClick={handleConfirm}
+                      >
+                        구매확정
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
