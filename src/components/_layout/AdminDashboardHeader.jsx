@@ -14,6 +14,7 @@ const AdminHeader = () => {
         { name: "주문/상품", path: "/admin/dashboard/order-product" },
         { name: "PHTI", path: "/admin/dashboard/phti" },
         { name: "기부", path: "/admin/dashboard/donation" },
+        { name: "래플", path: "/admin/dashboard/raffle" },
     ];
 
     const handleLogout = async () => {

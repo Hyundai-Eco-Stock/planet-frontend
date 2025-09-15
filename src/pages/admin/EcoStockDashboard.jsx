@@ -24,31 +24,44 @@ const EcoStockDashboard = () => {
     const [summary, setSummary] = useState({
         totalIssued: 0,
         totalUsers: 0,
+        ecoStockTypes: 0,
         avgHolding: 0
     });
 
     useEffect(() => {
+        if (summary.totalIssued != 0 && summary.totalUsers != 0) {
+            setSummary((prev) => ({
+                ...prev,
+                avgHolding: Math.round(summary.totalIssued / summary.totalUsers),
+            }))
+        }
+    }, [summary.totalIssued, summary.totalUsers])
+
+    useEffect(() => {
         // 발급 비율 데이터 호출
         fetchEcoStockIssuePercentageData()
-            .then((res) => {
+            .then((data) => {
                 // index 순서대로 색상 부여
-                const itemsWithColor = res.data.items.map((item, idx) => ({
+                const itemsWithColor = data.items.map((item, idx) => ({
                     ...item,
                     color: COLORS[idx % COLORS.length],
                 }));
                 setStockIssueData(itemsWithColor);
-                setSummary((prev) => ({ ...prev, totalIssued: res.data.totalIssued }));
+                setSummary((prev) => ({ 
+                    ...prev, 
+                    totalIssued: data.totalIssued,
+                    ecoStockTypes: data.ecoStockTypes,
+                }));
             })
 
         // 보유 현황 데이터 호출
         fetchEcoStockHoldingAmountDataGroupByMember()
-            .then((res) => {
-                setUserDistributionData(res.data.items);
-                setSummary({
-                    totalIssued: res.data.totalIssued,
-                    totalUsers: res.data.totalUsers,
-                    avgHolding: res.data.avgHolding,
-                });
+            .then((data) => {
+                setUserDistributionData(data.items);
+                setSummary((prev) => ({
+                    ...prev, 
+                    totalUsers: data.totalUsers,
+                }));
             })
     }, []);
 
@@ -86,7 +99,7 @@ const EcoStockDashboard = () => {
             <div className="max-w-7xl mx-auto">
                 {/* 헤더 */}
                 <div className="mt-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코 스톡 (Eco Stock)</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">에코스톡 통계</h1>
                     <p className="text-gray-600">에코스톡 발급 현황, 사용자 보유 분포</p>
                 </div>
 
@@ -133,7 +146,7 @@ const EcoStockDashboard = () => {
                             <div>
                                 <p className="text-sm font-medium text-gray-500 mb-1">평균 보유량</p>
                                 <p className="text-2xl font-bold text-gray-900">
-                                    {Math.round(summary.totalIssued / summary.totalUsers).toLocaleString()}
+                                    {summary.avgHolding.toLocaleString()}
                                 </p>
                             </div>
                             <div className="bg-orange-100 p-3 rounded-full">
@@ -226,6 +239,7 @@ const EcoStockDashboard = () => {
                                         stroke="#6b7280"
                                         fontSize={12}
                                         label={{ value: '사용자 수', angle: -90, position: 'insideLeft' }}
+                                        allowDecimals={false}
                                     />
                                     <Tooltip content={<CustomBarTooltip />} />
                                     <Bar dataKey="userCount" radius={[4, 4, 0, 0]}>
@@ -262,35 +276,6 @@ const EcoStockDashboard = () => {
                     </div>
                 </div>
 
-                {/* 날짜별 필터 및 새로고침 */}
-                {/* <div className="mt-8 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 className="text-lg font-semibold text-gray-900">데이터 설정</h3>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="7">최근 7일</option>
-                                <option value="30">최근 30일</option>
-                                <option value="90">최근 90일</option>
-                                <option value="365">최근 1년</option>
-                            </select>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                                새로고침
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                        <div>
-                            <span className="font-medium">마지막 업데이트:</span> 2025년 9월 2일 14:30
-                        </div>
-                        <div>
-                            <span className="font-medium">데이터 기간:</span> 2025년 8월 1일 ~ 9월 2일
-                        </div>
-                        <div>
-                            <span className="font-medium">데이터 소스:</span> 실시간 DB 연동
-                        </div>
-                    </div>
-                </div> */}
             </div>
         </div>
     );
