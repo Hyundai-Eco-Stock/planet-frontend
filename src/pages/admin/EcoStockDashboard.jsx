@@ -239,6 +239,7 @@ const EcoStockDashboard = () => {
                                         stroke="#6b7280"
                                         fontSize={12}
                                         label={{ value: '사용자 수', angle: -90, position: 'insideLeft' }}
+                                        allowDecimals={false}
                                     />
                                     <Tooltip content={<CustomBarTooltip />} />
                                     <Bar dataKey="userCount" radius={[4, 4, 0, 0]}>

@@ -87,7 +87,7 @@ const RaffleDashboard = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={raffleData} layout="vertical" margin={{ top: 20, right: 30, left: 100, bottom: 20 }}>
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis type="number" />
+                                    <XAxis type="number" allowDecimals={false} />
                                     <YAxis dataKey="productName" type="category" />
                                     <Tooltip />
                                     <Bar dataKey="participants" name="응모 수">
@@ -122,7 +122,7 @@ const RaffleDashboard = () => {
                                         textAnchor="end"
                                         height={80}
                                     />
-                                    <YAxis />
+                                    <YAxis allowDecimals={false} />
                                     <Tooltip />
                                     <Legend />
                                     <Line type="monotone" dataKey="dailyParticipants" stroke="#10B981" name="응모 수" />
