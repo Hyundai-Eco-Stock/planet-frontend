@@ -10,6 +10,11 @@ export const localLogin = async (email, password) => {
 	return response.data;
 }
 
+export const checkEmailExist = async (email) => {
+	const response = await apiClient.post('/auth/check-email-exist', { email });
+	return response.data;
+}
+
 /**
  * 카카오 회원가입 후 회원가입 폼 내용과 함께 가입 요청
  * @param {String} email 
