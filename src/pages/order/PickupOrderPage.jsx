@@ -597,19 +597,19 @@ const PickupOrderPage = () => {
           onUpdate={handleUserInfoUpdate}
         />
 
+        {/* 기부 옵션 */}
+        <DonationForm
+          recommendedAmount={calculateRecommendedDonation()}
+          currentAmount={orderDraft.payment.donationAmount}
+          onUpdate={updateDonationAmount}
+        />
+
         {/* 포인트 사용 */}
         <PointUsageForm
           availablePoint={orderDraft.userPoint || 0}
           currentUsage={orderDraft.payment.pointUsage}
           maxUsage={(orderDraft.payment.productTotal || 0) + (orderDraft.payment.donationAmount || 0)}
           onUpdate={updatePointUsage}
-        />
-
-        {/* 기부 옵션 */}
-        <DonationForm
-          recommendedAmount={calculateRecommendedDonation()}
-          currentAmount={orderDraft.payment.donationAmount}
-          onUpdate={updateDonationAmount}
         />
 
         {/* 에코딜 경고 박스 */}
