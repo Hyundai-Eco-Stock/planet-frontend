@@ -239,7 +239,7 @@ const MyCarInfo = () => {
     );
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className=" bg-white">
             <main className="px-4 py-8 pb-24">
                 {/* 안내 메시지 */}
                 {!carInfoExist && (

@@ -6,7 +6,7 @@ const LayoutBack = () => {
     const [title, setTitle] = useState("");
 
     return (
-        <div className="m-auto max-w-xl min-h-screen flex flex-col">
+        <div className="m-auto max-w-xl flex flex-col">
             
             <HeaderWithLogo title={title} />
 
