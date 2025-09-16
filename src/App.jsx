@@ -96,6 +96,9 @@ import PhtiDashboard from '@/pages/admin/PhtiDashboard'
 import DonationDashboard from '@/pages/admin/DonationDashboard'
 import RaffleDashboard from '@/pages/admin/RaffleDashboard'
 
+import { useNotifications } from './hooks/fcm_notification/useNotifications'
+import { useEffect } from 'react'
+
 
 // -------------------------- 라우팅 끝 --------------------------
 
@@ -111,6 +114,12 @@ const OrderRedirect = () => {
 
 
 function App() {
+	const { requestToPermitPushNotification } = useNotifications();
+
+	useEffect(() => {
+		// 푸시 알림 허용 요청
+		requestToPermitPushNotification();
+	}, [])
 
 	return (
 		<Routes>
