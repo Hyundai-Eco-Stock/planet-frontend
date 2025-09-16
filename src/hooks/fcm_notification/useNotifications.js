@@ -22,7 +22,9 @@ export const useNotifications = () => {
 				try {
 					const registration = await navigator.serviceWorker.ready;
 					const token = await getToken(messaging, { serviceWorkerRegistration: registration, vapidKey: VAPID_KEY });
-					setPushEnabled(!!token);
+					if (token) {
+						setPushEnabled(true);
+					}
 				} catch (error) {
 					console.error("Error getting FCM token during initial sync:", error);
 					setPushEnabled(false);
@@ -37,14 +39,12 @@ export const useNotifications = () => {
 
 
 	const requestToPermitPushNotification = async () => {
-		if (pushEnabled) return;
-		
 		// 아직 브라우저 알림 권한 요청한 적 없을 때 허용 요청하기
 		if (Notification.permission === 'default') {
 			await Notification.requestPermission();
 		}
 
-		if (Notification.permission === 'granted') {
+		if (Notification.permission === 'granted' && !pushEnabled) {
 			Swal.fire({
 				title: '알림 설정',
 				text: '플래닛의 소식을 받아보시겠어요? 알림을 설정하면 에코딜, 래플 등 다양한 정보를 빠르게 얻을 수 있어요.',
@@ -67,6 +67,7 @@ export const useNotifications = () => {
 			"PushManager" in window &&
 			(window.location.protocol === "https:" || window.location.hostname === "localhost")
 		) {
+			setPushEnabled(true);
 			await requestForToken(); // 내부적으로 토큰 발급 및 서버 전송
 			await syncPushEnabledState(); // 토큰 발급 후 상태 재동기화
 		} else {
@@ -77,8 +78,8 @@ export const useNotifications = () => {
 	// 토큰 삭제
 	const revokePushToken = async () => {
 		try {
-			await deleteToken(messaging);
 			setPushEnabled(false);
+			await deleteToken(messaging);
 			console.log("푸시 알림 토큰 삭제 성공");
 		} catch (err) {
 			console.error("푸시 알림 토큰 삭제 실패:", err);

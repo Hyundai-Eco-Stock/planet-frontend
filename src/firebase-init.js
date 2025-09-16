@@ -27,21 +27,23 @@ export const VAPID_KEY = 'BOsr26EM7TknHD9EI7P8eJKhQopJEoi6RyJqy7od9G0-tgWhfd6ys_
 
 // 알림 권한 요청 및 토큰 가져오기
 export const requestForToken = async () => {
-    // console.log('FCM 토큰 요청 중...');
+    console.log('FCM 토큰 요청 중...');
     try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             const registration = await navigator.serviceWorker.ready;
+            console.log("1", registration)
             if (registration) {
                 const currentToken = await getToken(messaging, {
                     vapidKey: VAPID_KEY,
                     serviceWorkerRegistration: registration
                 });
-
+                console.log("currentToken: ", currentToken)
                 if (currentToken) {
                     console.log('현재 FCM 토큰:', currentToken);
                     // 백엔드에 등록 요청
-                    if (useAuthStore.getState().accessToken != null) {
+                    const loginStatus = useAuthStore.getState().loginStatus;
+                    if (loginStatus) {
                         registerFcmToken(currentToken);
                     }
                 } else {
