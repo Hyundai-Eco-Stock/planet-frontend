@@ -12,6 +12,28 @@ const EcoBadge = React.memo(() => (
   </span>
 ));
 
+const Dempartment = React.memo(({ id }) => {
+  const stores = [
+    "압구정 본점",
+    "무역센터점", 
+    "동대문점",
+    "신촌점"
+  ];
+  
+  // id를 기반으로 일관된 랜덤 선택
+  const storeIndex = id % stores.length;
+  const selectedStore = stores[storeIndex];
+  
+  return (
+    <span className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+      현대백화점 {selectedStore}
+    </span>
+  );
+});
+
 // 배지 생성 함수
 const generateProductBadges = (productName, price) => {
   const badgeOptions = [
@@ -138,6 +160,7 @@ export function ProductComponent({ items = [], loading = false, error = null, on
                     onClick={() => handleProductClick(p.productId)}
                   >
                     <EcoBadge />
+                    <Dempartment id={p.productId}/>
                     
                     {/* 할인 배지 */}
                     {salePercent > 0 && (
