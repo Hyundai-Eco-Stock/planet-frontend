@@ -81,3 +81,9 @@ export const sendFoodDealNotification = async () => {
 	const response = await apiClient.post("/admin/notification/food-deal")
 	return response.data;
 }
+
+// 텀블러 사용 에코스톡 발급 알림 전송
+export const sendTumblerUseNotification = async () => {
+	const response = await apiClient.post("/admin/notification/tumbler-use")
+	return response.data;
+}

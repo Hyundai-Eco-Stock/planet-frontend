@@ -1,4 +1,4 @@
-import { testNotification, fetch7DayOrderCount, fetchCategorySalesCount, sendFoodDealNotification } from "@/api/admin/admin.api";
+import { testNotification, fetch7DayOrderCount, fetchCategorySalesCount, sendFoodDealNotification, sendTumblerUseNotification } from "@/api/admin/admin.api";
 import { useNavigate } from "react-router-dom";
 import {
     Shield,
@@ -105,9 +105,17 @@ const AdminHome = () => {
         },
         {
             key: "car",
-            title: "[시연용] 차량 입차 알림 전송",
+            title: "[시연용] 텀블러 사용 알림 전송",
             subtitle: "푸시/토스트",
             Icon: Bell,
+            gradient: "from-fuchsia-500 to-rose-500",
+            onClick: () => sendTumblerUseNotification(),
+        },
+        {
+            key: "car",
+            title: "[시연용] 차량 입차 알림 전송",
+            subtitle: "푸시/토스트",
+            Icon: CarFront,
             gradient: "from-fuchsia-500 to-rose-500",
             onClick: () => createCarEnterHistory("157더6629"),
         },
@@ -115,7 +123,7 @@ const AdminHome = () => {
             key: "car",
             title: "[시연용] 차량 출차 알림 전송",
             subtitle: "푸시/토스트",
-            Icon: Bell,
+            Icon: CarFront,
             gradient: "from-fuchsia-500 to-rose-500",
             onClick: () => createCarExitHistory("157더6629"),
         },
