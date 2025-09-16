@@ -190,7 +190,7 @@ const PaymentSuccessPage = () => {
           </svg>
         </div>
 
-        <h1 className="text-xl font-bold text-gray-900 mb-2">결제요청 처리완료</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">결제 완료</h1>
       </div>
 
       {/* 구분선 */}
