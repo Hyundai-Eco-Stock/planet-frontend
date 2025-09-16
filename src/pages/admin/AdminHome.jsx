@@ -1,4 +1,4 @@
-import { testNotification, fetch7DayOrderCount, fetchCategorySalesCount } from "@/api/admin/admin.api";
+import { testNotification, fetch7DayOrderCount, fetchCategorySalesCount, sendFoodDealNotification } from "@/api/admin/admin.api";
 import { useNavigate } from "react-router-dom";
 import {
     Shield,
@@ -26,6 +26,7 @@ import {
     BarChart,
     Bar
 } from "recharts";
+import { createCarEnterHistory, createCarExitHistory } from "@/api_department_core_backend/car/carAccessHistory.api";
 
 
 const AdminHome = () => {
@@ -88,11 +89,35 @@ const AdminHome = () => {
         },
         {
             key: "notify",
-            title: "알림 테스트",
+            title: "전체 알림 테스트",
             subtitle: "푸시/토스트",
             Icon: Bell,
             gradient: "from-fuchsia-500 to-rose-500",
             onClick: () => testNotification(),
+        },
+        {
+            key: "notify",
+            title: "[시연용] 푸드딜 알림 전송",
+            subtitle: "푸시/토스트",
+            Icon: Bell,
+            gradient: "from-fuchsia-500 to-rose-500",
+            onClick: () => sendFoodDealNotification(),
+        },
+        {
+            key: "car",
+            title: "[시연용] 차량 입차 알림 전송",
+            subtitle: "푸시/토스트",
+            Icon: Bell,
+            gradient: "from-fuchsia-500 to-rose-500",
+            onClick: () => createCarEnterHistory("157더6629"),
+        },
+        {
+            key: "car",
+            title: "[시연용] 차량 출차 알림 전송",
+            subtitle: "푸시/토스트",
+            Icon: Bell,
+            gradient: "from-fuchsia-500 to-rose-500",
+            onClick: () => createCarExitHistory("157더6629"),
         },
     ];
 

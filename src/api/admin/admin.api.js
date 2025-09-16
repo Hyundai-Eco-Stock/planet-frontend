@@ -2,12 +2,12 @@ import apiClient from "@/api/_base/apiClient";
 
 export const fetchEcoStockIssuePercentageData = async () => {
 	const response = await apiClient.get("/admin/eco-stock-issue-percentage");
-	return response;
+	return response.data;
 }
 
 export const fetchEcoStockHoldingAmountDataGroupByMember = async () => {
 	const response = await apiClient.get("/admin/eco-stock-issue-holdings");
-	return response;
+	return response.data;
 }
 
 // 일별 주문/매출
@@ -46,21 +46,38 @@ export const fetchDonatorPercentage = async () => {
 	return response.data;
 };
 
-export const testNotification = async () => {
-	const response  = await apiClient.post("/admin/notification/test")
+// 래플별 래플 참여 현황
+export const fetchRaffleParticipationByRaffle = async () => {
+	const response = await apiClient.get("/admin/raffles-participation-by-raffle");
 	return response.data;
-}
+};
+
+// 일자별 래플 참여 현황
+export const fetchRaffleParticipationByDay = async () => {
+	const response = await apiClient.get("/admin/raffle-participation-by-day");
+	return response.data;
+};
 
 // 최근 7일 주문량
 export const fetch7DayOrderCount = async () => {
-	const response  = await apiClient.get("/admin/7days-order-count")
+	const response = await apiClient.get("/admin/7days-order-count")
 	console.log(response.data);
 	return response.data;
 }
 
 // 카테고리별 매출
 export const fetchCategorySalesCount = async () => {
-	const response  = await apiClient.get("/admin/category-sales")
+	const response = await apiClient.get("/admin/category-sales")
 	console.log(response.data);
+	return response.data;
+}
+// 테스트 알림 전송
+export const testNotification = async () => {
+	const response = await apiClient.post("/admin/notification/test")
+	return response.data;
+}
+// 푸드딜 알림 전송
+export const sendFoodDealNotification = async () => {
+	const response = await apiClient.post("/admin/notification/food-deal")
 	return response.data;
 }
