@@ -22,7 +22,9 @@ export const useNotifications = () => {
 				try {
 					const registration = await navigator.serviceWorker.ready;
 					const token = await getToken(messaging, { serviceWorkerRegistration: registration, vapidKey: VAPID_KEY });
-					setPushEnabled(!!token);
+					if (token) {
+						setPushEnabled(true);
+					}
 				} catch (error) {
 					console.error("Error getting FCM token during initial sync:", error);
 					setPushEnabled(false);
@@ -67,7 +69,7 @@ export const useNotifications = () => {
 		) {
 			setPushEnabled(true);
 			await requestForToken(); // 내부적으로 토큰 발급 및 서버 전송
-			// await syncPushEnabledState(); // 토큰 발급 후 상태 재동기화
+			await syncPushEnabledState(); // 토큰 발급 후 상태 재동기화
 		} else {
 			alert("HTTPS 환경이 아니거나 Push API를 지원하지 않아 알림을 요청할 수 없습니다.");
 		}

@@ -121,7 +121,7 @@ function App() {
 	useEffect(() => {
 		// 푸시 알림 허용 요청
 		if (loginStatus) requestToPermitPushNotification();
-	}, [loginStatus])
+	}, [])
 
 	return (
 		<Routes>
