@@ -225,8 +225,8 @@ export default function EcoDealReservation() {
           <button
             onClick={() => setFilter("all")}
             className={`py-3 rounded-xl text-sm font-medium transition-all duration-200 ${filter === "all"
-                ? "bg-gray-900 text-white shadow-md"
-                : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
+              ? "bg-gray-900 text-white shadow-md"
+              : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
               }`}
           >
             전체 {counts.all}
@@ -234,8 +234,8 @@ export default function EcoDealReservation() {
           <button
             onClick={() => setFilter("ready")}
             className={`py-3 rounded-xl text-sm font-medium transition-all duration-200 ${filter === "ready"
-                ? "bg-amber-500 text-white shadow-md"
-                : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
+              ? "bg-amber-500 text-white shadow-md"
+              : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
               }`}
           >
             대기 {counts.ready}
@@ -243,8 +243,8 @@ export default function EcoDealReservation() {
           <button
             onClick={() => setFilter("completed")}
             className={`py-3 rounded-xl text-sm font-medium transition-all duration-200 ${filter === "completed"
-                ? "bg-emerald-500 text-white shadow-md"
-                : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
+              ? "bg-emerald-500 text-white shadow-md"
+              : "bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200/50"
               }`}
           >
             픽업완료 {counts.completed}
@@ -347,34 +347,40 @@ function OrderCard({ order, onOpenQr, onNavigate }) {
   return (
     <section className="bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl overflow-hidden hover:shadow-lg hover:bg-white/90 transition-all duration-300">
       {/* 헤더 */}
-      <header className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">
+      <header className="px-4 py-3 border-b border-gray-100">
+        {/* 첫 번째 줄: 주문번호 + 날짜 + QR버튼 */}
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1 mr-3">
+            <span className="text-sm font-medium text-gray-700 truncate">
               주문번호 {formatOrderNumber(order.orderNumber)}
             </span>
-            <span className="text-gray-300">•</span>
-            <span className="text-xs text-gray-500">{order.createdAt}</span>
+            <span className="text-gray-300 flex-shrink-0 hidden sm:inline">•</span>
+            <span className="text-xs text-gray-500 whitespace-nowrap hidden sm:inline">{order.createdAt}</span>
           </div>
-          <div className="mt-1">
-            <StatusPill {...badge} />
+
+          <div className="flex-shrink-0">
+            {isCompleted ? null : order.ecoDealQrUrl ? (
+              <button
+                type="button"
+                onClick={() => onOpenQr(order.ecoDealQrUrl)}
+                className="inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-semibold border border-gray-900 text-gray-900 hover:bg-gray-50 whitespace-nowrap"
+              >
+                QR 보기
+              </button>
+            ) : (
+              <span className="inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-semibold border border-gray-200 text-gray-500 bg-gray-50 whitespace-nowrap">
+                QR 미발급
+              </span>
+            )}
           </div>
         </div>
 
-        <div>
-          {isCompleted ? null : order.ecoDealQrUrl ? (
-            <button
-              type="button"
-              onClick={() => onOpenQr(order.ecoDealQrUrl)}
-              className="inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-semibold border border-gray-900 text-gray-900 hover:bg-gray-50"
-            >
-              QR 보기
-            </button>
-          ) : (
-            <span className="inline-flex items-center justify-center h-9 px-3 rounded-lg text-sm font-semibold border border-gray-200 text-gray-500 bg-gray-50">
-              QR 미발급
-            </span>
-          )}
+        {/* 두 번째 줄: 날짜(모바일에서만) + 상태 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 sm:hidden">{order.createdAt}</span>
+            <StatusPill {...badge} />
+          </div>
         </div>
       </header>
 

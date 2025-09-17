@@ -13,7 +13,6 @@ const MyPageMain = () => {
     const name = useAuthStore((s) => s.name);
     const loginStatus = useAuthStore((s) => s.loginStatus);
     const [phtiResult, setPhtiResult] = useState(null);
-    const [isProfileFront, setIsProfileFront] = useState(true);
 
     const { revokePushToken } = useNotifications();
 
@@ -40,22 +39,6 @@ const MyPageMain = () => {
 
     const goToLogin = () => {
         navigate("/login");
-    };
-
-    const handleProfileSwitch = () => {
-        setIsProfileFront(!isProfileFront);
-    };
-
-    // PHTI별 컬러 매핑 - 4가지 타입으로 수정
-    const getPhtiColors = (primaryPhti) => {
-        const phtiPrefix = primaryPhti.substring(0, 2).toUpperCase();
-        const colorMap = {
-            'EG': { primary: 'green-500', secondary: 'green-300', gradient: 'from-green-200 to-green-100' },
-            'EP': { primary: 'purple-500', secondary: 'purple-300', gradient: 'from-purple-200 to-purple-100' },
-            'CG': { primary: 'emerald-500', secondary: 'emerald-300', gradient: 'from-emerald-200 to-emerald-100' },
-            'CP': { primary: 'violet-500', secondary: 'violet-300', gradient: 'from-violet-200 to-violet-100' },
-        };
-        return colorMap[phtiPrefix] || { primary: 'gray-500', secondary: 'gray-300', gradient: 'from-gray-200 to-gray-100' };
     };
 
     const quickActions = [
@@ -113,77 +96,17 @@ const MyPageMain = () => {
         }
     ];
 
-    // PHTI 캐릭터 이미지 경로 생성
-    const getPhtiCharacterImage = (primaryPhti) => {
-        if (!primaryPhti) return null;
-        return `/src/assets/phti/${primaryPhti.toLowerCase()}.png`;
-    };
-
-    const phtiColors = phtiResult?.primaryPhti ? getPhtiColors(phtiResult.primaryPhti) : null;
-
     return (
         <div className="min-h-screen bg-white relative">
             {/* 프로필 헤더 */}
             <div className="bg-white px-4 py-8">
                 {loginStatus ? (
                     <div className="flex flex-col items-center text-center">
-                        <div className={`relative ${phtiResult?.primaryPhti ? 'mb-6' : 'mb-2'}`}>
-                            {phtiResult?.primaryPhti ? (
-                                <div
-                                    className="w-32 h-32 relative cursor-pointer"
-                                    onClick={handleProfileSwitch}
-                                >
-                                    {/* 배경 그라데이션 효과 */}
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${phtiColors.gradient} rounded-full blur-xl scale-110 opacity-30`}></div>
-
-                                    {/* 프로필 */}
-                                    <div className={`absolute inset-0 transition-all duration-500 ${isProfileFront
-                                        ? 'z-20 scale-100 opacity-100'
-                                        : 'z-10 scale-95 opacity-40 rotate-3'
-                                        }`}>
-                                        {/* 프로필 그림자 효과 */}
-                                        {isProfileFront && (
-                                            <div className={`absolute inset-0 bg-${phtiColors.primary} rounded-full blur-sm scale-105 opacity-20`}></div>
-                                        )}
-                                        <ProfileButton size="extra-large" />
-                                    </div>
-
-                                    {/* PHTI 캐릭터 */}
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${phtiColors.gradient} rounded-full shadow-lg border-2 border-${phtiColors.secondary} flex items-center justify-center transition-all duration-500 ${!isProfileFront
-                                        ? 'z-20 scale-100 opacity-100'
-                                        : 'z-10 scale-95 opacity-40 -rotate-3'
-                                        }`}>
-                                        {/* 캐릭터 뒤 그라데이션 배경 */}
-                                        <div className={`absolute inset-0 bg-gradient-to-br from-white/80 to-${phtiColors.secondary}/20 rounded-full`}></div>
-
-                                        {/* 캐릭터 그림자 효과 */}
-                                        {!isProfileFront && (
-                                            <div className="absolute inset-0 bg-gray-400 rounded-full blur-sm scale-105 opacity-20"></div>
-                                        )}
-
-                                        <img
-                                            src={getPhtiCharacterImage(phtiResult.primaryPhti)}
-                                            alt={`PHTI ${phtiResult.primaryPhti}`}
-                                            className="w-20 h-20 object-contain relative z-10 drop-shadow-sm"
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                            }}
-                                        />
-                                    </div>
-
-                                    {/* 스위치 힌트 */}
-                                    <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
-                                        탭하여 전환
-                                    </div>
-                                </div>
-                            ) : (
-                                // PHTI가 없을 때: 프로필만 표시
-                                <div className="w-32 h-32 relative mb-6">
-                                    {/* 기본 배경 효과 */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-100 rounded-full blur-xl scale-110 opacity-30"></div>
-                                    <ProfileButton size="extra-large" />
-                                </div>
-                            )}
+                        {/* 단순한 프로필 사진만 표시 */}
+                        <div className="w-32 h-32 relative mb-6">
+                            {/* 기본 배경 효과 */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-200 to-emerald-100 rounded-full blur-xl scale-110 opacity-30"></div>
+                            <ProfileButton size="extra-large" />
                         </div>
 
                         <div className="text-base font-bold text-gray-900 mb-1">

@@ -122,29 +122,30 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
+      {/* 포인트 사용하기 체크박스 - 반응형 처리 */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
         <div className="flex items-center">
           <input
             type="checkbox"
             id="usePoints"
             checked={usePoints}
             onChange={(e) => handleUsePointsToggle(e.target.checked)}
-            className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+            className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 flex-shrink-0"
           />
-          <label htmlFor="usePoints" className="ml-2 text-gray-700">포인트 사용하기</label>
+          <label htmlFor="usePoints" className="ml-2 text-gray-700 whitespace-nowrap">포인트 사용하기</label>
         </div>
 
         <div className="text-xs text-orange-600">
           최대 {maxUsablePoint.toLocaleString()}P까지 사용 가능
           {availablePointSafe > maxUsageSafe && (
-            <span className="text-gray-400 ml-1">(최소 {MIN_PAYMENT_AMOUNT}원 결제 필요)</span>
+            <span className="text-gray-400 ml-1 block sm:inline">(최소 {MIN_PAYMENT_AMOUNT}원 결제 필요)</span>
           )}
         </div>
       </div>
 
       {/* 포인트 입력 영역 */}
       <div className="space-y-4">
-        {/* 포인트 입력 */}
+        {/* 포인트 입력 - 중앙 정렬 */}
         <div className="flex items-center space-x-2">
           <div className="flex-1 relative">
             <input
@@ -156,19 +157,19 @@ const PointUsageForm = ({ availablePoint, currentUsage, maxUsage, onUpdate }) =>
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
               disabled={!usePoints}
-              className={`w-full px-3 py-2 pr-8 border rounded-lg text-right ${usePoints
+              className={`w-full px-3 py-2 pr-8 border rounded-lg text-right placeholder:text-center ${usePoints
                 ? 'border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white'
                 : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                 }`}
               placeholder="0"
             />
-            <span className={`absolute right-3 top-2 text-sm ${usePoints ? 'text-gray-500' : 'text-gray-400'}`}>P</span>
+            <span className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-sm ${usePoints ? 'text-gray-500' : 'text-gray-400'}`}>P</span>
           </div>
 
           <button
             onClick={useAllPoints}
             disabled={!usePoints || maxUsablePoint === 0 || isAllPointsUsed}
-            className={`px-4 py-2 border rounded-lg text-sm ${usePoints && !isAllPointsUsed
+            className={`px-4 py-2 border rounded-lg text-sm whitespace-nowrap ${usePoints && !isAllPointsUsed
               ? 'text-green-600 border-green-600 hover:bg-green-50'
               : 'text-gray-400 border-gray-300 cursor-not-allowed'
               }`}
