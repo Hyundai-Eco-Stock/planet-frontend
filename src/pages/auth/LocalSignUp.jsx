@@ -226,8 +226,8 @@ const LocalSignUp = () => {
 
                     <div className="space-y-6">
                         {/* 이메일 */}
-                        <div className="w-full flex gap-1 items-end">
-                            <div className="flex-1">
+                        <div className="w-full flex gap-2 items-end">
+                            <div className="flex-1 min-w-0">
                                 <InputField
                                     label="이메일"
                                     type="email"
@@ -238,9 +238,10 @@ const LocalSignUp = () => {
                                 />
                             </div>
                             <button className="
-                                w-[6rem] h-[3.2rem] rounded-xl 
+                                w-20 h-12 rounded-xl text-xs
                                 text-white font-semibold
                                 bg-emerald-500 hover:bg-emerald-600
+                                flex-shrink-0 whitespace-nowrap
                             "
                                 onClick={handleEmailDuplicateCheckBtn}
                             >
@@ -424,26 +425,30 @@ const LocalSignUp = () => {
                             </div>
                         </div>
 
-                        {/* 주소 */}
+                        {/* 주소 - 반응형 개선 */}
                         <div className="mb-12">
                             <label className="block text-sm font-semibold text-gray-900 mb-3">기본 배송지</label>
                             <div className="space-y-3">
-                                <div className="flex gap-3">
+                                {/* 우편번호 + 주소 검색 버튼 */}
+                                <div className="flex gap-2 items-start">
                                     <input
                                         type="text"
                                         value={zonecode}
                                         placeholder="우편번호"
                                         readOnly
-                                        className="flex-1 py-3 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 placeholder-gray-400"
+                                        className="flex-1 min-w-0 py-3 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 placeholder-gray-400"
                                     />
-                                    <DaumPostcode
-                                        onComplete={({ zonecode, address }) => {
-                                            setZonecode(zonecode);
-                                            setAddress(address);
-                                        }}
-                                    />
+                                    <div className="flex-shrink-0">
+                                        <DaumPostcode
+                                            onComplete={({ zonecode, address }) => {
+                                                setZonecode(zonecode);
+                                                setAddress(address);
+                                            }}
+                                        />
+                                    </div>
                                 </div>
 
+                                {/* 기본 주소 */}
                                 <input
                                     type="text"
                                     value={address}
@@ -452,6 +457,7 @@ const LocalSignUp = () => {
                                     className="w-full py-3 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 placeholder-gray-400"
                                 />
 
+                                {/* 상세 주소 */}
                                 <input
                                     type="text"
                                     value={detailAddress}
