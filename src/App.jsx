@@ -99,6 +99,7 @@ import RaffleDashboard from '@/pages/admin/RaffleDashboard'
 import { useNotifications } from '@/hooks/fcm_notification/useNotifications'
 import { useEffect } from 'react'
 import useAuthStore from '@/store/authStore'
+import About from './pages/home/About'
 
 
 // -------------------------- 라우팅 끝 --------------------------
@@ -142,6 +143,7 @@ function App() {
 				{/* 쇼핑 헤더와 푸터 있는 Layout (헤더 + 푸터) */}
 				<Route element={<LayoutShopping />}>
 					<Route path="/home/main" element={<HomeMain />} />
+					<Route path="/about" element={<About />} />
 					<Route path="/shopping/main" element={<ShoppingMain />} />
 					<Route path='/eco-deal/main' element={<EcoDealMain />} />
 				</Route>
