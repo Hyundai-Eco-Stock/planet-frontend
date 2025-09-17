@@ -19,12 +19,27 @@ const StockSellModal = ({
   }, [isOpen, stock.quantity]);
 
   const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value) || 0;
-    setSellQuantity(value);
+    let value = e.target.value;
     
-    if (value <= 0) {
+    // 빈 문자열이면 0으로 처리
+    if (value === '') {
+      setSellQuantity(0);
       setError('올바른 수량을 입력해주세요');
-    } else if (value > stock.quantity) {
+      return;
+    }
+    
+    // 숫자가 아닌 문자 제거
+    value = value.replace(/[^0-9]/g, '');
+    
+    // 맨 앞의 0들 제거 (단, "0"만 있는 경우는 제외)
+    value = value.replace(/^0+/, '') || '0';
+    
+    const numValue = parseInt(value) || 0;
+    setSellQuantity(numValue);
+    
+    if (numValue <= 0) {
+      setError('올바른 수량을 입력해주세요');
+    } else if (numValue > stock.quantity) {
       setError(`최대 ${stock.quantity}주까지 판매 가능합니다`);
     } else {
       setError('');
@@ -73,12 +88,12 @@ const StockSellModal = ({
             
             <div className="relative">
               <input
-                type="number"
-                min="1"
-                max={stock.quantity}
-                value={sellQuantity}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={sellQuantity === 0 ? '' : sellQuantity}
                 onChange={handleQuantityChange}
-                className="w-full p-4 border border-gray-200 rounded-xl text-center text-xl font-semibold focus:outline-none focus:border-emerald-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full p-4 border border-gray-200 rounded-xl text-center text-xl font-semibold focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="수량 입력"
               />
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">
