@@ -51,7 +51,7 @@ const ReceiptBarcodeScanner = ({ running, onDetected }) => {
             try {
                 streamRef.current = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: { ideal: "user" },
+                        facingMode: { ideal: "environment" },
                         width: { min: 640, ideal: 1280 },
                         height: { min: 480, ideal: 720 },
                     },
