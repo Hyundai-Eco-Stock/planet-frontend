@@ -80,7 +80,7 @@ export default defineConfig({
           //   type: 'image/png'
           // },
           {
-            src: '/planet-logo-512-maskable.png',
+            src: '/planet-logo-512-maskable-1.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'

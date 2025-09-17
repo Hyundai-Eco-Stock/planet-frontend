@@ -7,7 +7,6 @@ import { useNotifications } from '@/hooks/fcm_notification/useNotifications';
 const LoginSuccess = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { requestToPermitPushNotification } = useNotifications();
 
     // 1) 쿼리 파라미터 읽기
     const queryParams = new URLSearchParams(location.search);
@@ -28,8 +27,7 @@ const LoginSuccess = () => {
             useAuthStore.getState().setName(name);
             useAuthStore.getState().setAccessToken(accessToken);
             useAuthStore.getState().setRole(role);
-            // 푸시 알림 허용 요청
-            requestToPermitPushNotification();
+
             // URL에서 토큰 흔적 제거 후 이동
             window.history.replaceState({}, "", "/login/success");
             // signUpStatus에 따라 페이지 이동

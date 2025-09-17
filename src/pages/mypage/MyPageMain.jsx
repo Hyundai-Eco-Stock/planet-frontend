@@ -6,12 +6,15 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { ProfileButton } from "@/components/auth/ProfileButtons";
 import { logout } from "@/api/auth/auth.api";
 import { fetchMemberPhtiResult } from "@/api/member/member.api";
+import { useNotifications } from "@/hooks/fcm_notification/useNotifications";
 
 const MyPageMain = () => {
     const navigate = useNavigate();
     const name = useAuthStore((s) => s.name);
     const loginStatus = useAuthStore((s) => s.loginStatus);
     const [phtiResult, setPhtiResult] = useState(null);
+
+    const { revokePushToken } = useNotifications();
 
     useEffect(() => {
         const fetchPhtiResult = async () => {
@@ -30,6 +33,7 @@ const MyPageMain = () => {
     const handleLogout = async () => {
         await logout();
         useAuthStore.getState().clearAuth();
+        await revokePushToken();
         navigate("/my-page/main", { replace: true });
     };
 
