@@ -8,35 +8,43 @@ const StockSellModal = ({
   onConfirm,
   formatCurrency 
 }) => {
-  const [sellQuantity, setSellQuantity] = useState(stock.quantity || 0);
+  const [sellQuantity, setSellQuantity] = useState(
+    stock.quantity ? String(stock.quantity) : ''
+  );
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      setSellQuantity(stock.quantity || 0);
+      setSellQuantity(stock.quantity ? String(stock.quantity) : '');
       setError('');
     }
   }, [isOpen, stock.quantity]);
 
   const handleQuantityChange = (e) => {
     let value = e.target.value;
-    
-    // 빈 문자열이면 0으로 처리
+
+    // 입력이 비어 있으면 상태만 비웁니다.
     if (value === '') {
-      setSellQuantity(0);
-      setError('올바른 수량을 입력해주세요');
+      setSellQuantity('');
+      setError('');
       return;
     }
-    
+
     // 숫자가 아닌 문자 제거
     value = value.replace(/[^0-9]/g, '');
-    
+
+    if (value === '') {
+      setSellQuantity('');
+      setError('');
+      return;
+    }
+
     // 맨 앞의 0들 제거 (단, "0"만 있는 경우는 제외)
     value = value.replace(/^0+/, '') || '0';
-    
-    const numValue = parseInt(value) || 0;
-    setSellQuantity(numValue);
-    
+
+    const numValue = parseInt(value, 10) || 0;
+    setSellQuantity(value);
+
     if (numValue <= 0) {
       setError('올바른 수량을 입력해주세요');
     } else if (numValue > stock.quantity) {
@@ -47,13 +55,16 @@ const StockSellModal = ({
   };
 
   const handleConfirm = () => {
-    if (error || sellQuantity <= 0 || sellQuantity > stock.quantity) {
+    const numValue = sellQuantity ? parseInt(sellQuantity, 10) : 0;
+
+    if (error || numValue <= 0 || numValue > stock.quantity) {
       return;
     }
-    onConfirm(sellQuantity);
+    onConfirm(numValue);
   };
 
-  const expectedPoints = sellQuantity * (stock.currentPrice || 0);
+  const numericSellQuantity = sellQuantity ? parseInt(sellQuantity, 10) : 0;
+  const expectedPoints = numericSellQuantity * (stock.currentPrice || 0);
 
   if (!isOpen) return null;
 
@@ -91,7 +102,7 @@ const StockSellModal = ({
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                value={sellQuantity === 0 ? '' : sellQuantity}
+                value={sellQuantity}
                 onChange={handleQuantityChange}
                 className="w-full p-4 border border-gray-200 rounded-xl text-center text-xl font-semibold focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="수량 입력"
@@ -133,7 +144,7 @@ const StockSellModal = ({
           </button>
           <button
             onClick={handleConfirm}
-            disabled={!!error || sellQuantity <= 0}
+            disabled={!!error || numericSellQuantity <= 0}
             className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:text-gray-500 text-white font-semibold rounded-xl transition-colors"
           >
             교환하기
