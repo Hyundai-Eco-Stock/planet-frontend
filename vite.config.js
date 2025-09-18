@@ -15,9 +15,8 @@ export default defineConfig({
       strategies: 'injectManifest',
       injectRegister: 'auto',
       type: 'module',
-      strategies: 'injectManifest',
       injectManifest: {
-        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 5MB 제한으로 늘리기
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB 제한으로 늘리기
       },
       manifest: {
         name: 'planet',
