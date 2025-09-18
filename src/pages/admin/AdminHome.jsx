@@ -1,3 +1,4 @@
+import useAuthStore from "@/store/authStore";
 import { testNotification, fetch7DayOrderCount, fetchCategorySalesCount, sendFoodDealNotification, sendTumblerUseNotification } from "@/api/admin/admin.api";
 import { useNavigate } from "react-router-dom";
 import {
@@ -33,6 +34,8 @@ const AdminHome = () => {
     const navigate = useNavigate();
     const [weeklyOrders, setWeeklyOrders] = useState([]);
     const [categorySales, setCategorySales] = useState([]);
+    const { role } = useAuthStore();
+
 
     useEffect(() => {
         const load = async () => {
@@ -60,7 +63,7 @@ const AdminHome = () => {
         };
         load();
     }, []);
-    
+
 
     const cards = [
         {
@@ -89,7 +92,7 @@ const AdminHome = () => {
         },
         {
             key: "notify",
-            title: "전체 알림 테스트",
+            title: "알림 테스트",
             subtitle: "푸시/토스트",
             Icon: Bell,
             gradient: "from-fuchsia-500 to-rose-500",
@@ -97,7 +100,7 @@ const AdminHome = () => {
         },
         {
             key: "notify",
-            title: "[시연용] 푸드딜 알림 전송",
+            title: "시연용 푸드딜 알림 전송",
             subtitle: "푸시/토스트",
             Icon: Bell,
             gradient: "from-fuchsia-500 to-rose-500",
@@ -105,7 +108,7 @@ const AdminHome = () => {
         },
         {
             key: "car",
-            title: "[시연용] 텀블러 사용 알림 전송",
+            title: "시연용 텀블러 알림 전송",
             subtitle: "푸시/토스트",
             Icon: Bell,
             gradient: "from-fuchsia-500 to-rose-500",
@@ -113,7 +116,7 @@ const AdminHome = () => {
         },
         {
             key: "car",
-            title: "[시연용] 차량 입차 알림 전송",
+            title: "시연용 차량 입차 알림 전송",
             subtitle: "푸시/토스트",
             Icon: CarFront,
             gradient: "from-fuchsia-500 to-rose-500",
@@ -121,7 +124,7 @@ const AdminHome = () => {
         },
         {
             key: "car",
-            title: "[시연용] 차량 출차 알림 전송",
+            title: "시연용 차량 출차 알림 전송",
             subtitle: "푸시/토스트",
             Icon: CarFront,
             gradient: "from-fuchsia-500 to-rose-500",
@@ -243,6 +246,19 @@ const AdminHome = () => {
                     </ResponsiveContainer>
                 </div>
             </div>
+            {
+                role == 'ADMIN' &&
+                <div className="
+                    w-16 h-16 rounded-full
+                    bg-black text-white text-center
+                    flex items-center justify-center
+                    fixed bottom-4 right-4
+                "
+                    onClick={() => { navigate("/home/main") }}
+                >
+                    유저<br />페이지
+                </div>
+            }
         </div>
     );
 };

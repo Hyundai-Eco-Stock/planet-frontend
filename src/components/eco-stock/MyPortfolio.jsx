@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePersonalStockInfo, useStockCalculations, useStockSell, formatCurrency, formatPercent } from '@/hooks/eco-stock/usePortfolio';
+import { usePersonalStockInfo, useStockCalculations, useStockSell, formatCurrency, formatPercent, formatNumericCurrency } from '@/hooks/eco-stock/usePortfolio';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import StockSellModal from './StockSellModal';
@@ -8,11 +8,11 @@ import EsgCertificateModal from './EsgCertificateModal';
 const MyPortfolio = ({ currentData, stockInfo, onSell }) => {
     const navigate = useNavigate();
     const [isEsgModalOpen, setIsEsgModalOpen] = useState(false);
-    
+
     // 커스텀 훅들
     const { memberStockInfo, isLoading: dataLoading, refetch } = usePersonalStockInfo(stockInfo?.id);
     const stock = useStockCalculations(currentData, memberStockInfo, dataLoading);
-const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = useStockSell(stockInfo, stock, onSell, refetch);
+    const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = useStockSell(stockInfo, stock, onSell, refetch);
     const { loginStatus } = useAuthStore.getState();
     const isProfit = stock.profitLoss >= 0;
 
@@ -34,7 +34,7 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
     const handleLoginRedirect = () => {
         navigate('/login');
     };
-    
+
     // 로딩 상태
     if (!currentData || dataLoading) {
         return (
@@ -85,7 +85,7 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                         )}
                     </div>
                 </div>
-                
+
                 {/* ESG 인증 모달 */}
                 <EsgCertificateModal
                     isOpen={isEsgModalOpen}
@@ -97,8 +97,8 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
     }
 
     return (
-        <div className="bg-white border-t border-gray-200 p-4">
-            <div className="max-w-4xl mx-auto">
+        <div className="bg-white border-t border-gray-200 py-4">
+            <div className="max-w-xl mx-auto">
                 {/* 보유 정보 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div className="text-center md:text-left">
@@ -115,10 +115,12 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                     </div>
                     <div className="text-center md:text-left">
                         <p className="text-sm text-gray-600 mb-1">손익</p>
-                        <div className={`flex items-center justify-center md:justify-start ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
-                            <span className="mr-1">{isProfit ? '▲' : '▼'}</span>
-                            <span className="font-bold text-sm">
-                                {formatCurrency(Math.abs(stock.profitLoss))} ({formatPercent(stock.profitPercent)})
+                        <div className={`flex flex-col items-center justify-center md:justify-start ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
+                            <span className="mr-1">
+                                {isProfit ? '▲' : '▼'} {formatCurrency(Math.abs(stock.profitLoss))} 포인트
+                            </span>
+                            <span className="font-bold">
+                                ({formatPercent(stock.profitPercent)})
                             </span>
                         </div>
                     </div>
@@ -129,18 +131,20 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                 </div>
 
                 {/* 상세 정보 */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                     <div className="flex justify-between py-1">
-                        <span className="text-gray-600">현재가:</span>
+                        <span className="text-gray-600 text-sm">현재가</span>
                         <span className="font-semibold">{formatCurrency(stock.currentPrice)} 포인트</span>
                     </div>
                     <div className="flex justify-between py-1">
-                        <span className="text-gray-600">평균단가:</span>
+                        <span className="text-gray-600 text-sm">평균단가</span>
                         <span className="font-semibold">{formatCurrency(stock.purchasePrice)} 포인트</span>
                     </div>
+                </div>
+                <div className="mb-4">
                     <div className="flex justify-between py-1">
-                        <span className="text-gray-600">보유 포인트:</span>
-                        <span className="font-semibold">{formatCurrency(stock.availablePoints)} 포인트</span>
+                        <span className="text-gray-600 text-sm">보유 포인트</span>
+                        <span className="font-semibold">{formatNumericCurrency(stock.availablePoints)} 포인트</span>
                     </div>
                 </div>
 
@@ -165,7 +169,7 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                 </div>
 
                 {/* 수익률 메시지 */}
-                {stock.quantity > 0 && (
+                {/* {stock.quantity > 0 && (
                     <div className="text-center">
                         <p className={`text-sm ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
                             {isProfit
@@ -174,8 +178,8 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                             }
                         </p>
                     </div>
-                )}
-                
+                )} */}
+
                 {/* 모달들 */}
                 <StockSellModal
                     isOpen={isModalOpen}
@@ -185,7 +189,7 @@ const { isSelling, isModalOpen, handleSell, handleConfirmSell, closeModal } = us
                     onConfirm={handleConfirmSell}
                     formatCurrency={formatCurrency}
                 />
-                
+
                 <EsgCertificateModal
                     isOpen={isEsgModalOpen}
                     onClose={handleEsgClose}
