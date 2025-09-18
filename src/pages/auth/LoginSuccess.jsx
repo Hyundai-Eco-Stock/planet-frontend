@@ -44,10 +44,10 @@ const LoginSuccess = () => {
     }, [accessToken, navigate]);
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>로그인 완료 페이지</h2>
+        <div>
+            {/* <h2>로그인 완료 페이지</h2>
             {accessToken && <p>Access Token 저장 완료</p>}
-            <Link to="/home">홈으로</Link>
+            <Link to="/home">홈으로</Link> */}
         </div>
     );
 }

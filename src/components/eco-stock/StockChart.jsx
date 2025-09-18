@@ -42,10 +42,10 @@ const StockChart = ({ currentData, initialData, loading, height = 350 }) => {
 
     // 정상 차트 렌더링
     return (
-        <div className="w-full h-full relative">
+        <div>
             <div
                 ref={chartContainerRef}
-                className="w-full rounded-xl overflow-hidden border border-gray-300 bg-white"
+                className="w-full rounded-xl border border-gray-300 bg-white"
                 style={{ height: `${height}px` }}
             />
         </div>

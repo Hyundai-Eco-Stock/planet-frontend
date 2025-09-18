@@ -4,6 +4,7 @@ import { fetchCategories } from "../../api/product/product.api";
 import { getRaffleList } from "../../api/raffleList/raffleList.api";
 import { searchTodayAllEcoDealProducts } from "../../api/product/ecoProduct.api";
 import heendyEarth from '@/assets/heendy-earth.png'
+import useAuthStore from "@/store/authStore";
 
 // 배너 클릭 시 이동할 상품 ID는 주석의 숫자를 반영했습니다.
 const DUMMY_BANNERS = [
@@ -72,6 +73,7 @@ const Home = () => {
   // 캐러셀
   const [slide, setSlide] = useState(0);
   const total = DUMMY_BANNERS.length;
+  const { role } = useAuthStore();
 
   // 카테고리
   const [categories, setCategories] = useState([]);
@@ -149,11 +151,11 @@ const Home = () => {
   }, [total]);
 
   return (
-    <div className="max-w-xl bg-white min-h-screen">
+    <div className="bg-white">
 
       {/* 상단 배너 캐러셀 */}
-      <section className="relative -mx-4 mb-6">
-        <div className="relative overflow-hidden">
+      <section className="-mx-4 mb-6">
+        <div className="relative">
           <div
             ref={bannerRef}
             className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide"
@@ -211,7 +213,7 @@ const Home = () => {
                   className="flex-shrink-0 flex flex-col items-center group"
                   aria-label={`${c.name}로 이동`}
                 >
-                  <div className={`w-16 h-16 rounded-full overflow-hidden border transition-all duration-200 ${isAll
+                  <div className={`w-16 h-16 rounded-full border transition-all duration-200 ${isAll
                     ? 'bg-black text-white border-black'
                     : 'bg-white border-gray-200 group-hover:border-gray-300 shadow-sm'
                     }`}>
@@ -244,7 +246,7 @@ const Home = () => {
       </section>
 
       {/* 2x2 기능 그리드 */}
-      <section className="px-4 mb-6">
+      <section className="mb-6">
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/eco-deal/main"
@@ -309,7 +311,7 @@ const Home = () => {
       </section>
 
       {/* 푸드딜 */}
-      <section className="px-4 mb-6">
+      <section className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-black">오늘의 푸드딜</h3>
           <Link to="/eco-deal/main" className="text-sm text-gray-600 hover:text-black">
@@ -334,7 +336,7 @@ const Home = () => {
                   <Link
                     key={deal.productId || deal.id}
                     to={`/eco-deal/detail?productId=${encodeURIComponent(deal.productId || deal.id)}`}
-                    className="flex-shrink-0 w-48 bg-white rounded-xl overflow-hidden hover:bg-gray-50 transition-colors border border-gray-200"
+                    className="flex-shrink-0 w-48 bg-white rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
                   >
                     <div className="aspect-square bg-gray-100 relative">
                       {deal.imageUrl ? (
@@ -372,7 +374,7 @@ const Home = () => {
       </section>
 
       {/* 래플 */}
-      <section className="px-4 mb-6">
+      <section className="mb-6">
         <div className="mb-4">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold text-black">래플 응모하기</h3>
@@ -405,10 +407,10 @@ const Home = () => {
                 to={`/raffle/detail/${encodeURIComponent(r.raffleId)}`}
                 state={{ winnerName: r.winnerName }}
                 aria-label={`${r.productName} 상세 보기`}
-                className="block bg-white rounded-2xl overflow-hidden hover:bg-gray-50 transition-colors border border-gray-200"
+                className="block bg-white rounded-2xl hover:bg-gray-50 transition-colors border border-gray-200"
               >
                 <div className="flex h-36">
-                  <div className="w-36 h-full bg-gray-100 flex-shrink-0 relative overflow-hidden">
+                  <div className="w-36 h-full bg-gray-100 flex-shrink-0 relative">
                     {r.imageUrl ? (
                       <img
                         src={r.imageUrl}
@@ -466,7 +468,7 @@ const Home = () => {
       </section>
 
       {/* 에코스톡 */}
-      <section className="px-4 mb-6">
+      <section className="mb-6">
         <Link
           to="/eco-stock/main"
           className="block relative group"
@@ -511,7 +513,19 @@ const Home = () => {
           </Link>
         </div>
       </section>
-
+      {
+        role == 'ADMIN' &&
+        <div className="
+            w-16 h-16 rounded-full
+            bg-black text-white text-center
+            flex items-center justify-center
+            fixed bottom-24 right-4
+          "
+          onClick={() => { navigate("/admin/home") }}
+        >
+          관리<br />페이지
+        </div>
+      }
     </div>
   );
 };

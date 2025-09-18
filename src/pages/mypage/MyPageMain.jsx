@@ -97,9 +97,9 @@ const MyPageMain = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-white relative">
+        <div className="bg-white">
             {/* 프로필 헤더 */}
-            <div className="bg-white px-4 py-8">
+            <div className="bg-white py-8">
                 {loginStatus ? (
                     <div className="flex flex-col items-center text-center">
                         {/* 단순한 프로필 사진만 표시 */}
@@ -135,7 +135,7 @@ const MyPageMain = () => {
 
             {/* 퀵 액션 카드들 */}
             {loginStatus && (
-                <div className="bg-white px-4 py-6 shadow-sm">
+                <div className="bg-white px-2 py-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-bold text-gray-900">빠른 메뉴</h2>
                         <Link
@@ -173,7 +173,7 @@ const MyPageMain = () => {
             )}
 
             {/* 메뉴 섹션들 */}
-            <div className="bg-white px-4 py-6 pb-12 relative">
+            <div className="bg-white px-2 py-6 pb-12 relative">
                 {menuSections.map((section, sectionIndex) => (
                     <div key={sectionIndex} className="mb-4">
                         <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -205,7 +205,7 @@ const MyPageMain = () => {
 
                 {/* 로그아웃 버튼 */}
                 {loginStatus && (
-                    <div className="flex justify-end px-4">
+                    <div className="flex justify-center pt-2">
                         <button
                             onClick={handleLogout}
                             className="text-sm text-red-500 hover:text-red-600 hover:underline transition-all duration-200"

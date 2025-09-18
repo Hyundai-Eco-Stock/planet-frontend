@@ -25,9 +25,9 @@ const AdminLayout = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="flex flex-col">
             <AdminDashboardHeader />
-            <main className="px-4 overflow-y-auto scrollbar-hide flex-1">
+            <main className="overflow-y-auto scrollbar-hide flex-1">
                 <Outlet />
             </main>
         </div>
