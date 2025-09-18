@@ -45,7 +45,7 @@ const EcoStockMain = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="bg-white">
             {/* 웹소켓 연결 */}
             <StockConnection
                 stockListLoading={stockListLoading}
@@ -56,7 +56,7 @@ const EcoStockMain = () => {
             />
             
             {/* 메인 컨텐츠 컨테이너 */}
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col">
                 {/* 차트 헤더 */}
                 <div className="flex-shrink-0">
                     <StockChartHeader
@@ -70,7 +70,7 @@ const EcoStockMain = () => {
                 </div>
 
                 {/* 스크롤 가능한 컨텐츠 영역 */}
-                <div className="flex-1 overflow-y-auto pb-20">
+                <div className="flex-1 pb-20">
                     {/* 차트 */}
                     <div className="px-4 mb-6">
                         <StockChart
